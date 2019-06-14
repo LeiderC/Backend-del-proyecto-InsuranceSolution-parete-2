@@ -1,0 +1,8 @@
+C:\Users\grone\source\repos\InsuranceSolution\InsuranceBackend.DataAccess\bin\Debug\netstandard2.0\InsuranceBackend.DataAccess.deps.json
+C:\Users\grone\source\repos\InsuranceSolution\InsuranceBackend.DataAccess\bin\Debug\netstandard2.0\InsuranceBackend.DataAccess.dll
+C:\Users\grone\source\repos\InsuranceSolution\InsuranceBackend.DataAccess\obj\Debug\netstandard2.0\InsuranceBackend.DataAccess.csprojAssemblyReference.cache
+C:\Users\grone\source\repos\InsuranceSolution\InsuranceBackend.DataAccess\obj\Debug\netstandard2.0\InsuranceBackend.DataAccess.csproj.CoreCompileInputs.cache
+C:\Users\grone\source\repos\InsuranceSolution\InsuranceBackend.DataAccess\obj\Debug\netstandard2.0\InsuranceBackend.DataAccess.AssemblyInfoInputs.cache
+C:\Users\grone\source\repos\InsuranceSolution\InsuranceBackend.DataAccess\obj\Debug\netstandard2.0\InsuranceBackend.DataAccess.AssemblyInfo.cs
+C:\Users\grone\source\repos\InsuranceSolution\InsuranceBackend.DataAccess\bin\Debug\netstandard2.0\InsuranceBackend.Models.dll
+C:\Users\grone\source\repos\InsuranceSolution\InsuranceBackend.DataAccess\bin\Debug\netstandard2.0\InsuranceBackend.Repositories.dll
