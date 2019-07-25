@@ -13,6 +13,6 @@ namespace InsuranceBackend.Models
         public string Phone { get; set; }
         public string Movil { get; set; }
         public int IdCity { get; set; }
-        public string BirthDate { get; set; }
+        public DateTime BirthDate { get; set; }
     }
 }

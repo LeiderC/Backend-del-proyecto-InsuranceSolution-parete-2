@@ -21,5 +21,13 @@ namespace InsuranceBackend.UnitOfWork
         IIntermediaryRepository Intermediary { get; }
         ITechnicianRepository Technician { get; }
         ISalesmanRepository Salesman { get; }
+        IPolicyRepository policy { get; }
+        ITaskAboutRepository TaskAbout { get; }
+        IPriorityRepository Priority { get; }
+        ITaskRepository Task { get; }
+        IExternalSalesmanRepository ExternalSalesman { get; }
+        ITypeDigitalizedFileRepository TypeDigitalizedFile { get; }
+        IDigitalizedFileRepository DigitalizedFile { get; }
+        IBranchOfficeRepository BranchOffice { get; }
     }
 }
