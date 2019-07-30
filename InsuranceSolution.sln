@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InsuranceBackend.Repositori
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InsuranceBackend.UnitOfWork", "InsuranceBackend.UnitOfWork\InsuranceBackend.UnitOfWork.csproj", "{7596D71B-1726-4CBC-92C2-35ACAFEE84D0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InsuranceBackend.WebApi", "InsuranceBackend.WebApi\InsuranceBackend.WebApi.csproj", "{A17124E3-7E5E-4762-A20D-82CE4B18E206}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{7596D71B-1726-4CBC-92C2-35ACAFEE84D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7596D71B-1726-4CBC-92C2-35ACAFEE84D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7596D71B-1726-4CBC-92C2-35ACAFEE84D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A17124E3-7E5E-4762-A20D-82CE4B18E206}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A17124E3-7E5E-4762-A20D-82CE4B18E206}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A17124E3-7E5E-4762-A20D-82CE4B18E206}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A17124E3-7E5E-4762-A20D-82CE4B18E206}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -48,6 +54,7 @@ Global
 		{F34BF903-69C0-451C-8B51-40A52418F0C9} = {C2E29CBE-E660-4D96-BEA7-EFA913A3D317}
 		{2AE88DCC-2A03-49B5-8080-9A58011FB6D7} = {C2E29CBE-E660-4D96-BEA7-EFA913A3D317}
 		{7596D71B-1726-4CBC-92C2-35ACAFEE84D0} = {C2E29CBE-E660-4D96-BEA7-EFA913A3D317}
+		{A17124E3-7E5E-4762-A20D-82CE4B18E206} = {34EB7659-870D-40DF-9306-252EF45F97A6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {298E0997-F4A7-437D-8655-F9D2DD6BBE2C}
