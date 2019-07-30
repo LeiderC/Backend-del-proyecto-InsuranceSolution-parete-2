@@ -4,6 +4,7 @@ namespace InsuranceBackend.Repositories
 {
     public interface IUserRepository: IRepository<User>
     {
-        User ValidateUser(string email, string password);
+        User ValidateUser(string login, string password);
+        User ValidateUserPassword(string login, string password);
     }
 }
