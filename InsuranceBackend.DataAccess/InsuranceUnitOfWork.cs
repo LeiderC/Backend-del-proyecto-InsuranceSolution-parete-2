@@ -24,6 +24,14 @@ namespace InsuranceBackend.DataAccess
             Intermediary = new IntermediaryRepository(connectionString);
             Technician = new TechnicianRepository(connectionString);
             Salesman = new SalesmanRepository(connectionString);
+            Policy = new PolicyRepository(connectionString);
+            TaskAbout = new TaskAboutRepository(connectionString);
+            Priority = new PriorityRepository(connectionString);
+            Task = new TaskRepository(connectionString);
+            ExternalSalesman = new ExternalSalesmanRepository(connectionString);
+            TypeDigitalizedFile = new TypeDigitalizedFileRepository(connectionString);
+            DigitalizedFile = new DigitalizedFileRepository(connectionString);
+            BranchOffice = new BranchOfficeRepository(connectionString);
         }
         public ICityRepository City { get; private set; }
         public ICountryRepository Country { get; private set; }
@@ -42,5 +50,13 @@ namespace InsuranceBackend.DataAccess
         public IIntermediaryRepository Intermediary { get; private set; }
         public ITechnicianRepository Technician { get; private set; }
         public ISalesmanRepository Salesman { get; private set; }
+        public IPolicyRepository Policy { get; private set; }
+        public ITaskAboutRepository TaskAbout { get; private set; }
+        public IPriorityRepository Priority { get; private set; }
+        public ITaskRepository Task { get; private set; }
+        public IExternalSalesmanRepository ExternalSalesman { get; private set; }
+        public ITypeDigitalizedFileRepository TypeDigitalizedFile { get; private set; }
+        public IDigitalizedFileRepository DigitalizedFile { get; private set; }
+        public IBranchOfficeRepository BranchOffice { get; private set; }
     }
 }
