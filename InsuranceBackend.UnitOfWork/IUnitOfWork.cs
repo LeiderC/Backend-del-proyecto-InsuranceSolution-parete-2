@@ -21,7 +21,7 @@ namespace InsuranceBackend.UnitOfWork
         IIntermediaryRepository Intermediary { get; }
         ITechnicianRepository Technician { get; }
         ISalesmanRepository Salesman { get; }
-        IPolicyRepository policy { get; }
+        IPolicyRepository Policy { get; }
         ITaskAboutRepository TaskAbout { get; }
         IPriorityRepository Priority { get; }
         ITaskRepository Task { get; }
