@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using System.Collections.Generic;
 using InsuranceBackend.Models;
 using InsuranceBackend.Repositories;
 using System.Data.SqlClient;
@@ -39,6 +40,19 @@ namespace InsuranceBackend.DataAccess
                 user = null;
 
             return user;
+        }
+
+        public IEnumerable<UserList> UserPagedList(int page, int rows)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@page", page);
+            parameters.Add("@rows", rows);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<UserList>("dbo.UserPagedList", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
         }
 
     }

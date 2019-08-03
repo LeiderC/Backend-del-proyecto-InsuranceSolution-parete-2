@@ -1,4 +1,5 @@
-﻿using InsuranceBackend.Models;
+﻿using System.Collections.Generic;
+using InsuranceBackend.Models;
 
 namespace InsuranceBackend.Repositories
 {
@@ -6,5 +7,6 @@ namespace InsuranceBackend.Repositories
     {
         User ValidateUser(string login, string password);
         User ValidateUserPassword(string login, string password);
+        IEnumerable<UserList> UserPagedList(int page, int rows);
     }
 }
