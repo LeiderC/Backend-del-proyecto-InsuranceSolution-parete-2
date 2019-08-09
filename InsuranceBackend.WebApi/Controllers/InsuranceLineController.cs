@@ -24,62 +24,80 @@ namespace InsuranceBackend.WebApi.Controllers
         [Route("{id:int}")]
         public IActionResult GetById(int id)
         {
-            return Ok(_unitOfWork.InsuranceLine.GetById(id));
+            try
+            {
+                return Ok(_unitOfWork.InsuranceLine.GetById(id));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
         [HttpGet]
         [Route("GetPaginatedInsuranceLine/{page:int}/{rows:int}")]
         public IActionResult GetPaginatedInsuranceLine(int page, int rows)
         {
-            return Ok(_unitOfWork.InsuranceLine.InsuranceLinePagedList(page, rows));
+            try
+            {
+                return Ok(_unitOfWork.InsuranceLine.InsuranceLinePagedList(page, rows));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
         [HttpPost]
         public IActionResult Post([FromBody]InsuranceLine insuranceLine)
         {
-            if (!ModelState.IsValid)
-                return BadRequest();
-            return Ok(_unitOfWork.InsuranceLine.Insert(insuranceLine));
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest();
+                return Ok(_unitOfWork.InsuranceLine.Insert(insuranceLine));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
         [HttpPut]
         public IActionResult Put([FromBody]InsuranceLine insuranceLine)
         {
-            if (ModelState.IsValid && _unitOfWork.InsuranceLine.Update(insuranceLine))
+            try
             {
-                return Ok(new { Message = "El ramo se ha actualizado" });
+                if (ModelState.IsValid && _unitOfWork.InsuranceLine.Update(insuranceLine))
+                {
+                    return Ok(new { Message = "El ramo se ha actualizado" });
+                }
+                else
+                    return BadRequest();
             }
-            else
-                return BadRequest();
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var line = _unitOfWork.InsuranceLine.GetById(id);
-            if (line == null)
-                return NotFound();
-            return Ok(_unitOfWork.InsuranceLine.Delete(line));
+            try
+            {
+                var line = _unitOfWork.InsuranceLine.GetById(id);
+                if (line == null)
+                    return NotFound();
+                if (_unitOfWork.InsuranceLine.Delete(line))
+                    return Ok(new { Message = "El ramo se ha eliminado" });
+                else
+                    return BadRequest();
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
     }
 }
-/*try
-	{
-		var owner = _repository.Owner.GetOwnerById(id);
-		if(owner.IsEmptyObject())
-		{
-			_logger.LogError($"Owner with id: {id}, hasn't been found in db.");
-			return NotFound();
-		}
- 
-		_repository.Owner.DeleteOwner(owner);
-                _repository.Save();
- 
-		return NoContent();
-	}
-	catch (Exception ex)
-	{
-		_logger.LogError($"Something went wrong inside DeleteOwner action: {ex.Message}");
-		return StatusCode(500, "Internal server error");
-	}
-*/
