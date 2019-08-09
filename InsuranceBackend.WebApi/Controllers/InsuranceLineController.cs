@@ -53,14 +53,33 @@ namespace InsuranceBackend.WebApi.Controllers
                 return BadRequest();
         }
 
-        [HttpDelete]
-        public IActionResult Delete([FromBody]InsuranceLine insuranceLine)
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
         {
-            if (insuranceLine.Id > 0)
-                return Ok(_unitOfWork.InsuranceLine.Delete(insuranceLine
-                    ));
-            else
-                return BadRequest();
+            var line = _unitOfWork.InsuranceLine.GetById(id);
+            if (line == null)
+                return NotFound();
+            return Ok(_unitOfWork.InsuranceLine.Delete(line));
         }
     }
 }
+/*try
+	{
+		var owner = _repository.Owner.GetOwnerById(id);
+		if(owner.IsEmptyObject())
+		{
+			_logger.LogError($"Owner with id: {id}, hasn't been found in db.");
+			return NotFound();
+		}
+ 
+		_repository.Owner.DeleteOwner(owner);
+                _repository.Save();
+ 
+		return NoContent();
+	}
+	catch (Exception ex)
+	{
+		_logger.LogError($"Something went wrong inside DeleteOwner action: {ex.Message}");
+		return StatusCode(500, "Internal server error");
+	}
+*/
