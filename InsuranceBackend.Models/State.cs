@@ -9,6 +9,6 @@ namespace InsuranceBackend.Models
         public int Id { get; set; }
         public string Code { get; set; }
         public string Description { get; set; }
-        public string Idountry { get; set; }
+        public string IdCountry { get; set; }
     }
 }
