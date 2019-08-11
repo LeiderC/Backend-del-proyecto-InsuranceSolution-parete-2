@@ -24,43 +24,84 @@ namespace InsuranceBackend.WebApi.Controllers
         [Route("{id:int}")]
         public IActionResult GetById(int id)
         {
-            return Ok(_unitOfWork.State.GetById(id));
+            try
+            {
+                return Ok(_unitOfWork.State.GetById(id));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+
 
         [HttpGet]
         [Route("GetPaginatedState/{page:int}/{rows:int}")]
         public IActionResult GetPaginatedState(int page, int rows)
         {
-            return Ok(_unitOfWork.State.StatePagedList(page, rows));
+            try
+            {
+                return Ok(_unitOfWork.State.StatePagedList(page, rows));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+
 
         [HttpPost]
         public IActionResult Post([FromBody]State state)
         {
-            if (!ModelState.IsValid)
+            try
+            {
+                if (!ModelState.IsValid)
                 return BadRequest();
             return Ok(_unitOfWork.State.Insert(state));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+
 
         [HttpPut]
         public IActionResult Put([FromBody]State state)
         {
-            if (ModelState.IsValid && _unitOfWork.State.Update(state))
+            try
             {
-                return Ok(new { Message = "El estado se ha actualizado" });
+                if (ModelState.IsValid && _unitOfWork.State.Update(state))
+            {
+                return Ok(new { Message = "Estado se ha actualizado" });
             }
             else
                 return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
-        [HttpDelete]
-        public IActionResult Delete([FromBody]State state)
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
         {
-            if (state.Id > 0)
-                return Ok(_unitOfWork.State.Delete(state
-                    ));
-            else
-                return BadRequest();
+            try
+            {
+                var state = _unitOfWork.State.GetById(id);
+                if (state == null)
+                    return NotFound();
+                if (_unitOfWork.State.Delete(state))
+                    return Ok(new { Message = "Estado se ha eliminado" });
+                else
+                    return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
     }
 }

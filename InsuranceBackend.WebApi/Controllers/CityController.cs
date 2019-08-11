@@ -24,43 +24,82 @@ namespace InsuranceBackend.WebApi.Controllers
         [Route("{id:int}")]
         public IActionResult GetById(int id)
         {
-            return Ok(_unitOfWork.City.GetById(id));
+            try
+            {
+                return Ok(_unitOfWork.City.GetById(id));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+
 
         [HttpGet]
         [Route("GetPaginatedCity/{page:int}/{rows:int}")]
         public IActionResult GetPaginatedCity(int page, int rows)
         {
-            return Ok(_unitOfWork.City.CityPagedList(page, rows));
+            try
+            {
+                return Ok(_unitOfWork.City.CityPagedList(page, rows));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+
 
         [HttpPost]
         public IActionResult Post([FromBody]City city)
         {
-            if (!ModelState.IsValid)
+            try
+            {
+                if (!ModelState.IsValid)
                 return BadRequest();
-            return Ok(_unitOfWork.City.Insert(city));
+                return Ok(_unitOfWork.City.Insert(city));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
         [HttpPut]
         public IActionResult Put([FromBody]City city)
         {
-            if (ModelState.IsValid && _unitOfWork.City.Update(city))
+            try
             {
-                return Ok(new { Message = "La ciudad se ha actualizado" });
+                    if (ModelState.IsValid && _unitOfWork.City.Update(city))
+                {
+                    return Ok(new { Message = "Ciudad se ha actualizado" });
+                }
+                else
+                    return BadRequest();
             }
-            else
-                return BadRequest();
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
-        [HttpDelete]
-        public IActionResult Delete([FromBody]City city)
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
         {
-            if (city.Id > 0)
-                return Ok(_unitOfWork.City.Delete(city
-                    ));
-            else
-                return BadRequest();
+            try
+            {
+                var city = _unitOfWork.City.GetById(id);
+                if (city == null)
+                    return NotFound();
+                if (_unitOfWork.City.Delete(city))
+                    return Ok(new { Message = "Ciudad se ha eliminado" });
+                else
+                    return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
     }
 }

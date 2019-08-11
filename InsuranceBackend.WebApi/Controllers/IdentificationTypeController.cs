@@ -24,43 +24,84 @@ namespace InsuranceBackend.WebApi.Controllers
         [Route("{id:int}")]
         public IActionResult GetById(int id)
         {
-            return Ok(_unitOfWork.IdentificationType.GetById(id));
+            try
+            {
+                return Ok(_unitOfWork.IdentificationType.GetById(id));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+
 
         [HttpGet]
         [Route("GetPaginatedIdentificationType/{page:int}/{rows:int}")]
         public IActionResult GetPaginatedIdentificationType(int page, int rows)
         {
-            return Ok(_unitOfWork.IdentificationType.IdentificationTypePagedList(page, rows));
+            try
+            {
+                return Ok(_unitOfWork.IdentificationType.IdentificationTypePagedList(page, rows));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+
 
         [HttpPost]
         public IActionResult Post([FromBody]IdentificationType identificationType)
         {
-            if (!ModelState.IsValid)
+            try
+            {
+                if (!ModelState.IsValid)
                 return BadRequest();
             return Ok(_unitOfWork.IdentificationType.Insert(identificationType));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+
 
         [HttpPut]
         public IActionResult Put([FromBody]IdentificationType identificationType)
         {
-            if (ModelState.IsValid && _unitOfWork.IdentificationType.Update(identificationType))
+            try
             {
-                return Ok(new { Message = "El tipo de identificacion se ha actualizado" });
+                if (ModelState.IsValid && _unitOfWork.IdentificationType.Update(identificationType))
+            {
+                return Ok(new { Message = "Tipo de identificacion se ha actualizado" });
             }
             else
                 return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
-        [HttpDelete]
-        public IActionResult Delete([FromBody]IdentificationType identificationType)
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
         {
-            if (identificationType.Id > 0)
-                return Ok(_unitOfWork.IdentificationType.Delete(identificationType
-                    ));
-            else
-                return BadRequest();
+            try
+            {
+                var identificationType = _unitOfWork.IdentificationType.GetById(id);
+                if (identificationType == null)
+                    return NotFound();
+                if (_unitOfWork.IdentificationType.Delete(identificationType))
+                    return Ok(new { Message = "Tipo de identificacion se ha eliminado" });
+                else
+                    return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
     }
 }

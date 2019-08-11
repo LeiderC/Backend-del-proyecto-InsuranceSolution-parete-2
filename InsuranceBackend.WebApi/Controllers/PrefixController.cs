@@ -24,43 +24,84 @@ namespace InsuranceBackend.WebApi.Controllers
         [Route("{id:int}")]
         public IActionResult GetById(int id)
         {
-            return Ok(_unitOfWork.Prefix.GetById(id));
+            try
+            {
+                return Ok(_unitOfWork.Prefix.GetById(id));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+
 
         [HttpGet]
         [Route("GetPaginatedPrefix/{page:int}/{rows:int}")]
         public IActionResult GetPaginatedPrefix(int page, int rows)
         {
-            return Ok(_unitOfWork.Prefix.PrefixPagedList(page, rows));
+            try
+            {
+                return Ok(_unitOfWork.Prefix.PrefixPagedList(page, rows));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+
 
         [HttpPost]
         public IActionResult Post([FromBody]Prefix prefix)
         {
-            if (!ModelState.IsValid)
+            try
+            {
+                if (!ModelState.IsValid)
                 return BadRequest();
-            return Ok(_unitOfWork.Prefix.Insert(prefix));
+                return Ok(_unitOfWork.Prefix.Insert(prefix));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+
 
         [HttpPut]
         public IActionResult Put([FromBody]Prefix prefix)
         {
-            if (ModelState.IsValid && _unitOfWork.Prefix.Update(prefix))
+            try
             {
-                return Ok(new { Message = "El prefijo se ha actualizado" });
+                    if (ModelState.IsValid && _unitOfWork.Prefix.Update(prefix))
+                {
+                    return Ok(new { Message = "Prefijo se ha actualizado" });
+                }
+                else
+                    return BadRequest();
             }
-            else
-                return BadRequest();
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
-        [HttpDelete]
-        public IActionResult Delete([FromBody]Prefix prefix)
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
         {
-            if (prefix.Id > 0)
-                return Ok(_unitOfWork.Prefix.Delete(prefix
-                    ));
-            else
-                return BadRequest();
+            try
+            {
+                var prefix = _unitOfWork.Prefix.GetById(id);
+                if (prefix == null)
+                    return NotFound();
+                if (_unitOfWork.Prefix.Delete(prefix))
+                    return Ok(new { Message = "Prefijo se ha eliminado" });
+                else
+                    return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
     }
 }

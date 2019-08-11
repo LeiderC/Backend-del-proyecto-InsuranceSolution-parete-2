@@ -24,43 +24,84 @@ namespace InsuranceBackend.WebApi.Controllers
         [Route("{id:int}")]
         public IActionResult GetById(int id)
         {
-            return Ok(_unitOfWork.Priority.GetById(id));
+            try
+            {
+                return Ok(_unitOfWork.Priority.GetById(id));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+
 
         [HttpGet]
         [Route("GetPaginatedPriority/{page:int}/{rows:int}")]
         public IActionResult GetPaginatedPriority(int page, int rows)
         {
-            return Ok(_unitOfWork.Priority.PriorityPagedList(page, rows));
+            try
+            {
+                return Ok(_unitOfWork.Priority.PriorityPagedList(page, rows));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+
 
         [HttpPost]
         public IActionResult Post([FromBody]Priority priority)
         {
-            if (!ModelState.IsValid)
+            try
+            {
+                if (!ModelState.IsValid)
                 return BadRequest();
-            return Ok(_unitOfWork.Priority.Insert(priority));
+                return Ok(_unitOfWork.Priority.Insert(priority));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+
 
         [HttpPut]
         public IActionResult Put([FromBody]Priority priority)
         {
-            if (ModelState.IsValid && _unitOfWork.Priority.Update(priority))
+            try
             {
-                return Ok(new { Message = "El prioridad se ha actualizado" });
+                if (ModelState.IsValid && _unitOfWork.Priority.Update(priority))
+            {
+                return Ok(new { Message = "Prioridad se ha actualizado" });
             }
             else
                 return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
-        [HttpDelete]
-        public IActionResult Delete([FromBody]Priority priority)
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
         {
-            if (priority.Id > 0)
-                return Ok(_unitOfWork.Priority.Delete(priority
-                    ));
-            else
-                return BadRequest();
+            try
+            {
+                var priority = _unitOfWork.Priority.GetById(id);
+                if (priority == null)
+                    return NotFound();
+                if (_unitOfWork.Priority.Delete(priority))
+                    return Ok(new { Message = "Prioridad se ha eliminado" });
+                else
+                    return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
     }
 }

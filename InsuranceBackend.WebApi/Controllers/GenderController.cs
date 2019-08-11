@@ -24,43 +24,84 @@ namespace InsuranceBackend.WebApi.Controllers
         [Route("{id:int}")]
         public IActionResult GetById(int id)
         {
-            return Ok(_unitOfWork.Gender.GetById(id));
+            try
+            {
+                return Ok(_unitOfWork.Gender.GetById(id));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+
 
         [HttpGet]
         [Route("GetPaginatedGender/{page:int}/{rows:int}")]
         public IActionResult GetPaginatedGender(int page, int rows)
         {
-            return Ok(_unitOfWork.Gender.GenderPagedList(page, rows));
+            try
+            {
+                return Ok(_unitOfWork.Gender.GenderPagedList(page, rows));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+
 
         [HttpPost]
         public IActionResult Post([FromBody]Gender gender)
         {
-            if (!ModelState.IsValid)
+            try
+            {
+                if (!ModelState.IsValid)
                 return BadRequest();
-            return Ok(_unitOfWork.Gender.Insert(gender));
+                return Ok(_unitOfWork.Gender.Insert(gender));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+
 
         [HttpPut]
         public IActionResult Put([FromBody]Gender gender)
         {
-            if (ModelState.IsValid && _unitOfWork.Gender.Update(gender))
+            try
             {
-                return Ok(new { Message = "El genero se ha actualizado" });
+                if (ModelState.IsValid && _unitOfWork.Gender.Update(gender))
+            {
+                return Ok(new { Message = "Genero se ha actualizado" });
             }
             else
                 return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
-        [HttpDelete]
-        public IActionResult Delete([FromBody]Gender gender)
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
         {
-            if (gender.Id > 0)
-                return Ok(_unitOfWork.Gender.Delete(gender
-                    ));
-            else
-                return BadRequest();
+            try
+            {
+                var gender = _unitOfWork.Gender.GetById(id);
+                if (gender == null)
+                    return NotFound();
+                if (_unitOfWork.Gender.Delete(gender))
+                    return Ok(new { Message = "Genero se ha eliminado" });
+                else
+                    return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
     }
 }

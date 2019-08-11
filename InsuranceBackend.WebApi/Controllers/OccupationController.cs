@@ -24,43 +24,84 @@ namespace InsuranceBackend.WebApi.Controllers
         [Route("{id:int}")]
         public IActionResult GetById(int id)
         {
-            return Ok(_unitOfWork.Occupation.GetById(id));
+            try
+            {
+                return Ok(_unitOfWork.Occupation.GetById(id));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+
 
         [HttpGet]
         [Route("GetPaginatedOccupation/{page:int}/{rows:int}")]
         public IActionResult GetPaginatedOccupation(int page, int rows)
         {
-            return Ok(_unitOfWork.Occupation.OccupationPagedList(page, rows));
+            try
+            {
+                return Ok(_unitOfWork.Occupation.OccupationPagedList(page, rows));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+
 
         [HttpPost]
         public IActionResult Post([FromBody]Occupation occupation)
         {
-            if (!ModelState.IsValid)
+            try
+            {
+                if (!ModelState.IsValid)
                 return BadRequest();
-            return Ok(_unitOfWork.Occupation.Insert(occupation));
+                return Ok(_unitOfWork.Occupation.Insert(occupation));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+
 
         [HttpPut]
         public IActionResult Put([FromBody]Occupation occupation)
         {
-            if (ModelState.IsValid && _unitOfWork.Occupation.Update(occupation))
+            try
+            {
+                if (ModelState.IsValid && _unitOfWork.Occupation.Update(occupation))
             {
                 return Ok(new { Message = "La ocupacion se ha actualizado" });
             }
             else
                 return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
-        [HttpDelete]
-        public IActionResult Delete([FromBody]Occupation occupation)
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
         {
-            if (occupation.Id > 0)
-                return Ok(_unitOfWork.Occupation.Delete(occupation
-                    ));
-            else
-                return BadRequest();
+            try
+            {
+                var occupation = _unitOfWork.Occupation.GetById(id);
+                if (occupation == null)
+                    return NotFound();
+                if (_unitOfWork.Occupation.Delete(occupation))
+                    return Ok(new { Message = "La ocupacion se ha eliminado" });
+                else
+                    return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
     }
 }

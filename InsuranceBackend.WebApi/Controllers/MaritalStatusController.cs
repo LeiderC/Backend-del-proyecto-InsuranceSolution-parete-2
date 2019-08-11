@@ -24,43 +24,84 @@ namespace InsuranceBackend.WebApi.Controllers
         [Route("{id:int}")]
         public IActionResult GetById(int id)
         {
-            return Ok(_unitOfWork.MaritalStatus.GetById(id));
+            try
+            {
+                return Ok(_unitOfWork.MaritalStatus.GetById(id));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+
 
         [HttpGet]
         [Route("GetPaginatedMaritalStatus/{page:int}/{rows:int}")]
         public IActionResult GetPaginatedMaritalStatus(int page, int rows)
         {
-            return Ok(_unitOfWork.MaritalStatus.MaritalStatusPagedList(page, rows));
+            try
+            {
+                return Ok(_unitOfWork.MaritalStatus.MaritalStatusPagedList(page, rows));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+
 
         [HttpPost]
         public IActionResult Post([FromBody]MaritalStatus maritalStatus)
         {
-            if (!ModelState.IsValid)
+            try
+            {
+                if (!ModelState.IsValid)
                 return BadRequest();
-            return Ok(_unitOfWork.MaritalStatus.Insert(maritalStatus));
+                return Ok(_unitOfWork.MaritalStatus.Insert(maritalStatus));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+
 
         [HttpPut]
         public IActionResult Put([FromBody]MaritalStatus maritalStatus)
         {
-            if (ModelState.IsValid && _unitOfWork.MaritalStatus.Update(maritalStatus))
+            try
             {
-                return Ok(new { Message = "El estado civil se ha actualizado" });
+                if (ModelState.IsValid && _unitOfWork.MaritalStatus.Update(maritalStatus))
+            {
+                return Ok(new { Message = "Estado civil se ha actualizado" });
             }
             else
                 return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
-        [HttpDelete]
-        public IActionResult Delete([FromBody]MaritalStatus maritalStatus)
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
         {
-            if (maritalStatus.Id > 0)
-                return Ok(_unitOfWork.MaritalStatus.Delete(maritalStatus
-                    ));
-            else
-                return BadRequest();
+            try
+            {
+                var maritalStatus = _unitOfWork.MaritalStatus.GetById(id);
+                if (maritalStatus == null)
+                    return NotFound();
+                if (_unitOfWork.MaritalStatus.Delete(maritalStatus))
+                    return Ok(new { Message = "Estado se ha eliminado" });
+                else
+                    return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
     }
 }

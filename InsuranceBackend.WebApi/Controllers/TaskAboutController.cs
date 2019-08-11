@@ -24,43 +24,84 @@ namespace InsuranceBackend.WebApi.Controllers
         [Route("{id:int}")]
         public IActionResult GetById(int id)
         {
-            return Ok(_unitOfWork.TaskAbout.GetById(id));
+            try
+            {
+                return Ok(_unitOfWork.TaskAbout.GetById(id));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+
 
         [HttpGet]
         [Route("GetPaginatedTaskAbout/{page:int}/{rows:int}")]
         public IActionResult GetPaginatedTaskAbout(int page, int rows)
         {
-            return Ok(_unitOfWork.TaskAbout.TaskAboutPagedList(page, rows));
+            try
+            {
+                return Ok(_unitOfWork.TaskAbout.TaskAboutPagedList(page, rows));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+
 
         [HttpPost]
         public IActionResult Post([FromBody]TaskAbout taskAbout)
         {
-            if (!ModelState.IsValid)
+            try
+            {
+                if (!ModelState.IsValid)
                 return BadRequest();
             return Ok(_unitOfWork.TaskAbout.Insert(taskAbout));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+
 
         [HttpPut]
         public IActionResult Put([FromBody]TaskAbout taskAbout)
         {
-            if (ModelState.IsValid && _unitOfWork.TaskAbout.Update(taskAbout))
+            try
             {
-                return Ok(new { Message = "El tarea sobre, se ha actualizado" });
+                if (ModelState.IsValid && _unitOfWork.TaskAbout.Update(taskAbout))
+                {
+                    return Ok(new { Message = "Tarea sobre, se ha actualizado" });
+                }
+                else
+                    return BadRequest();
             }
-            else
-                return BadRequest();
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
-        [HttpDelete]
-        public IActionResult Delete([FromBody]TaskAbout taskAbout)
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
         {
-            if (taskAbout.Id > 0)
-                return Ok(_unitOfWork.TaskAbout.Delete(taskAbout
-                    ));
-            else
-                return BadRequest();
+            try
+            {
+                var taskAbout = _unitOfWork.TaskAbout.GetById(id);
+                if (taskAbout == null)
+                    return NotFound();
+                if (_unitOfWork.TaskAbout.Delete(taskAbout))
+                    return Ok(new { Message = "Tarea sobre se ha eliminado" });
+                else
+                    return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
     }
 }
