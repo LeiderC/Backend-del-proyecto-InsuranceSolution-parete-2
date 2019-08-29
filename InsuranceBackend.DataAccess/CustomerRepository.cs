@@ -12,11 +12,12 @@ namespace InsuranceBackend.DataAccess
         {
         }
 
-        public IEnumerable<CustomerList> CustomerPagedList(int page, int rows)
+        public IEnumerable<CustomerList> CustomerPagedList(int page, int rows, string searchTerm)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@page", page);
             parameters.Add("@rows", rows);
+            parameters.Add("@searchTerm", searchTerm);
 
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -24,5 +25,18 @@ namespace InsuranceBackend.DataAccess
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }
+
+        public IEnumerable<CustomerList> CustomerByIdentificationNumber(string identificationNumber)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@identificationNumber", identificationNumber);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<CustomerList>("dbo.CustomerByIdentificationNumber", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
     }
 }

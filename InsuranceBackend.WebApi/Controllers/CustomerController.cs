@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using InsuranceBackend.Models;
 using InsuranceBackend.UnitOfWork;
+using InsuranceBackend.WebApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,43 +25,94 @@ namespace InsuranceBackend.WebApi.Controllers
         [Route("{id:int}")]
         public IActionResult GetById(int id)
         {
-            return Ok(_unitOfWork.Customer.GetById(id));
+            try
+            {
+                return Ok(_unitOfWork.Customer.GetById(id));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
-        [HttpGet]
-        [Route("GetPaginatedCustomer/{page:int}/{rows:int}")]
-        public IActionResult GetPaginatedCustomer(int page, int rows)
+        [HttpPost]
+        [Route("GetCustomerByIdentification")]
+        public IActionResult GetCustomerByIdentification([FromBody]GetPaginatedSearchTerm request)
         {
-            return Ok(_unitOfWork.Customer.CustomerPagedList(page, rows));
+            try
+            {
+                return Ok(_unitOfWork.Customer.CustomerByIdentificationNumber(request.SearchTerm));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("GetPaginatedCustomer")]
+        public IActionResult GetPaginatedCustomer([FromBody]GetPaginatedSearchTerm request)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Customer.CustomerPagedList(request.Page, request.Rows, request.SearchTerm));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
         [HttpPost]
         public IActionResult Post([FromBody]Customer customer)
         {
-            if (!ModelState.IsValid)
-                return BadRequest();
-            return Ok(_unitOfWork.Customer.Insert(customer));
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest();
+                return Ok(_unitOfWork.Customer.Insert(customer));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
         [HttpPut]
         public IActionResult Put([FromBody]Customer customer)
         {
-            if (ModelState.IsValid && _unitOfWork.Customer.Update(customer))
+            try
             {
-                return Ok(new { Message = "El cliente se ha actualizado" });
+                if (ModelState.IsValid && _unitOfWork.Customer.Update(customer))
+                {
+                    return Ok(new { Message = "El cliente se ha actualizado" });
+                }
+                else
+                    return BadRequest();
             }
-            else
-                return BadRequest();
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
-        [HttpDelete]
-        public IActionResult Delete([FromBody]Customer customer)
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
         {
-            if (customer.Id > 0)
-                return Ok(_unitOfWork.Customer.Delete(customer
-                    ));
-            else
-                return BadRequest();
+            try
+            {
+                var customer = _unitOfWork.Customer.GetById(id);
+                if (customer == null)
+                    return NotFound();
+                if(_unitOfWork.Customer.Delete(customer))
+                    return Ok(new { Message = "Cliente eliminado" });
+                else
+                    return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
     }
 }

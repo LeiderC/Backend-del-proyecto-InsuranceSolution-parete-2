@@ -28,7 +28,7 @@ namespace InsuranceBackend.DataAccess
         public IEnumerable<City> CityByState(int idState)
         {
             var parameters = new DynamicParameters();
-            parameters.Add("@state", idState);
+            parameters.Add("@idState", idState);
 
             using (var connection = new SqlConnection(_connectionString))
             {
