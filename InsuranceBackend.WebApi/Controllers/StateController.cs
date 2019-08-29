@@ -34,6 +34,20 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("GetStateByCountry/{idCountry:int}")]
+        public IActionResult GetStateByCountry(int idCountry)
+        {
+            try
+            {
+                return Ok(_unitOfWork.State.StateByCountry(idCountry));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
 
         [HttpGet]
         [Route("GetPaginatedState/{page:int}/{rows:int}")]

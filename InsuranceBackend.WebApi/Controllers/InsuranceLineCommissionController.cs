@@ -10,27 +10,14 @@ using Microsoft.AspNetCore.Mvc;
 namespace InsuranceBackend.WebApi.Controllers
 {
     [Produces("application/json")]
-    [Route("api/customerType")]
+    [Route("api/insuranceLineCommission")]
     [Authorize]
-    public class CustomerTypeController : Controller
+    public class InsuranceLineCommissionController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-        public CustomerTypeController(IUnitOfWork unitOfWork)
+        public InsuranceLineCommissionController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-        }
-
-        [HttpGet]
-        public IActionResult Get()
-        {
-            try
-            {
-                return Ok(_unitOfWork.CustomerType.GetList());
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Internal server error: " + ex.Message);
-            }
         }
 
         [HttpGet]
@@ -39,7 +26,7 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                return Ok(_unitOfWork.CustomerType.GetById(id));
+                return Ok(_unitOfWork.InsuranceLineCommission.GetById(id));
             }
             catch (Exception ex)
             {
@@ -47,14 +34,13 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
-
         [HttpGet]
-        [Route("GetPaginatedCustomerType/{page:int}/{rows:int}")]
-        public IActionResult GetPaginatedCustomerType(int page, int rows)
+        [Route("GetPaginatedInsuranceLineCommission/{idInsuranceLine:int}/{page:int}/{rows:int}")]
+        public IActionResult GetPaginatedInsuranceLineCommission(int idInsuranceLine, int page, int rows)
         {
             try
             {
-                return Ok(_unitOfWork.CustomerType.CustomerTypePagedList(page, rows));
+                return Ok(_unitOfWork.InsuranceLineCommission.InsuranceLineCommissionPagedList(idInsuranceLine, page, rows));
             }
             catch (Exception ex)
             {
@@ -62,34 +48,32 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
-
         [HttpPost]
-        public IActionResult Post([FromBody]CustomerType customerType)
+        public IActionResult Post([FromBody]InsuranceLineCommission insuranceLineCommission)
         {
             try
             {
                 if (!ModelState.IsValid)
-                return BadRequest();
-            return Ok(_unitOfWork.CustomerType.Insert(customerType));
+                    return BadRequest();
+                return Ok(_unitOfWork.InsuranceLineCommission.Insert(insuranceLineCommission));
             }
             catch (Exception ex)
             {
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
-
 
         [HttpPut]
-        public IActionResult Put([FromBody]CustomerType customerType)
+        public IActionResult Put([FromBody]InsuranceLineCommission insuranceLineCommission)
         {
             try
             {
-                if (ModelState.IsValid && _unitOfWork.CustomerType.Update(customerType))
-            {
-                return Ok(new { Message = "Tipo de cliente se ha actualizado" });
-            }
-            else
-                return BadRequest();
+                if (ModelState.IsValid && _unitOfWork.InsuranceLineCommission.Update(insuranceLineCommission))
+                {
+                    return Ok(new { Message = "La comisión pactada se ha actualizado" });
+                }
+                else
+                    return BadRequest();
             }
             catch (Exception ex)
             {
@@ -97,17 +81,16 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
-
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        [HttpDelete("{id}/{id2}")]
+        public IActionResult Delete(int id, int id2)
         {
             try
             {
-                var customerType = _unitOfWork.CustomerType.GetById(id);
-                if (customerType == null)
+                var insuranceLineCommission = _unitOfWork.InsuranceLineCommission.InsuranceLineCommissionSingle(id, id2);
+                if (insuranceLineCommission == null)
                     return NotFound();
-                if (_unitOfWork.CustomerType.Delete(customerType))
-                    return Ok(new { Message = "Tipo de cliente se ha eliminado" });
+                if (_unitOfWork.InsuranceLineCommission.Delete(insuranceLineCommission))
+                    return Ok(new { Message = "La comisión pactada se ha eliminado" });
                 else
                     return BadRequest();
             }

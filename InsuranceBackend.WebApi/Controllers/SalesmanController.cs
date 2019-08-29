@@ -21,6 +21,19 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpGet]
+        public IActionResult Get()
+        {
+            try
+            {
+                return Ok(_unitOfWork.Salesman.GetList());
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpGet]
         [Route("{id:int}")]
         public IActionResult GetById(int id)
         {

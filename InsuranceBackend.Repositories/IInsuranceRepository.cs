@@ -4,8 +4,9 @@ using System.Collections.Generic;
 
 namespace InsuranceBackend.Repositories
 {
-    public interface IInsuranceRepository: IRepository<Insurance>
+    public interface IInsuranceRepository : IRepository<Insurance>
     {
-            IEnumerable<InsuranceList> InsurancePagedList(int page, int rows);
+        IEnumerable<InsuranceList> InsurancePagedList(int page, int rows);
+        IEnumerable<Insurance> InsuranceByCommission();
     }
 }

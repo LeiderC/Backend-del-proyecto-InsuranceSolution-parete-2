@@ -34,6 +34,19 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("GetCityByState/{idState:int}")]
+        public IActionResult GetCityByState(int idState)
+        {
+            try
+            {
+                return Ok(_unitOfWork.City.CityByState(idState));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
 
         [HttpGet]
         [Route("GetPaginatedCity/{page:int}/{rows:int}")]

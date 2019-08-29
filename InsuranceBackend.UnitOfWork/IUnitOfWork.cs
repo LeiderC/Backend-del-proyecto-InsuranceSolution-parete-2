@@ -18,9 +18,12 @@ namespace InsuranceBackend.UnitOfWork
         IUserRepository User { get; }
         IInsuranceRepository Insurance { get; }
         IInsuranceLineRepository InsuranceLine { get; }
+        IInsuranceLineCommissionRepository InsuranceLineCommission { get; }
         IInsuranceLineTypeRepository InsuranceLineType { get; }
         IInsuranceLineClassRepository InsuranceLineClass { get; }
         IRecordStatusRepository RecordStatus { get; }
+        IPolicyStateRepository PolicyState { get; }
+        IPolicyTypeRepository PolicyType { get; }
         IIntermediaryRepository Intermediary { get; }
         ITechnicianRepository Technician { get; }
         ISalesmanRepository Salesman { get; }

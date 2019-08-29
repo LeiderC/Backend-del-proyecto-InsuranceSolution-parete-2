@@ -24,5 +24,17 @@ namespace InsuranceBackend.DataAccess
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }
+
+        public IEnumerable<State> StateByCountry(int idCountry)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idCountry", idCountry);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<State>("dbo.StateByCountry", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
     }
 }

@@ -24,5 +24,14 @@ namespace InsuranceBackend.DataAccess
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }
+
+        public IEnumerable<Insurance> InsuranceByCommission()
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<InsuranceList>("dbo.InsuranceByCommission", 
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
     }
 }

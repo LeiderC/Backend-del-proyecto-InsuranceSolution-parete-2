@@ -7,5 +7,6 @@ namespace InsuranceBackend.Repositories
     public interface IInsuranceLineRepository : IRepository<InsuranceLine>
     {
         IEnumerable<InsuranceLineList> InsuranceLinePagedList(int page, int rows);
+        IEnumerable<InsuranceLine> InsuranceLineCommissionByInsurance(int idInsurance);
     }
 }

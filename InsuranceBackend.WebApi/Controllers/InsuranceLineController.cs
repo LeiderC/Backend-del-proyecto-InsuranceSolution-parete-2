@@ -21,12 +21,39 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpGet]
+        public IActionResult Get()
+        {
+            try
+            {
+                return Ok(_unitOfWork.InsuranceLine.GetList());
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpGet]
         [Route("{id:int}")]
         public IActionResult GetById(int id)
         {
             try
             {
                 return Ok(_unitOfWork.InsuranceLine.GetById(id));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("GetInsuranceLineCommissionByInsurance/{idInsurance:int}")]
+        public IActionResult GetInsuranceLineCommissionByInsurance(int idInsurance)
+        {
+            try
+            {
+                return Ok(_unitOfWork.InsuranceLine.InsuranceLineCommissionByInsurance(idInsurance));
             }
             catch (Exception ex)
             {
@@ -101,3 +128,4 @@ namespace InsuranceBackend.WebApi.Controllers
         }
     }
 }
+ 

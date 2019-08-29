@@ -21,46 +21,111 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpGet]
+        public ActionResult<IEnumerable<Insurance>> Get()
+        {
+            try
+            {
+                return Ok(_unitOfWork.Insurance.GetList());
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("GetInsuranceByCommission")]
+        public ActionResult<IEnumerable<Insurance>> GetInsuranceByCommission()
+        {
+            try
+            {
+                return Ok(_unitOfWork.Insurance.InsuranceByCommission());
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpGet]
         [Route("{id:int}")]
         public IActionResult GetById(int id)
         {
-            return Ok(_unitOfWork.Insurance.GetById(id));
+            try
+            {
+                return Ok(_unitOfWork.Insurance.GetById(id));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
         [HttpGet]
         [Route("GetPaginatedInsurance/{page:int}/{rows:int}")]
         public IActionResult GetPaginatedInsurance(int page, int rows)
         {
-            return Ok(_unitOfWork.Insurance.InsurancePagedList(page, rows));
+            try
+            {
+                return Ok(_unitOfWork.Insurance.InsurancePagedList(page, rows));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
         [HttpPost]
         public IActionResult Post([FromBody]Insurance insurance)
         {
-            if (!ModelState.IsValid)
-                return BadRequest();
-            return Ok(_unitOfWork.Insurance.Insert(insurance));
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest();
+                return Ok(_unitOfWork.Insurance.Insert(insurance));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
         [HttpPut]
         public IActionResult Put([FromBody]Insurance insurance)
         {
-            if (ModelState.IsValid && _unitOfWork.Insurance.Update(insurance))
+            try
             {
-                return Ok(new { Message = "El seguro se ha actualizado" });
+                if (ModelState.IsValid && _unitOfWork.Insurance.Update(insurance))
+                {
+                    return Ok(new { Message = "La aseguradora se ha actualizado" });
+                }
+                else
+                    return BadRequest();
             }
-            else
-                return BadRequest();
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
-        [HttpDelete]
-        public IActionResult Delete([FromBody]Insurance insurance)
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
         {
-            if (insurance.Id > 0)
-                return Ok(_unitOfWork.Insurance.Delete(insurance
-                    ));
-            else
-                return BadRequest();
+            try
+            {
+                var insurance = _unitOfWork.Insurance.GetById(id);
+                if(insurance==null)
+                    return NotFound();
+                if (_unitOfWork.Insurance.Delete(insurance))
+                    return Ok(new { Message = "La aseguradora se ha eliminado" });
+                else
+                    return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+
     }
 }

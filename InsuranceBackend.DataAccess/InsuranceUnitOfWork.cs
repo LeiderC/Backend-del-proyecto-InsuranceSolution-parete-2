@@ -23,7 +23,10 @@ namespace InsuranceBackend.DataAccess
             InsuranceLine = new InsuranceLineRepository(connectionString);
             InsuranceLineType = new InsuranceLineTypeRepository(connectionString);
             InsuranceLineClass = new InsuranceLineClassRepository(connectionString);
+            InsuranceLineCommission = new InsuranceLineCommissionRepository(connectionString);
             RecordStatus = new RecordStatusRepository(connectionString);
+            PolicyState = new PolicyStateRepository(connectionString);
+            PolicyType = new PolicyTypeRepository(connectionString);
             Intermediary = new IntermediaryRepository(connectionString);
             Technician = new TechnicianRepository(connectionString);
             Salesman = new SalesmanRepository(connectionString);
@@ -50,9 +53,12 @@ namespace InsuranceBackend.DataAccess
         public IUserRepository User { get; private set; }
         public IInsuranceRepository Insurance { get; private set; }
         public IInsuranceLineRepository InsuranceLine { get; private set; }
+        public IInsuranceLineCommissionRepository InsuranceLineCommission { get; private set; }
         public IInsuranceLineTypeRepository InsuranceLineType { get; private set; }
         public IInsuranceLineClassRepository InsuranceLineClass { get; private set; }
         public IRecordStatusRepository RecordStatus { get; private set; }
+        public IPolicyStateRepository PolicyState { get; private set; }
+        public IPolicyTypeRepository PolicyType { get; private set; }
         public IIntermediaryRepository Intermediary { get; private set; }
         public ITechnicianRepository Technician { get; private set; }
         public ISalesmanRepository Salesman { get; private set; }

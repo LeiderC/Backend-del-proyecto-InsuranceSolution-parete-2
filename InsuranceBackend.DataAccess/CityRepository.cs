@@ -24,5 +24,17 @@ namespace InsuranceBackend.DataAccess
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }
+
+        public IEnumerable<City> CityByState(int idState)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@state", idState);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<City>("dbo.CityByState", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
     }
 }

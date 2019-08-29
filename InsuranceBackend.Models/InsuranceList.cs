@@ -6,6 +6,7 @@ namespace InsuranceBackend.Models
 {
     public class InsuranceList : Insurance
     {
+        public string NameState { get; set; }
         public int TotalRecords { get; set; }
     }
 }
