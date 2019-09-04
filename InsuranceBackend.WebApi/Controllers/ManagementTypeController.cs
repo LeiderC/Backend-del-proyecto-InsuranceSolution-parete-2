@@ -10,12 +10,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace InsuranceBackend.WebApi.Controllers
 {
     [Produces("application/json")]
-    [Route("api/user")]
+    [Route("api/managementType")]
     [Authorize]
-    public class UserController : Controller
+    public class ManagementTypeController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-        public UserController(IUnitOfWork unitOfWork)
+        public ManagementTypeController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
@@ -25,7 +25,7 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                return Ok(_unitOfWork.User.GetAllUsers());
+                return Ok(_unitOfWork.ManagementType.GetList());
             }
             catch (Exception ex)
             {
@@ -39,7 +39,7 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                return Ok(_unitOfWork.User.GetById(id));
+                return Ok(_unitOfWork.ManagementType.GetById(id));
             }
             catch (Exception ex)
             {
@@ -47,13 +47,14 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
+
         [HttpGet]
-        [Route("GetPaginatedUser/{page:int}/{rows:int}")]
-        public IActionResult GetPaginatedUser(int page, int rows)
+        [Route("GetPaginatedManagementType/{page:int}/{rows:int}")]
+        public IActionResult GetPaginatedManagementType(int page, int rows)
         {
             try
             {
-                return Ok(_unitOfWork.User.UserPagedList(page, rows));
+                return Ok(_unitOfWork.ManagementType.ManagementTypePagedList(page, rows));
             }
             catch (Exception ex)
             {
@@ -61,14 +62,15 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
+
         [HttpPost]
-        public IActionResult Post([FromBody]User user)
+        public IActionResult Post([FromBody]ManagementType managementType)
         {
             try
             {
                 if (!ModelState.IsValid)
-                    return BadRequest();
-                return Ok(_unitOfWork.User.Insert(user));
+                return BadRequest();
+                return Ok(_unitOfWork.ManagementType.Insert(managementType));
             }
             catch (Exception ex)
             {
@@ -76,15 +78,36 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
+
         [HttpPut]
-        public IActionResult Put([FromBody]User user)
+        public IActionResult Put([FromBody]ManagementType managementType)
         {
             try
             {
-                if (ModelState.IsValid && _unitOfWork.User.Update(user))
-                {
-                    return Ok(new { Message = "El usuario se ha actualizado" });
-                }
+                if (ModelState.IsValid && _unitOfWork.ManagementType.Update(managementType))
+            {
+                return Ok(new { Message = "Tipo de gestión se ha actualizado" });
+            }
+            else
+                return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            try
+            {
+                var managementType = _unitOfWork.ManagementType.GetById(id);
+                if (managementType == null)
+                    return NotFound();
+                if (_unitOfWork.ManagementType.Delete(managementType))
+                    return Ok(new { Message = "Tipo de gestión se ha eliminado" });
                 else
                     return BadRequest();
             }
@@ -92,16 +115,6 @@ namespace InsuranceBackend.WebApi.Controllers
             {
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
-        }
-
-        [HttpDelete]
-        public IActionResult Delete([FromBody]User user)
-        {
-            if (user.Id > 0)
-                return Ok(_unitOfWork.User.Delete(user
-                    ));
-            else
-                return BadRequest();
         }
     }
 }

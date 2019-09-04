@@ -55,5 +55,14 @@ namespace InsuranceBackend.DataAccess
             }
         }
 
+        public IEnumerable<User> GetAllUsers()
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<User>("dbo.GetAllUsers", null,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
     }
 }

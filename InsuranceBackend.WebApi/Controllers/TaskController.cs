@@ -25,33 +25,64 @@ namespace InsuranceBackend.WebApi.Controllers
         [Route("{id:int}")]
         public IActionResult GetById(int id)
         {
-            return Ok(_unitOfWork.Task.GetById(id));
+            try
+            {
+                return Ok(_unitOfWork.Task.GetById(id));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
         [HttpGet]
         [Route("GetPaginatedTask/{page:int}/{rows:int}")]
         public IActionResult GetPaginatedTask(int page, int rows)
         {
-            return Ok(_unitOfWork.Task.TaskPagedList(page, rows));
+            try
+            {
+                return Ok(_unitOfWork.Task.TaskPagedList(page, rows));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
         [HttpPost]
         public IActionResult Post([FromBody]Task task)
         {
-            if (!ModelState.IsValid)
-                return BadRequest();
-            return Ok(_unitOfWork.Task.Insert(task));
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest();
+                int idTask = _unitOfWork.Task.Insert(task);
+                //Debemos insertar en ManagementTask
+                ManagementTask mt = new ManagementTask { IdManagement = task.IdManagement, IdTask = idTask };
+                return Ok(_unitOfWork.ManagementTask.Insert(mt));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
         [HttpPut]
         public IActionResult Put([FromBody]Task task)
         {
-            if (ModelState.IsValid && _unitOfWork.Task.Update(task))
+            try
             {
-                return Ok(new { Message = "La tarea se ha actualizado" });
+                if (ModelState.IsValid && _unitOfWork.Task.Update(task))
+                {
+                    return Ok(new { Message = "La tarea se ha actualizado" });
+                }
+                else
+                    return BadRequest();
             }
-            else
-                return BadRequest();
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
         [HttpDelete]
