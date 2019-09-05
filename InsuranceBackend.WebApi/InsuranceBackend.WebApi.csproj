@@ -16,4 +16,8 @@
     <ProjectReference Include="..\InsuranceBackend.UnitOfWork\InsuranceBackend.UnitOfWork.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Resources\DigitalizedFiles\" />
+  </ItemGroup>
+
 </Project>

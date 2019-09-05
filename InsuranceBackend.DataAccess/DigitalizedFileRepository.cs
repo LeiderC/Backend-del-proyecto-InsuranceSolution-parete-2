@@ -12,9 +12,10 @@ namespace InsuranceBackend.DataAccess
         {
         }
 
-        public IEnumerable<DigitalizedFileList> DigitalizedFilePagedList(int page, int rows)
+        public IEnumerable<DigitalizedFileList> DigitalizedFilePagedList(int idCustomer, int page, int rows)
         {
             var parameters = new DynamicParameters();
+            parameters.Add("@idCustomer", idCustomer);
             parameters.Add("@page", page);
             parameters.Add("@rows", rows);
 

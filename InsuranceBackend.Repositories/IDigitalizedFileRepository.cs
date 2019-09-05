@@ -5,6 +5,6 @@ namespace InsuranceBackend.Repositories
 {
     public interface IDigitalizedFileRepository : IRepository<DigitalizedFile>
     {
-        IEnumerable<DigitalizedFileList> DigitalizedFilePagedList(int page, int rows);
+        IEnumerable<DigitalizedFileList> DigitalizedFilePagedList(int idCustomer, int page, int rows);
     }
 }
