@@ -33,5 +33,14 @@ namespace InsuranceBackend.DataAccess
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }
+
+        public IEnumerable<Insurance> InsuranceBySubline()
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<InsuranceList>("dbo.InsuranceBySubline",
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
     }
 }

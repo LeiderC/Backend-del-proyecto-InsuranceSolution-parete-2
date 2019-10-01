@@ -8,5 +8,6 @@ namespace InsuranceBackend.Repositories
     {
         IEnumerable<InsuranceList> InsurancePagedList(int page, int rows);
         IEnumerable<Insurance> InsuranceByCommission();
+        IEnumerable<Insurance> InsuranceBySubline();
     }
 }

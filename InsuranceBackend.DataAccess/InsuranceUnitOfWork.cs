@@ -21,6 +21,7 @@ namespace InsuranceBackend.DataAccess
             User = new UserRepository(connectionString);
             Insurance = new InsuranceRepository(connectionString);
             InsuranceLine = new InsuranceLineRepository(connectionString);
+            InsuranceSubline = new InsuranceSublineRepository(connectionString);
             InsuranceLineType = new InsuranceLineTypeRepository(connectionString);
             InsuranceLineClass = new InsuranceLineClassRepository(connectionString);
             InsuranceLineCommission = new InsuranceLineCommissionRepository(connectionString);
@@ -41,6 +42,8 @@ namespace InsuranceBackend.DataAccess
             ManagementType = new ManagementTypeRepository(connectionString);
             Management = new ManagementRepository(connectionString);
             ManagementTask = new ManagementTaskRepository(connectionString);
+            PaymentMethod = new PaymentMethodRepository(connectionString);
+            Financial = new FinancialRepository(connectionString);
         }
         public ICityRepository City { get; private set; }
         public ICountryRepository Country { get; private set; }
@@ -56,6 +59,7 @@ namespace InsuranceBackend.DataAccess
         public IUserRepository User { get; private set; }
         public IInsuranceRepository Insurance { get; private set; }
         public IInsuranceLineRepository InsuranceLine { get; private set; }
+        public IInsuranceSublineRepository InsuranceSubline  { get; private set; }
         public IInsuranceLineCommissionRepository InsuranceLineCommission { get; private set; }
         public IInsuranceLineTypeRepository InsuranceLineType { get; private set; }
         public IInsuranceLineClassRepository InsuranceLineClass { get; private set; }
@@ -76,5 +80,7 @@ namespace InsuranceBackend.DataAccess
         public IManagementTypeRepository ManagementType { get; private set; }
         public IManagementRepository Management { get; private set; }
         public IManagementTaskRepository ManagementTask { get; private set; }
+        public IPaymentMethodRepository PaymentMethod { get; private set; }
+        public IFinancialRepository Financial { get; private set; }
     }
 }

@@ -4,19 +4,18 @@ using System.Linq;
 using System.Threading.Tasks;
 using InsuranceBackend.Models;
 using InsuranceBackend.UnitOfWork;
-using InsuranceBackend.WebApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InsuranceBackend.WebApi.Controllers
 {
     [Produces("application/json")]
-    [Route("api/policy")]
+    [Route("api/insuranceSubline")]
     [Authorize]
-    public class PolicyController : Controller
+    public class InsuranceSublineController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-        public PolicyController(IUnitOfWork unitOfWork)
+        public InsuranceSublineController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
@@ -27,36 +26,21 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                return Ok(_unitOfWork.Policy.GetById(id));
+                return Ok(_unitOfWork.InsuranceSubline.GetById(id));
             }
             catch (Exception ex)
             {
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
-
-        [HttpPost]
-        [Route("GetPolicyBySearchTerms")]
-        public IActionResult GetCustomerByIdentification([FromBody]GetPaginatedPolicySearchTerm request)
-        {
-            try
-            {
-                return Ok(_unitOfWork.Policy.PolicyPagedListSearchTerms(request.Identification, request.Name, request.Number, request.Page, request.Rows));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Internal server error: " + ex.Message);
-            }
-        }
-
 
         [HttpGet]
-        [Route("GetPaginatedPolicy/{page:int}/{rows:int}")]
-        public IActionResult GetPaginatedPolicy(int page, int rows)
+        [Route("GetInsuranceSublineList/{idInsurance:int}/{idInsuranceLine:int}")]
+        public IActionResult GetInsuranceSublineList(int idInsurance, int idInsuranceLine)
         {
             try
             {
-                return Ok(_unitOfWork.Policy.PolicyPagedList(page, rows));
+                return Ok(_unitOfWork.InsuranceSubline.InsuranceSublineList(idInsurance, idInsuranceLine));
             }
             catch (Exception ex)
             {
@@ -64,15 +48,28 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("GetPaginatedInsuranceSubline/{idInsuranceLine:int}/{page:int}/{rows:int}")]
+        public IActionResult GetPaginatedInsuranceSubline(int idInsuranceLine, int page, int rows)
+        {
+            try
+            {
+                return Ok(_unitOfWork.InsuranceSubline.InsuranceSublinePagedList(idInsuranceLine, page, rows));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
 
         [HttpPost]
-        public IActionResult Post([FromBody]Policy policy)
+        public IActionResult Post([FromBody]InsuranceSubline insuranceSubline)
         {
             try
             {
                 if (!ModelState.IsValid)
-                return BadRequest();
-            return Ok(_unitOfWork.Policy.Insert(policy));
+                    return BadRequest();
+                return Ok(_unitOfWork.InsuranceSubline.Insert(insuranceSubline));
             }
             catch (Exception ex)
             {
@@ -80,36 +77,34 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
-
         [HttpPut]
-        public IActionResult Put([FromBody]Policy policy)
+        public IActionResult Put([FromBody]InsuranceSubline insuranceSubline)
         {
             try
             {
-                if (ModelState.IsValid && _unitOfWork.Policy.Update(policy))
-            {
-                return Ok(new { Message = "El politica se ha actualizado" });
-            }
-            else
-                return BadRequest();
+                if (ModelState.IsValid && _unitOfWork.InsuranceSubline.Update(insuranceSubline))
+                {
+                    return Ok(new { Message = "El subramo se ha actualizado" });
+                }
+                else
+                    return BadRequest();
             }
             catch (Exception ex)
             {
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
-
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
             try
             {
-                var policy = _unitOfWork.Policy.GetById(id);
-                if (policy == null)
+                var insuranceSubline = _unitOfWork.InsuranceSubline.GetById(id);
+                if (insuranceSubline == null)
                     return NotFound();
-                if (_unitOfWork.Policy.Delete(policy))
-                    return Ok(new { Message = "Politica se ha eliminado" });
+                if (_unitOfWork.InsuranceSubline.Delete(insuranceSubline))
+                    return Ok(new { Message = "El subramo se ha eliminado" });
                 else
                     return BadRequest();
             }
@@ -120,3 +115,4 @@ namespace InsuranceBackend.WebApi.Controllers
         }
     }
 }
+ 

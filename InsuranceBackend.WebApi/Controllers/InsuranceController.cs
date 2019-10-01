@@ -48,6 +48,20 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpGet]
+        [Route("GetInsuranceBySubline")]
+        public ActionResult<IEnumerable<Insurance>> GetInsuranceBySubline()
+        {
+            try
+            {
+                return Ok(_unitOfWork.Insurance.InsuranceBySubline());
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpGet]
         [Route("{id:int}")]
         public IActionResult GetById(int id)
         {

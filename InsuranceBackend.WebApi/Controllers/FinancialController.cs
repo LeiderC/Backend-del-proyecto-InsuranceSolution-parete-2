@@ -4,21 +4,33 @@ using System.Linq;
 using System.Threading.Tasks;
 using InsuranceBackend.Models;
 using InsuranceBackend.UnitOfWork;
-using InsuranceBackend.WebApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InsuranceBackend.WebApi.Controllers
 {
     [Produces("application/json")]
-    [Route("api/policy")]
+    [Route("api/financial")]
     [Authorize]
-    public class PolicyController : Controller
+    public class FinancialController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-        public PolicyController(IUnitOfWork unitOfWork)
+        public FinancialController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
+        }
+
+        [HttpGet]
+        public IActionResult Get()
+        {
+            try
+            {
+                return Ok(_unitOfWork.Financial.GetList());
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
         [HttpGet]
@@ -27,21 +39,7 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                return Ok(_unitOfWork.Policy.GetById(id));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Internal server error: " + ex.Message);
-            }
-        }
-
-        [HttpPost]
-        [Route("GetPolicyBySearchTerms")]
-        public IActionResult GetCustomerByIdentification([FromBody]GetPaginatedPolicySearchTerm request)
-        {
-            try
-            {
-                return Ok(_unitOfWork.Policy.PolicyPagedListSearchTerms(request.Identification, request.Name, request.Number, request.Page, request.Rows));
+                return Ok(_unitOfWork.Financial.GetById(id));
             }
             catch (Exception ex)
             {
@@ -51,12 +49,12 @@ namespace InsuranceBackend.WebApi.Controllers
 
 
         [HttpGet]
-        [Route("GetPaginatedPolicy/{page:int}/{rows:int}")]
-        public IActionResult GetPaginatedPolicy(int page, int rows)
+        [Route("GetPaginatedFinancial/{page:int}/{rows:int}")]
+        public IActionResult GetPaginatedFinancial(int page, int rows)
         {
             try
             {
-                return Ok(_unitOfWork.Policy.PolicyPagedList(page, rows));
+                return Ok(_unitOfWork.Financial.FinancialPagedList(page, rows));
             }
             catch (Exception ex)
             {
@@ -66,13 +64,13 @@ namespace InsuranceBackend.WebApi.Controllers
 
 
         [HttpPost]
-        public IActionResult Post([FromBody]Policy policy)
+        public IActionResult Post([FromBody]Financial Financial)
         {
             try
             {
                 if (!ModelState.IsValid)
                 return BadRequest();
-            return Ok(_unitOfWork.Policy.Insert(policy));
+                return Ok(_unitOfWork.Financial.Insert(Financial));
             }
             catch (Exception ex)
             {
@@ -82,13 +80,13 @@ namespace InsuranceBackend.WebApi.Controllers
 
 
         [HttpPut]
-        public IActionResult Put([FromBody]Policy policy)
+        public IActionResult Put([FromBody]Financial Financial)
         {
             try
             {
-                if (ModelState.IsValid && _unitOfWork.Policy.Update(policy))
+                if (ModelState.IsValid && _unitOfWork.Financial.Update(Financial))
             {
-                return Ok(new { Message = "El politica se ha actualizado" });
+                return Ok(new { Message = "Genero se ha actualizado" });
             }
             else
                 return BadRequest();
@@ -105,11 +103,11 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                var policy = _unitOfWork.Policy.GetById(id);
-                if (policy == null)
+                var Financial = _unitOfWork.Financial.GetById(id);
+                if (Financial == null)
                     return NotFound();
-                if (_unitOfWork.Policy.Delete(policy))
-                    return Ok(new { Message = "Politica se ha eliminado" });
+                if (_unitOfWork.Financial.Delete(Financial))
+                    return Ok(new { Message = "Genero se ha eliminado" });
                 else
                     return BadRequest();
             }

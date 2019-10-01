@@ -62,6 +62,20 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpGet]
+        [Route("GetInsuranceLineByInsurance/{idInsurance:int}")]
+        public IActionResult GetInsuranceLineByInsurance(int idInsurance)
+        {
+            try
+            {
+                return Ok(_unitOfWork.InsuranceLine.InsuranceLineByInsurance(idInsurance));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpGet]
         [Route("GetPaginatedInsuranceLine/{page:int}/{rows:int}")]
         public IActionResult GetPaginatedInsuranceLine(int page, int rows)
         {

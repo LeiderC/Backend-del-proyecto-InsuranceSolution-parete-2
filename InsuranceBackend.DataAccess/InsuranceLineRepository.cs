@@ -32,7 +32,19 @@ namespace InsuranceBackend.DataAccess
 
             using (var connection = new SqlConnection(_connectionString))
             {
-                return connection.Query<InsuranceLineList>("dbo.InsuranceLineCommissionByInsurance", parameters,
+                return connection.Query<InsuranceLine>("dbo.InsuranceLineCommissionByInsurance", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public IEnumerable<InsuranceLine> InsuranceLineByInsurance(int idInsurance)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idInsurance", idInsurance);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<InsuranceLine>("dbo.InsuranceSublineByInsurance", parameters,
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }

@@ -18,6 +18,7 @@ namespace InsuranceBackend.UnitOfWork
         IUserRepository User { get; }
         IInsuranceRepository Insurance { get; }
         IInsuranceLineRepository InsuranceLine { get; }
+        IInsuranceSublineRepository InsuranceSubline { get; }
         IInsuranceLineCommissionRepository InsuranceLineCommission { get; }
         IInsuranceLineTypeRepository InsuranceLineType { get; }
         IInsuranceLineClassRepository InsuranceLineClass { get; }
@@ -38,5 +39,7 @@ namespace InsuranceBackend.UnitOfWork
         IManagementTypeRepository ManagementType { get; }
         IManagementRepository Management { get; }
         IManagementTaskRepository ManagementTask { get; }
+        IPaymentMethodRepository PaymentMethod { get; }
+        IFinancialRepository Financial { get; }
     }
 }
