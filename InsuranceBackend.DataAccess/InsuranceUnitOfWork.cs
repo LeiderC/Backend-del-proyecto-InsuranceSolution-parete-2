@@ -39,11 +39,12 @@ namespace InsuranceBackend.DataAccess
             TypeDigitalizedFile = new TypeDigitalizedFileRepository(connectionString);
             DigitalizedFile = new DigitalizedFileRepository(connectionString);
             BranchOffice = new BranchOfficeRepository(connectionString);
-            ManagementType = new ManagementTypeRepository(connectionString);
-            Management = new ManagementRepository(connectionString);
-            ManagementTask = new ManagementTaskRepository(connectionString);
+            //ManagementType = new ManagementTypeRepository(connectionString);
+            //Management = new ManagementRepository(connectionString);
+            //ManagementTask = new ManagementTaskRepository(connectionString);
             PaymentMethod = new PaymentMethodRepository(connectionString);
             Financial = new FinancialRepository(connectionString);
+            Management = new ManagementRepository(connectionString);
         }
         public ICityRepository City { get; private set; }
         public ICountryRepository Country { get; private set; }
@@ -77,10 +78,11 @@ namespace InsuranceBackend.DataAccess
         public ITypeDigitalizedFileRepository TypeDigitalizedFile { get; private set; }
         public IDigitalizedFileRepository DigitalizedFile { get; private set; }
         public IBranchOfficeRepository BranchOffice { get; private set; }
-        public IManagementTypeRepository ManagementType { get; private set; }
-        public IManagementRepository Management { get; private set; }
-        public IManagementTaskRepository ManagementTask { get; private set; }
+        //public IManagementTypeRepository ManagementType { get; private set; }
+        //public IManagementRepository Management { get; private set; }
+        //public IManagementTaskRepository ManagementTask { get; private set; }
         public IPaymentMethodRepository PaymentMethod { get; private set; }
         public IFinancialRepository Financial { get; private set; }
+        public IManagementRepository Management { get; private set; }
     }
 }

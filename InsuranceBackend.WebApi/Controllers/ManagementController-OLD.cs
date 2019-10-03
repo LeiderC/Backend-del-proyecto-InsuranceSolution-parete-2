@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using InsuranceBackend.Models;
 using InsuranceBackend.UnitOfWork;
@@ -21,6 +22,19 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpGet]
+        public IActionResult Get()
+        {
+            try
+            {
+                return Ok(_unitOfWork.Management.GetList());
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpGet]
         [Route("{id:int}")]
         public IActionResult GetById(int id)
         {
@@ -34,13 +48,14 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
+
         [HttpGet]
-        [Route("GetPaginatedManagement/{page:int}/{rows:int}")]
-        public IActionResult GetPaginatedManagement(int page, int rows)
+        [Route("GetPaginatedManagement/{idCustomer:int}/{page:int}/{rows:int}")]
+        public IActionResult GetPaginatedManagement(int idCustomer, int page, int rows)
         {
             try
             {
-                return Ok(_unitOfWork.Management.ManagementPagedList(page, rows));
+                return Ok(_unitOfWork.Management.ManagementPagedList(idCustomer, page, rows));
             }
             catch (Exception ex)
             {
@@ -48,14 +63,17 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
+
         [HttpPost]
-        public IActionResult Post([FromBody]Management Management)
+        public IActionResult Post([FromBody]Management management)
         {
             try
             {
                 if (!ModelState.IsValid)
                     return BadRequest();
-                return Ok(_unitOfWork.Management.Insert(Management));
+                string idUser = User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value;
+                management.IdUser = Convert.ToInt32(idUser);
+                return Ok(_unitOfWork.Management.Insert(management));
             }
             catch (Exception ex)
             {
@@ -63,23 +81,25 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
+
         [HttpPut]
-        public IActionResult Put([FromBody]Management Management)
+        public IActionResult Put([FromBody]Management management)
         {
             try
             {
-                if (ModelState.IsValid && _unitOfWork.Management.Update(Management))
-                {
-                    return Ok(new { Message = "La Gestión/Tarea se ha actualizado" });
-                }
-                else
-                    return BadRequest();
+                if (ModelState.IsValid && _unitOfWork.Management.Update(management))
+            {
+                return Ok(new { Message = "Gestión se ha actualizado" });
+            }
+            else
+                return BadRequest();
             }
             catch (Exception ex)
             {
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
+
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
@@ -90,7 +110,7 @@ namespace InsuranceBackend.WebApi.Controllers
                 if (management == null)
                     return NotFound();
                 if (_unitOfWork.Management.Delete(management))
-                    return Ok(new { Message = "La Gestión/Tarea se ha eliminado" });
+                    return Ok(new { Message = "Gestión se ha eliminado" });
                 else
                     return BadRequest();
             }

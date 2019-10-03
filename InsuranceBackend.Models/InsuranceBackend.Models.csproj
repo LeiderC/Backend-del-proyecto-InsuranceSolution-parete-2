@@ -5,6 +5,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Management-OLD.cs" />
+    <Compile Remove="ManagementList-OLD.cs" />
+    <Compile Remove="ManagementTask-OLD.cs" />
+    <Compile Remove="ManagementTask.cs" />
+    <Compile Remove="ManagementTaskList-OLD.cs" />
+    <Compile Remove="ManagementTaskList.cs" />
+    <Compile Remove="ManagementType-OLD.cs" />
+    <Compile Remove="ManagementType.cs" />
+    <Compile Remove="ManagementTypeList-OLD.cs" />
+    <Compile Remove="ManagementTypeList.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Dapper.Contrib" Version="1.60.1" />
   </ItemGroup>
 
