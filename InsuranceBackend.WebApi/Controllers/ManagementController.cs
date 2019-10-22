@@ -48,6 +48,20 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("GetPaginatedManagementExtra/{page:int}/{rows:int}/{idManagementParent:int}")]
+        public IActionResult GetPaginatedManagementExtra(int page, int rows, int idManagementParent)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Management.ManagementExtraPagedList(page, rows,idManagementParent));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
         [HttpPost]
         public IActionResult Post([FromBody]Management Management)
         {
@@ -55,7 +69,19 @@ namespace InsuranceBackend.WebApi.Controllers
             {
                 if (!ModelState.IsValid)
                     return BadRequest();
-                return Ok(_unitOfWork.Management.Insert(Management));
+                int idManagement = _unitOfWork.Management.Insert(Management);
+                if (idManagement > 0)
+                {
+                    //Debemos validar si se está guardando una tarea o gestión que tiene una gestión padre
+                    if (Management.IsExtra)
+                    {
+                        return Ok(_unitOfWork.ManagementExtra.Insert(new ManagementExtra { IdManagement = Management.IdManagementParent, IdManagementExtra = idManagement }));
+                    }
+                    else
+                        return Ok(idManagement);
+                }
+                else
+                    return BadRequest();
             }
             catch (Exception ex)
             {

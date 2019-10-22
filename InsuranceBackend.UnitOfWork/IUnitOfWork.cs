@@ -36,11 +36,14 @@ namespace InsuranceBackend.UnitOfWork
         ITypeDigitalizedFileRepository TypeDigitalizedFile { get; }
         IDigitalizedFileRepository DigitalizedFile { get; }
         IBranchOfficeRepository BranchOffice { get; }
-        //IManagementTypeRepository ManagementType { get; }
+        IManagementTypeRepository ManagementType { get; }
         //IManagementRepository Management { get; }
         //IManagementTaskRepository ManagementTask { get; }
         IPaymentMethodRepository PaymentMethod { get; }
         IFinancialRepository Financial { get; }
         IManagementRepository Management { get; }
+        IManagementExtraRepository ManagementExtra { get; }
+        IManagementPartnerRepository ManagementPartner { get; }
+        IManagementStateRepository ManagementState { get; }
     }
 }

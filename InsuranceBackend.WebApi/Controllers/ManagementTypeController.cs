@@ -47,22 +47,6 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
-
-        [HttpGet]
-        [Route("GetPaginatedManagementType/{page:int}/{rows:int}")]
-        public IActionResult GetPaginatedManagementType(int page, int rows)
-        {
-            try
-            {
-                return Ok(_unitOfWork.ManagementType.ManagementTypePagedList(page, rows));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Internal server error: " + ex.Message);
-            }
-        }
-
-
         [HttpPost]
         public IActionResult Post([FromBody]ManagementType managementType)
         {
