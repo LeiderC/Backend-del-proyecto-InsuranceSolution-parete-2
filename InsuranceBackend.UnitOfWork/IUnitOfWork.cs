@@ -45,5 +45,12 @@ namespace InsuranceBackend.UnitOfWork
         IManagementExtraRepository ManagementExtra { get; }
         IManagementPartnerRepository ManagementPartner { get; }
         IManagementStateRepository ManagementState { get; }
+        IFinancialOptionRepository FinancialOption { get; }
+        IVehicleBodyworkRepository VehicleBodywork { get; }
+        IVehicleBrandRepository VehicleBrand { get; }
+        IVehicleClassRepository VehicleClass { get; }
+        IVehicleReferenceRepository VehicleReference { get; }
+        IVehicleRepository Vehicle { get; }
+        IVehicleServiceRepository VehicleService { get; }
     }
 }

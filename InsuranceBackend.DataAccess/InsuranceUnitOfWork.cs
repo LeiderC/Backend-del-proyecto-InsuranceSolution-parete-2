@@ -48,6 +48,13 @@ namespace InsuranceBackend.DataAccess
             ManagementPartner = new ManagementPartnerRespository(connectionString);
             ManagementState = new ManagementStateRespository(connectionString);
             ManagementExtra = new ManagementExtraRepository(connectionString);
+            FinancialOption = new FinancialOptionRepository(connectionString);
+            VehicleBodywork = new VehicleBodyWorkRepository(connectionString);
+            VehicleBrand = new VehicleBrandRepository(connectionString);
+            VehicleClass = new VehicleClassRepository(connectionString);
+            VehicleReference = new VehicleReferenceRepository(connectionString);
+            Vehicle = new VehicleRepository(connectionString);
+            VehicleService = new VehicleServiceRepository(connectionString);
         }
         public ICityRepository City { get; private set; }
         public ICountryRepository Country { get; private set; }
@@ -88,7 +95,14 @@ namespace InsuranceBackend.DataAccess
         public IFinancialRepository Financial { get; private set; }
         public IManagementRepository Management { get; private set; }
         public IManagementPartnerRepository ManagementPartner { get; private set; }
-        public IManagementStateRepository ManagementState { get; private set; } 
+        public IManagementStateRepository ManagementState { get; private set; }
         public IManagementExtraRepository ManagementExtra { get; private set; }
+        public IFinancialOptionRepository FinancialOption { get; private set; }
+        public IVehicleBodyworkRepository VehicleBodywork { get; private set; }
+        public IVehicleBrandRepository VehicleBrand { get; private set; }
+        public IVehicleClassRepository VehicleClass { get; private set; }
+        public IVehicleReferenceRepository VehicleReference { get; private set; }
+        public IVehicleRepository Vehicle { get; private set; }
+        public IVehicleServiceRepository VehicleService { get; private set; }
     }
 }

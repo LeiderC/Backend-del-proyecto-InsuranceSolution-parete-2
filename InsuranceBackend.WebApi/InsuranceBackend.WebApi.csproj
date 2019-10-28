@@ -7,7 +7,6 @@
 
   <ItemGroup>
     <Compile Remove="Controllers\ManagementController-OLD.cs" />
-    <Compile Remove="Controllers\ManagementTypeController-OLD.cs" />
     <Compile Remove="Controllers\TaskController-OLD.cs" />
   </ItemGroup>
 
