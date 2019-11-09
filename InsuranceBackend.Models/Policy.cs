@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace InsuranceBackend.Models
 {
@@ -19,5 +17,19 @@ namespace InsuranceBackend.Models
         public string IdPolicyType { get; set; }
         public string IdPolicyState { get; set; }
         public string IdPaymentMethod { get; set; }
+        public int? IdFinancial { get; set; }
+        public double FeeValue { get; set; }
+        public int FeeNumbers { get; set; }
+        public int Payday { get; set; }
+        public double InitialFee { get; set; }
+        public string IdFinancialOption { get; set; }
+        public int? IdPolicyInsured { get; set; }
+        public int IdSalesMan { get; set; }
+        public int? IdExternalSalesMan { get; set; }
+        public double PremiumValue { get; set; }
+        public double Iva { get; set; }
+        public double NetValue { get; set; }
+        public double PremiumExtra { get; set; }
+        public double TotalValue { get; set; }
     }
 }

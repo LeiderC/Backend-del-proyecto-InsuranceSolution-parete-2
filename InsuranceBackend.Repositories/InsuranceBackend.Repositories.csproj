@@ -1,8 +1,15 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="IManagementRepository-OLD.cs" />
+    <Compile Remove="IManagementTaskRepository-OLD.cs" />
+    <Compile Remove="IManagementTaskRepository.cs" />
+    <Compile Remove="IManagementTypeRepository-OLD.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\InsuranceBackend.Models\InsuranceBackend.Models.csproj" />

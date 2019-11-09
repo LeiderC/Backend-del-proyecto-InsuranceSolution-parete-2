@@ -66,13 +66,23 @@ namespace InsuranceBackend.WebApi.Controllers
 
 
         [HttpPost]
-        public IActionResult Post([FromBody]Policy policy)
+        public IActionResult Post([FromBody]PolicySave policy)
         {
             try
             {
                 if (!ModelState.IsValid)
-                return BadRequest();
-            return Ok(_unitOfWork.Policy.Insert(policy));
+                    return BadRequest();
+                int idPolicy = _unitOfWork.Policy.Insert(policy.Policy);
+                if (policy.PolicyProducts.Count > 0)
+                {
+                    foreach (var item in policy.PolicyProducts)
+                    {
+                        PolicyProduct product = item as PolicyProduct;
+                        product.IdPolicy = idPolicy;
+                        _unitOfWork.PolicyProduct.Insert(product);
+                    }
+                }
+                return Ok(idPolicy);
             }
             catch (Exception ex)
             {

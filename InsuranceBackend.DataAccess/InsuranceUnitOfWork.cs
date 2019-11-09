@@ -55,6 +55,9 @@ namespace InsuranceBackend.DataAccess
             VehicleReference = new VehicleReferenceRepository(connectionString);
             Vehicle = new VehicleRepository(connectionString);
             VehicleService = new VehicleServiceRepository(connectionString);
+            Company = new CompanyRepository(connectionString);
+            ProductCompany = new ProductCompanyRepository(connectionString);
+            PolicyProduct = new PolicyProductRepository(connectionString);
         }
         public ICityRepository City { get; private set; }
         public ICountryRepository Country { get; private set; }
@@ -104,5 +107,8 @@ namespace InsuranceBackend.DataAccess
         public IVehicleReferenceRepository VehicleReference { get; private set; }
         public IVehicleRepository Vehicle { get; private set; }
         public IVehicleServiceRepository VehicleService { get; private set; }
+        public ICompanyRepository Company { get; private set; }
+        public IProductCompanyRepository ProductCompany { get; private set; }
+        public IPolicyProductRepository PolicyProduct { get; private set; }
     }
 }

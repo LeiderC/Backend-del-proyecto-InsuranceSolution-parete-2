@@ -6,9 +6,9 @@ using System.Data.SqlClient;
 
 namespace InsuranceBackend.DataAccess
 {
-    public class VehicleClassRepository : Repository<VehicleClass>, IVehicleClassRepository
+    public class CompanyRepository : Repository<Company>, ICompanyRepository
     {
-        public VehicleClassRepository(string connectionString) : base(connectionString)
+        public CompanyRepository(string connectionString) : base(connectionString)
         {
         }
     }

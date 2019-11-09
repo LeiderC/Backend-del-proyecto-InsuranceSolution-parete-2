@@ -4,7 +4,7 @@ using System.Text;
 
 namespace InsuranceBackend.Models
 {
-    public class VehicleClas
+    public class VehicleClass
     {
         public int Id { get; set; }
         public string Code { get; set; }

@@ -52,5 +52,8 @@ namespace InsuranceBackend.UnitOfWork
         IVehicleReferenceRepository VehicleReference { get; }
         IVehicleRepository Vehicle { get; }
         IVehicleServiceRepository VehicleService { get; }
+        ICompanyRepository Company { get; }
+        IProductCompanyRepository ProductCompany { get; }
+        IPolicyProductRepository PolicyProduct { get; }
     }
 }

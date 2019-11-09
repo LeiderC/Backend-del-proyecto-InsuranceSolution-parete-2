@@ -3,7 +3,7 @@ using InsuranceBackend.Models;
 
 namespace InsuranceBackend.Repositories
 {
-    public interface IVehicleClassRepository : IRepository<VehicleClass>
+    public interface ICompanyRepository : IRepository<Company>
     {
         
     }
