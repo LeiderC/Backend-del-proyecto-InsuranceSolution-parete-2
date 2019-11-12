@@ -60,6 +60,7 @@ namespace InsuranceBackend.DataAccess
             PolicyProduct = new PolicyProductRepository(connectionString);
             SalesmanProfile = new SalesmanProfileRepository(connectionString);
             MovementType = new MovementTypeRepository(connectionString);
+            SalesmanParam = new SalesmanParamRepository(connectionString);
         }
         public ICityRepository City { get; private set; }
         public ICountryRepository Country { get; private set; }
@@ -114,5 +115,6 @@ namespace InsuranceBackend.DataAccess
         public IPolicyProductRepository PolicyProduct { get; private set; }
         public ISalesmanProfileRepository SalesmanProfile { get; private set; }
         public IMovementTypeRepository MovementType { get; private set; }
+        public ISalesmanParamRepository SalesmanParam { get; private set; }
     }
 }

@@ -31,5 +31,6 @@ namespace InsuranceBackend.Models
         public double NetValue { get; set; }
         public double PremiumExtra { get; set; }
         public double TotalValue { get; set; }
+        public string IdMovementType { get; set; }
     }
 }

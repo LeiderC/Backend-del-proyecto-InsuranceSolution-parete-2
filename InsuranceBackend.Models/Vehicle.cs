@@ -12,11 +12,11 @@ namespace InsuranceBackend.Models
         public int IdVehicleClass { get; set; }
         public int IdVehicleReference { get; set; }
         public string Fasecolda { get; set; }
-        public int IdVehicleService { get; set; }
+        public string IdVehicleService { get; set; }
         public int Model { get; set; }
         public int Cylinder { get; set; }
         public int Weight { get; set; }
-        public int IdVehicleBodywork { get; set; }
+        public string IdVehicleBodywork { get; set; }
         public string Chassis { get; set; }
         public int PassengersNumber { get; set; }
         public int CommercialValue { get; set; }

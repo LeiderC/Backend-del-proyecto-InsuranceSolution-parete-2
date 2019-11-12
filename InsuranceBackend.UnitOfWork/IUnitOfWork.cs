@@ -57,5 +57,6 @@ namespace InsuranceBackend.UnitOfWork
         IPolicyProductRepository PolicyProduct { get; }
         ISalesmanProfileRepository SalesmanProfile { get; }
         IMovementTypeRepository MovementType { get; }
+        ISalesmanParamRepository SalesmanParam { get; }
     }
 }

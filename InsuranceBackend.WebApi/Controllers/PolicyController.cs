@@ -73,6 +73,7 @@ namespace InsuranceBackend.WebApi.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest();
                 int idPolicy = _unitOfWork.Policy.Insert(policy.Policy);
+                //Productos propios
                 if (policy.PolicyProducts.Count > 0)
                 {
                     foreach (var item in policy.PolicyProducts)
@@ -81,6 +82,11 @@ namespace InsuranceBackend.WebApi.Controllers
                         product.IdPolicy = idPolicy;
                         _unitOfWork.PolicyProduct.Insert(product);
                     }
+                }
+                //Datos de vehículo
+                if (policy.Vehicle != null)
+                {
+                    _unitOfWork.Vehicle.Insert(policy.Vehicle);
                 }
                 return Ok(idPolicy);
             }

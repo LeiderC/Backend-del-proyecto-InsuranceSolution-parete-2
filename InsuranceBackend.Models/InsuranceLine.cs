@@ -12,5 +12,6 @@ namespace InsuranceBackend.Models
         public string LineClass { get;set;}
         public string LineType { get; set; }
         public string State { get; set; }
+        public bool IvaExempt { get; set; }
 }
 }

@@ -8,5 +8,6 @@ namespace InsuranceBackend.Models
     {
         public Policy Policy { get; set; }
         public List<PolicyProduct> PolicyProducts { get; set; }
+        public Vehicle Vehicle { get; set; }
     }
 }
