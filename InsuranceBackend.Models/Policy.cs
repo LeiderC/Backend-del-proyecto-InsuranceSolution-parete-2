@@ -23,7 +23,6 @@ namespace InsuranceBackend.Models
         public int Payday { get; set; }
         public double InitialFee { get; set; }
         public string IdFinancialOption { get; set; }
-        public int? IdPolicyInsured { get; set; }
         public int IdSalesMan { get; set; }
         public int? IdExternalSalesMan { get; set; }
         public double PremiumValue { get; set; }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using InsuranceBackend.Models;
 using InsuranceBackend.UnitOfWork;
+using InsuranceBackend.WebApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,6 +28,21 @@ namespace InsuranceBackend.WebApi.Controllers
             try
             {
                 return Ok(_unitOfWork.Vehicle.GetById(id));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("GetVehicleByLicense")]
+        public IActionResult GetVehicleByLicense([FromBody]GetSearchTerm request)
+        {
+            try
+            {
+                var result = _unitOfWork.Vehicle.VehicleByLicense(request.SearchTerm.ToUpperInvariant());
+                return Ok(result);
             }
             catch (Exception ex)
             {

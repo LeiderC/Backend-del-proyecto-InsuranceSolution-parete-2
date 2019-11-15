@@ -3,8 +3,8 @@ using InsuranceBackend.Models;
 
 namespace InsuranceBackend.Repositories
 {
-    public interface IVehicleRepository : IRepository<Vehicle>
+    public interface ISettingsRepository : IRepository<Settings>
     {
-        Vehicle VehicleByLicense(string license);
+        
     }
 }
