@@ -12,6 +12,7 @@ namespace InsuranceBackend.Models
         public string StateDesc { get; set; }
         public string CreationUserName { get; set; }
         public string DelegatedUserName { get; set; }
+        public int TotalDays { get; set; }
         public int TotalRecords { get; set; }
     }
 }

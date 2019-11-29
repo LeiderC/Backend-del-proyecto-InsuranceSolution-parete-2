@@ -12,6 +12,18 @@ namespace InsuranceBackend.DataAccess
         {
         }
 
+        public IEnumerable<ManagementList> ManagementByUserList(int idUser)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idUser", idUser);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<ManagementList>("dbo.ManagementByUser", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
         public IEnumerable<ManagementList> ManagementPagedList(int page, int rows)
         {
             var parameters = new DynamicParameters();

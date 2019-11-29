@@ -6,5 +6,6 @@ namespace InsuranceBackend.Repositories
 {
     public interface IBeneficiaryRepository : IRepository<Beneficiary>
     {
+        Beneficiary BeneficiaryByIdentification(string identification);
     }
 }

@@ -62,5 +62,6 @@ namespace InsuranceBackend.UnitOfWork
         IBeneficiaryRepository Beneficiary { get; }
         IPolicyBeneficiary PolicyBeneficiary { get; }
         IPolicyInsured PolicyInsured { get; }
+        IRelationshiprepository Relationship { get; }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using InsuranceBackend.Models;
 using InsuranceBackend.UnitOfWork;
@@ -27,6 +28,21 @@ namespace InsuranceBackend.WebApi.Controllers
             try
             {
                 return Ok(_unitOfWork.Management.GetById(id));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("GetManagementByUser")]
+        public IActionResult GetManagementByUser()
+        {
+            try
+            {
+                string idUser = User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value;
+                return Ok(_unitOfWork.Management.ManagementByUserList(int.Parse(idUser)));
             }
             catch (Exception ex)
             {
