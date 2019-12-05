@@ -20,13 +20,17 @@ namespace InsuranceBackend.WebApi.GlobalErrorHandling
                     context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     context.Response.ContentType = "application/json";
 
+                    var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+                    Exception ex = exceptionHandlerPathFeature.Error;
+                    string message = ex.Message;
+
                     var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
                     if (contextFeature != null)
                     {
                         await context.Response.WriteAsync(new ErrorDetails()
                         {
                             StatusCode = context.Response.StatusCode,
-                            Message = "Internal Server Error"
+                            Message = "Internal Server Error" + Environment.NewLine + message
                         }.ToString());
                     }
                 });
