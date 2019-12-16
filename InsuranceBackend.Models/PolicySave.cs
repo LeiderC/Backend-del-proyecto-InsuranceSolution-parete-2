@@ -11,5 +11,6 @@ namespace InsuranceBackend.Models
         public Vehicle Vehicle { get; set; }
         public List<Customer> PolicyInsured { get; set; }
         public List<Beneficiary> PolicyBeneficiaries { get; set; }
+        public int PolicyOrderId { get; set; }
     }
 }

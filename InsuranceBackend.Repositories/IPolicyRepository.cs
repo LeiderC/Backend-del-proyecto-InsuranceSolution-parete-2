@@ -6,6 +6,6 @@ namespace InsuranceBackend.Repositories
     public interface IPolicyRepository : IRepository<Policy>
     {
         IEnumerable<PolicyList> PolicyPagedList(int page, int rows);
-        IEnumerable<PolicyList> PolicyPagedListSearchTerms(string identification, string name, string number, int idcustomer, int page, int rows);
+        IEnumerable<PolicyList> PolicyPagedListSearchTerms(string identification, string name, string number, int idcustomer, int iduserpolicyorder, int page, int rows);
     }
 }

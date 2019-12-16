@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Transactions;
 using InsuranceBackend.Models;
@@ -42,8 +43,10 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                List<PolicyList> lst = _unitOfWork.Policy.PolicyPagedListSearchTerms(request.Identification, request.Name, request.Number, request.IdCustomer, request.Page, request.Rows).ToList();
-                return Ok(_unitOfWork.Policy.PolicyPagedListSearchTerms(request.Identification, request.Name, request.Number, request.IdCustomer, request.Page, request.Rows));
+                int idUser = 0;
+                if(request.FindByUserPolicyOrder)
+                    idUser = int.Parse(User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value);
+                return Ok(_unitOfWork.Policy.PolicyPagedListSearchTerms(request.Identification, request.Name, request.Number, request.IdCustomer, idUser, request.Page, request.Rows));
             }
             catch (Exception ex)
             {
@@ -77,20 +80,10 @@ namespace InsuranceBackend.WebApi.Controllers
             {
                 try
                 {
-                    idPolicy = _unitOfWork.Policy.Insert(policy.Policy);
-                    //Productos propios
-                    if (policy.PolicyProducts.Count > 0)
-                    {
-                        foreach (var item in policy.PolicyProducts)
-                        {
-                            PolicyProduct product = item as PolicyProduct;
-                            product.IdPolicy = idPolicy;
-                            _unitOfWork.PolicyProduct.Insert(product);
-                        }
-                    }
                     //Datos de vehículo
                     if (policy.Vehicle != null)
                     {
+                        int idVehicle = 0;
                         //Validamos primero si existe, de ser así se debe actualizar la info
                         Vehicle vehicle = _unitOfWork.Vehicle.VehicleByLicense(policy.Vehicle.License);
                         if (vehicle != null)
@@ -108,9 +101,30 @@ namespace InsuranceBackend.WebApi.Controllers
                             vehicle.PassengersNumber = policy.Vehicle.PassengersNumber;
                             vehicle.Weight = policy.Vehicle.Weight;
                             _unitOfWork.Vehicle.Update(vehicle);
+                            idVehicle = vehicle.Id;
                         }
                         else
-                            _unitOfWork.Vehicle.Insert(policy.Vehicle);
+                            idVehicle = _unitOfWork.Vehicle.Insert(policy.Vehicle);
+                        policy.Policy.IdVehicle = idVehicle;
+                    }
+                    else
+                        policy.Policy.IdVehicle = null;
+                    string idUser = User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value;
+                    policy.Policy.IdUser = int.Parse(idUser);
+                    if (policy.Policy.IsOrder)
+                    {
+                        policy.Policy.Number = "ORDEN-" + policy.PolicyOrderId;
+                    }
+                    idPolicy = _unitOfWork.Policy.Insert(policy.Policy);
+                    //Productos propios
+                    if (policy.PolicyProducts.Count > 0)
+                    {
+                        foreach (var item in policy.PolicyProducts)
+                        {
+                            PolicyProduct product = item as PolicyProduct;
+                            product.IdPolicy = idPolicy;
+                            _unitOfWork.PolicyProduct.Insert(product);
+                        }
                     }
                     //Asegurados
                     if (policy.PolicyInsured != null && policy.PolicyInsured.Count > 0)
@@ -148,6 +162,13 @@ namespace InsuranceBackend.WebApi.Controllers
                             };
                             _unitOfWork.PolicyBeneficiary.Insert(beneficiary);
                         }
+                    }
+                    //Si es una orden se debe guardar
+                    if (policy.Policy.IsOrder)
+                    {
+                        PolicyOrder policyOrder = _unitOfWork.PolicyOrder.GetById(policy.PolicyOrderId);
+                        policyOrder.IdPolicy = idPolicy;
+                        _unitOfWork.PolicyOrder.Update(policyOrder);
                     }
                     transaction.Complete();
                 }

@@ -6,12 +6,12 @@ using System.Data.SqlClient;
 
 namespace InsuranceBackend.DataAccess
 {
-    public class UserRepository : Repository<User>, IUserRepository
+    public class UserRepository : Repository<SystemUser>, IUserRepository
     {
         public UserRepository(string connectionString) : base(connectionString)
         {
         }
-        public User ValidateUser(string login, string password)
+        public SystemUser ValidateUser(string login, string password)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@login", login);
@@ -19,20 +19,20 @@ namespace InsuranceBackend.DataAccess
 
             using (var connection = new SqlConnection(_connectionString))
             {
-                return connection.QueryFirstOrDefault<User>("dbo.ValidateUser", parameters,
+                return connection.QueryFirstOrDefault<SystemUser>("dbo.ValidateUser", parameters,
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }
-        public User ValidateUserPassword(string login, string password)
+        public SystemUser ValidateUserPassword(string login, string password)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@login", login);
 
-            User user = null;
+            SystemUser user = null;
 
             using (var connection = new SqlConnection(_connectionString))
             {
-                user = connection.QueryFirstOrDefault<User>("dbo.ValidateUserPassword", parameters,
+                user = connection.QueryFirstOrDefault<SystemUser>("dbo.ValidateUserPassword", parameters,
                      commandType: System.Data.CommandType.StoredProcedure);
             }
 
@@ -55,11 +55,11 @@ namespace InsuranceBackend.DataAccess
             }
         }
 
-        public IEnumerable<User> GetAllUsers()
+        public IEnumerable<SystemUser> GetAllUsers()
         {
             using (var connection = new SqlConnection(_connectionString))
             {
-                return connection.Query<User>("dbo.GetAllUsers", null,
+                return connection.Query<SystemUser>("dbo.GetAllUsers", null,
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }

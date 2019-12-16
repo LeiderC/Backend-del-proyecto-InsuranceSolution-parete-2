@@ -3,11 +3,11 @@ using InsuranceBackend.Models;
 
 namespace InsuranceBackend.Repositories
 {
-    public interface IUserRepository: IRepository<User>
+    public interface IUserRepository: IRepository<SystemUser>
     {
-        User ValidateUser(string login, string password);
-        User ValidateUserPassword(string login, string password);
+        SystemUser ValidateUser(string login, string password);
+        SystemUser ValidateUserPassword(string login, string password);
         IEnumerable<UserList> UserPagedList(int page, int rows);
-        IEnumerable<User> GetAllUsers();
+        IEnumerable<SystemUser> GetAllUsers();
     }
 }

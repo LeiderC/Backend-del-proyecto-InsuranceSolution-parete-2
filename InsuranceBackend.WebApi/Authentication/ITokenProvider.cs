@@ -9,7 +9,7 @@ namespace InsuranceBackend.WebApi.Authentication
 {
     public interface ITokenProvider
     {
-        string CreateToken(User user, DateTime expiry);
+        string CreateToken(SystemUser user, DateTime expiry);
         TokenValidationParameters GetValidationParameters();
     }
 }

@@ -25,7 +25,7 @@ namespace InsuranceBackend.DataAccess
             }
         }
 
-        public IEnumerable<PolicyList> PolicyPagedListSearchTerms(string identification, string name, string number, int idcustomer, int page, int rows)
+        public IEnumerable<PolicyList> PolicyPagedListSearchTerms(string identification, string name, string number, int idcustomer, int iduserpolicyorder, int page, int rows)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@page", page);
@@ -34,6 +34,7 @@ namespace InsuranceBackend.DataAccess
             parameters.Add("@name", name);
             parameters.Add("@number", number);
             parameters.Add("@idCustomer", idcustomer);
+            parameters.Add("@idUserPolicyOrder", iduserpolicyorder);
 
             using (var connection = new SqlConnection(_connectionString))
             {

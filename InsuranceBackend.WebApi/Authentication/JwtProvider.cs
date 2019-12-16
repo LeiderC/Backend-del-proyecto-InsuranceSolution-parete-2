@@ -25,7 +25,7 @@ namespace InsuranceBackend.WebApi.Authentication
             _issuer = issuer;
             _audience = audience;
         }
-        public string CreateToken(User user, DateTime expiry)
+        public string CreateToken(SystemUser user, DateTime expiry)
         {
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
             var identity = new ClaimsIdentity(new List<Claim>()

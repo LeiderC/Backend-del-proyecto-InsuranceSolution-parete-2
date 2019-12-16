@@ -21,7 +21,7 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpPost]
-        public JsonWebToken Post([FromBody]User userLogin)
+        public JsonWebToken Post([FromBody]SystemUser userLogin)
         {
             //var user = _unitOfWork.User.ValidateUser(userLogin.Login, userLogin.Password);
             var user = _unitOfWork.User.ValidateUserPassword(userLogin.Login, userLogin.Password);

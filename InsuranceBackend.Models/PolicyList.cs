@@ -20,6 +20,8 @@ namespace InsuranceBackend.Models
         public string PaymentMethodShort { get; set; }
         public string PaymentMethodDesc { get; set; }
         public string FinancialDesc { get; set; }
+        public string SalesmanName { get; set; }
+        public string ExternalSalesmanName { get; set; }
         public int TotalRecords { get; set; }
     }
 }

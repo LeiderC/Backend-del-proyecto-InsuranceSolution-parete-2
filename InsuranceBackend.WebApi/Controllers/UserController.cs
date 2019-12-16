@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Transactions;
+using InsuranceBackend.DataAccess.Password;
 using InsuranceBackend.Models;
 using InsuranceBackend.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
@@ -17,7 +19,7 @@ namespace InsuranceBackend.WebApi.Controllers
         private readonly IUnitOfWork _unitOfWork;
         public UserController(IUnitOfWork unitOfWork)
         {
-            _unitOfWork = unitOfWork;
+            _unitOfWork = unitOfWork; 
         }
 
         [HttpGet]
@@ -62,22 +64,40 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody]User user)
+        public IActionResult Post([FromBody]SystemUser user)
         {
-            try
+            int idUser = 0;
+            if (!ModelState.IsValid)
+                return BadRequest();
+            using (var transaction = new TransactionScope())
             {
-                if (!ModelState.IsValid)
-                    return BadRequest();
-                return Ok(_unitOfWork.User.Insert(user));
+                try
+                {
+                    HashSalt salt = new HashSalt();
+                    salt = PasswordUtil.GenerateSaltedHash(32, user.Password);
+                    //Hash = password
+                    //Salt = help
+                    user.Password = salt.Hash;
+                    user.Help = salt.Salt;
+                    idUser = _unitOfWork.User.Insert(user);
+                    //UserProfile
+                    UserProfile userProfile = new UserProfile();
+                    userProfile.IdUser = idUser;
+                    userProfile.IdProfile = user.IdProfile;
+                    _unitOfWork.UserProfile.Insert(userProfile);
+                    transaction.Complete();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Dispose();
+                    return StatusCode(500, "Internal server error: " + ex.Message);
+                }
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Internal server error: " + ex.Message);
-            }
+            return Ok(idUser);
         }
 
         [HttpPut]
-        public IActionResult Put([FromBody]User user)
+        public IActionResult Put([FromBody]SystemUser user)
         {
             try
             {
@@ -95,7 +115,7 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpDelete]
-        public IActionResult Delete([FromBody]User user)
+        public IActionResult Delete([FromBody]SystemUser user)
         {
             if (user.Id > 0)
                 return Ok(_unitOfWork.User.Delete(user
