@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Transactions;
 using InsuranceBackend.DataAccess.Password;
 using InsuranceBackend.Models;
 using InsuranceBackend.UnitOfWork;
+using InsuranceBackend.WebApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -63,6 +65,24 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
+        /*[HttpPost]
+        [Route("GetPolicyBySearchTerms")]
+        public IActionResult GetCustomerByIdentification([FromBody]GetPaginatedPolicySearchTerm request)*/
+        [HttpPost]
+        [Route("CheckPermissions")]
+        public IActionResult CheckPermissions([FromBody]GetCheckPermissions request)
+        {
+            try
+            {
+                string idUser = User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value;
+                return Ok(_unitOfWork.User.CheckPermissions(int.Parse(idUser), request.Menu, request.Submenu, request.Action));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
         [HttpPost]
         public IActionResult Post([FromBody]SystemUser user)
         {
@@ -81,9 +101,11 @@ namespace InsuranceBackend.WebApi.Controllers
                     user.Help = salt.Salt;
                     idUser = _unitOfWork.User.Insert(user);
                     //UserProfile
-                    UserProfile userProfile = new UserProfile();
-                    userProfile.IdUser = idUser;
-                    userProfile.IdProfile = user.IdProfile;
+                    UserProfile userProfile = new UserProfile
+                    {
+                        IdUser = idUser,
+                        IdProfile = user.IdProfile
+                    };
                     _unitOfWork.UserProfile.Insert(userProfile);
                     transaction.Complete();
                 }
@@ -99,19 +121,32 @@ namespace InsuranceBackend.WebApi.Controllers
         [HttpPut]
         public IActionResult Put([FromBody]SystemUser user)
         {
-            try
+            if (!ModelState.IsValid)
+                return BadRequest();
+            using (var transaction = new TransactionScope())
             {
-                if (ModelState.IsValid && _unitOfWork.User.Update(user))
+                try
                 {
-                    return Ok(new { Message = "El usuario se ha actualizado" });
+                    HashSalt salt = new HashSalt();
+                    salt = PasswordUtil.GenerateSaltedHash(32, user.Password);
+                    //Hash = password
+                    //Salt = help
+                    user.Password = salt.Hash;
+                    user.Help = salt.Salt;
+                    _unitOfWork.User.Update(user);
+                    //UserProfile
+                    UserProfile userProfile = _unitOfWork.UserProfile.UserProfileByUser(user.Id);
+                    userProfile.IdProfile = user.IdProfile;
+                    _unitOfWork.UserProfile.Update(userProfile);
+                    transaction.Complete();
                 }
-                else
-                    return BadRequest();
+                catch (Exception ex)
+                {
+                    transaction.Dispose();
+                    return StatusCode(500, "Internal server error: " + ex.Message);
+                }
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Internal server error: " + ex.Message);
-            }
+            return Ok(new { Message = "El usuario se ha actualizado" });
         }
 
         [HttpDelete]

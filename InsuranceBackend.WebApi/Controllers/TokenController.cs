@@ -23,18 +23,25 @@ namespace InsuranceBackend.WebApi.Controllers
         [HttpPost]
         public JsonWebToken Post([FromBody]SystemUser userLogin)
         {
-            //var user = _unitOfWork.User.ValidateUser(userLogin.Login, userLogin.Password);
-            var user = _unitOfWork.User.ValidateUserPassword(userLogin.Login, userLogin.Password);
-            if (user == null)
+            try
             {
-                throw new UnauthorizedAccessException();
-            }
+                //var user = _unitOfWork.User.ValidateUser(userLogin.Login, userLogin.Password);
+                var user = _unitOfWork.User.ValidateUserPassword(userLogin.Login, userLogin.Password);
+                if (user == null)
+                {
+                    throw new UnauthorizedAccessException();
+                }
 
-            return new JsonWebToken
+                return new JsonWebToken
+                {
+                    Access_Token = _tokenProvider.CreateToken(user, DateTime.UtcNow.AddHours(8)),
+                    Expires_in = 480 //minutes
+                };
+            }
+            catch(Exception ex)
             {
-                Access_Token = _tokenProvider.CreateToken(user, DateTime.UtcNow.AddHours(8)),
-                Expires_in = 480 //minutes
-            };
+                throw new Exception(ex.Message);
+            }
         }
     }
 }

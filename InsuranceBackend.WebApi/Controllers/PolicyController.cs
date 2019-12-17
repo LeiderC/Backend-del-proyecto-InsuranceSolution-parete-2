@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 using InsuranceBackend.Models;
@@ -127,10 +128,17 @@ namespace InsuranceBackend.WebApi.Controllers
                         }
                     }
                     //Asegurados
+                    StringBuilder insuredNames = new StringBuilder();
                     if (policy.PolicyInsured != null && policy.PolicyInsured.Count > 0)
                     {
                         foreach (var item in policy.PolicyInsured)
                         {
+                            Customer i = _unitOfWork.Customer.GetById(item.Id);
+                            string n = i.FirstName + (string.IsNullOrEmpty(i.MiddleName) ? "" : " " + i.MiddleName) + i.LastName + (string.IsNullOrEmpty(i.MiddleLastName) ? "" : " " + i.MiddleLastName);
+                            if (insuredNames.Length > 0)
+                                insuredNames.Append(", " + n);
+                            else
+                                insuredNames.Append(n);
                             PolicyInsured insured = new PolicyInsured
                             {
                                 IdInsured = item.Id,
@@ -169,6 +177,47 @@ namespace InsuranceBackend.WebApi.Controllers
                         PolicyOrder policyOrder = _unitOfWork.PolicyOrder.GetById(policy.PolicyOrderId);
                         policyOrder.IdPolicy = idPolicy;
                         _unitOfWork.PolicyOrder.Update(policyOrder);
+                        //Debemos generar una tarea a un usuario para sistematizar (técnico)
+                        //Primero la gestión
+                        Customer h = _unitOfWork.Customer.GetById(policy.Policy.IdPolicyHolder);
+                        string policyHolder = h.FirstName + (string.IsNullOrEmpty(h.MiddleName) ? "" : " " + h.MiddleName) + h.LastName + (string.IsNullOrEmpty(h.MiddleLastName) ? "" : " " + h.MiddleLastName);
+                        string movto = _unitOfWork.MovementType.GetList().Where(m => m.Id.Equals(policy.Policy.IdMovementType)).FirstOrDefault().Alias;
+                        string insurance = _unitOfWork.Insurance.GetById(policy.Policy.IdInsurance).Description;
+                        string insuranceLine = _unitOfWork.InsuranceLine.GetById(policy.Policy.IdInsuranceLine).Description;
+                        string insuranceSubline = _unitOfWork.InsuranceSubline.GetById(policy.Policy.IdInsuranceSubline).Description;
+                        string text = "Orden de Póliza #{0} {1} {2} {3} {4} , Tomador: {5} , Asegurado/s: {6}, Placa: {7} ";
+                        string subject = string.Format(text, policy.PolicyOrderId, movto, insurance, insuranceLine, insuranceSubline, policyHolder, insuredNames.ToString(), policy.Policy.License);
+                        Management management = new Management
+                        {
+                            ManagementType = "G",
+                            IdPolicyOrder = policy.PolicyOrderId,
+                            CreationUser = int.Parse(idUser),
+                            StartDate = DateTime.Now,
+                            EndDate = DateTime.Now,
+                            State = "R",
+                            Subject = subject,
+                            ManagementPartner = "P",
+                            IsExtra = false,
+                        };
+                        int idManagement = _unitOfWork.Management.Insert(management);
+                        //Creamos la tarea para sistematizar
+                        Settings s = _unitOfWork.Settings.GetList().FirstOrDefault();
+                        string textTask = "Sistematizar Orden de Póliza #{0} {1} {2} {3} {4} , Tomador: {5} , Asegurado/s: {6}, Placa: {7} ";
+                        string subjectTask = string.Format(textTask, policy.PolicyOrderId, movto, insurance, insuranceLine, insuranceSubline, policyHolder, insuredNames.ToString(), policy.Policy.License);
+                        Management task = new Management
+                        {
+                            ManagementType = "T",
+                            IdPolicyOrder = policy.PolicyOrderId,
+                            CreationUser = int.Parse(idUser),
+                            DelegatedUser = s.TechnicalUserId,
+                            StartDate = DateTime.Now,
+                            State = "P",
+                            Subject = subjectTask,
+                            ManagementPartner = "P",
+                            IsExtra = false,
+                        };
+                        int idTask = _unitOfWork.Management.Insert(task);
+                        _unitOfWork.ManagementExtra.Insert(new ManagementExtra { IdManagement = idManagement, IdManagementExtra = idTask });
                     }
                     transaction.Complete();
                 }
