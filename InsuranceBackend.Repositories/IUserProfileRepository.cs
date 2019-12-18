@@ -5,6 +5,6 @@ namespace InsuranceBackend.Repositories
 {
     public interface IUserProfileRepository : IRepository<UserProfile>
     {
-        
+        UserProfile UserProfileByUser(int idUser);
     }
 }

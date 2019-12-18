@@ -12,5 +12,6 @@ namespace InsuranceBackend.Models
         public double SalesmanJrGraceMonth { get; set; }
         public double IVA { get; set; }
         public double IVAS { get; set; }
+        public int TechnicalUserId { get; set; }
     }
 }

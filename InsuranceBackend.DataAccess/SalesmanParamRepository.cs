@@ -20,7 +20,7 @@ namespace InsuranceBackend.DataAccess
 
             using (var connection = new SqlConnection(_connectionString))
             {
-                return connection.Query<SalesmanParamList>("dbo.SalesmanPagedList", parameters,
+                return connection.Query<SalesmanParamList>("dbo.SalesmanParamPagedList", parameters,
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }

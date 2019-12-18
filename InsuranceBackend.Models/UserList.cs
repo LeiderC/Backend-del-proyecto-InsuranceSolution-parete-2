@@ -6,7 +6,7 @@ namespace InsuranceBackend.Models
 {
     public class UserList : SystemUser
     {
-        public int ProfileId { get; set; }
+        public int IdProfile { get; set; }
         public string ProfileName { get; set; }
         public int TotalRecords { get; set; }
     }

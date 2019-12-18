@@ -6,6 +6,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using InsuranceBackend.Models;
 using InsuranceBackend.UnitOfWork;
+using InsuranceBackend.WebApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -106,13 +107,13 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("GetPaginatedDigitalizedFile/{idCustomer:int}/{page:int}/{rows:int}")]
-        public IActionResult GetPaginatedDigitalizedFile(int idCustomer, int page, int rows)
+        [HttpPost]
+        [Route("GetPaginatedDigitalizedFile")]
+        public IActionResult GetPaginatedDigitalizedFile([FromBody]GetPaginatedDigitalizedFile request)
         {
             try
             {
-                return Ok(_unitOfWork.DigitalizedFile.DigitalizedFilePagedList(idCustomer, page, rows));
+                return Ok(_unitOfWork.DigitalizedFile.DigitalizedFilePagedList(request.IdCustomer, request.Page, request.Rows, request.IdPolicyOrder, request.IdPolicy));
             }
             catch (Exception ex)
             {
@@ -164,3 +165,4 @@ namespace InsuranceBackend.WebApi.Controllers
         }
     }
 }
+ 

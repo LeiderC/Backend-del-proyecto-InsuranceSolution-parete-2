@@ -7,8 +7,9 @@ namespace InsuranceBackend.Models
     public class DigitalizedFile
     {
         public int Id { get; set; }
-        public int IdCustomer { get; set; }
+        public int? IdCustomer { get; set; }
         public int? IdPolicy { get; set; }
+        public int? IdPolicyOrder { get; set; }
         public int? IdTask { get; set; }
         public DateTime Date { get; set; }
         public string Description { get; set; }

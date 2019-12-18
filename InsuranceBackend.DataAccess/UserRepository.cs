@@ -36,8 +36,11 @@ namespace InsuranceBackend.DataAccess
                      commandType: System.Data.CommandType.StoredProcedure);
             }
 
-            if (!Password.PasswordUtil.VerifyPassword(password, user.Password, user.Help))
-                user = null;
+            if (user != null)
+            {
+                if (!Password.PasswordUtil.VerifyPassword(password, user.Password, user.Help))
+                    user = null;
+            }
 
             return user;
         }
@@ -64,5 +67,23 @@ namespace InsuranceBackend.DataAccess
             }
         }
 
+        public bool CheckPermissions(int idUser, string menu, string subMenu, string action)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idUser", idUser);
+            parameters.Add("@menu", menu);
+            parameters.Add("@submenu", subMenu);
+            parameters.Add("@action", action);
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                //Permission
+                var result = connection.QuerySingle("dbo.CheckPermissions", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+                if (result.Permission == 0)
+                    return false;
+                else
+                    return true;
+            }
+        }
     }
 }
