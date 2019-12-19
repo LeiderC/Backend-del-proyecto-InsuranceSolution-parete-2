@@ -12,6 +12,18 @@ namespace InsuranceBackend.DataAccess
         {
         }
 
+        public Policy PolicyByIdPolicyOrder(int idPolicyOrder)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idPolicyOrder", idPolicyOrder);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.QueryFirst<Policy>("dbo.PolicyByIdPolicyOrder", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
         public IEnumerable<PolicyList> PolicyPagedList(int page, int rows)
         {
             var parameters = new DynamicParameters();
@@ -25,7 +37,7 @@ namespace InsuranceBackend.DataAccess
             }
         }
 
-        public IEnumerable<PolicyList> PolicyPagedListSearchTerms(string identification, string name, string number, int idcustomer, int iduserpolicyorder, int page, int rows)
+        public IEnumerable<PolicyList> PolicyPagedListSearchTerms(string identification, string name, string number, int idcustomer, int iduserpolicyorder, bool isOrder, int page, int rows)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@page", page);
@@ -35,11 +47,10 @@ namespace InsuranceBackend.DataAccess
             parameters.Add("@number", number);
             parameters.Add("@idCustomer", idcustomer);
             parameters.Add("@idUserPolicyOrder", iduserpolicyorder);
+            parameters.Add("@isOrder", isOrder);
 
             using (var connection = new SqlConnection(_connectionString))
             {
-                List<PolicyList> lst = connection.Query<PolicyList>("dbo.PolicyPagedListSearchTerms", parameters,
-                    commandType: System.Data.CommandType.StoredProcedure).AsList<PolicyList>();
                 return connection.Query<PolicyList>("dbo.PolicyPagedListSearchTerms", parameters,
                     commandType: System.Data.CommandType.StoredProcedure);
             }

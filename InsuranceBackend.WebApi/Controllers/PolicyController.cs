@@ -47,7 +47,7 @@ namespace InsuranceBackend.WebApi.Controllers
                 int idUser = 0;
                 if(request.FindByUserPolicyOrder)
                     idUser = int.Parse(User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value);
-                return Ok(_unitOfWork.Policy.PolicyPagedListSearchTerms(request.Identification, request.Name, request.Number, request.IdCustomer, idUser, request.Page, request.Rows));
+                return Ok(_unitOfWork.Policy.PolicyPagedListSearchTerms(request.Identification, request.Name, request.Number, request.IdCustomer, idUser, request.IsOrder, request.Page, request.Rows));
             }
             catch (Exception ex)
             {
@@ -55,21 +55,19 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
-
-        [HttpGet]
-        [Route("GetPaginatedPolicy/{page:int}/{rows:int}")]
-        public IActionResult GetPaginatedPolicy(int page, int rows)
+        [HttpPost]
+        [Route("GetPolicyByIdPolicyOrder")]
+        public IActionResult GetCustomerByIdentification([FromBody] GetSearchTerm request)
         {
             try
             {
-                return Ok(_unitOfWork.Policy.PolicyPagedList(page, rows));
+                return Ok(_unitOfWork.Policy.PolicyByIdPolicyOrder(int.Parse(request.SearchTerm)));
             }
             catch (Exception ex)
             {
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
-
 
         [HttpPost]
         public IActionResult Post([FromBody]PolicySave policy)
@@ -174,9 +172,7 @@ namespace InsuranceBackend.WebApi.Controllers
                     //Si es una orden se debe guardar
                     if (policy.Policy.IsOrder)
                     {
-                        PolicyOrder policyOrder = _unitOfWork.PolicyOrder.GetById(policy.PolicyOrderId);
-                        policyOrder.IdPolicy = idPolicy;
-                        _unitOfWork.PolicyOrder.Update(policyOrder);
+                        _unitOfWork.PolicyOrderDetail.Insert(new PolicyOrderDetail { IdPolicyOrder = policy.PolicyOrderId, IdPolicy = idPolicy, CreationDate = DateTime.Now, State = "A" });
                         //Debemos generar una tarea a un usuario para sistematizar (técnico)
                         //Primero la gestión
                         Customer h = _unitOfWork.Customer.GetById(policy.Policy.IdPolicyHolder);
@@ -196,7 +192,7 @@ namespace InsuranceBackend.WebApi.Controllers
                             EndDate = DateTime.Now,
                             State = "R",
                             Subject = subject,
-                            ManagementPartner = "P",
+                            ManagementPartner = "O",
                             IsExtra = false,
                         };
                         int idManagement = _unitOfWork.Management.Insert(management);
@@ -213,11 +209,20 @@ namespace InsuranceBackend.WebApi.Controllers
                             StartDate = DateTime.Now,
                             State = "P",
                             Subject = subjectTask,
-                            ManagementPartner = "P",
-                            IsExtra = false,
+                            ManagementPartner = "O",
+                            IsExtra = true,
                         };
                         int idTask = _unitOfWork.Management.Insert(task);
                         _unitOfWork.ManagementExtra.Insert(new ManagementExtra { IdManagement = idManagement, IdManagementExtra = idTask });
+                    }
+                    else
+                    {
+                        if (policy.PolicyOrderId > 0)
+                        {
+                            //Primero deshabilitamos la que existe
+                            if (_unitOfWork.PolicyOrderDetail.UpdateState(policy.PolicyOrderId, "I"))
+                                _unitOfWork.PolicyOrderDetail.Insert(new PolicyOrderDetail { IdPolicyOrder = policy.PolicyOrderId, IdPolicy = idPolicy, CreationDate = DateTime.Now, State = "A" });
+                        }
                     }
                     transaction.Complete();
                 }

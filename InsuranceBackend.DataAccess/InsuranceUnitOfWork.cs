@@ -69,6 +69,7 @@ namespace InsuranceBackend.DataAccess
             PolicyOrder = new PolicyOrderRepository(connectionString);
             SystemProfile = new SystemProfileRepository(connectionString);
             UserProfile = new UserProfileRepository(connectionString);
+            PolicyOrderDetail = new PolicyOrderDetailRepository(connectionString);
         }
         public ICityRepository City { get; private set; }
         public ICountryRepository Country { get; private set; }
@@ -132,5 +133,6 @@ namespace InsuranceBackend.DataAccess
         public IPolicyOrderRepository PolicyOrder { get; private set; }
         public ISystemProfile SystemProfile { get; private set; }
         public IUserProfileRepository UserProfile { get; private set; }
+        public IPolicyOrderDetailRepository PolicyOrderDetail { get; private set; }
     }
 }

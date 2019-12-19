@@ -14,5 +14,6 @@ namespace InsuranceBackend.WebApi.Models
         public string Number { get; set; }
         public int IdCustomer { get; set; }
         public bool FindByUserPolicyOrder { get; set; }
+        public bool IsOrder { get; set; }
     }
 }

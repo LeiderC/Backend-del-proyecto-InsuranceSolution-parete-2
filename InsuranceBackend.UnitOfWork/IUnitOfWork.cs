@@ -66,5 +66,6 @@ namespace InsuranceBackend.UnitOfWork
         IPolicyOrderRepository PolicyOrder { get; }
         ISystemProfile SystemProfile { get; }
         IUserProfileRepository UserProfile { get; }
+        IPolicyOrderDetailRepository PolicyOrderDetail { get; }
     }
 }
