@@ -146,10 +146,16 @@ namespace InsuranceBackend.WebApi.Controllers
                         }
                     }
                     //Beneficiarios
+                    StringBuilder beneficariesNames = new StringBuilder();
                     if (policy.PolicyBeneficiaries != null && policy.PolicyBeneficiaries.Count > 0)
                     {
                         foreach (var item in policy.PolicyBeneficiaries)
                         {
+                            string n = item.FirstName + (string.IsNullOrEmpty(item.MiddleName) ? "" : " " + item.MiddleName) + item.LastName + (string.IsNullOrEmpty(item.MiddleLastName) ? "" : " " + item.MiddleLastName);
+                            if (beneficariesNames.Length > 0)
+                                beneficariesNames.Append(", " + n);
+                            else
+                                beneficariesNames.Append(n);
                             //Debemos crear priemero el beneficiario si no existe
                             int idBeneficiary = 0;
                             Beneficiary ben = _unitOfWork.Beneficiary.BeneficiaryByIdentification(item.IdentificationNumber);
@@ -222,6 +228,33 @@ namespace InsuranceBackend.WebApi.Controllers
                             //Primero deshabilitamos la que existe
                             if (_unitOfWork.PolicyOrderDetail.UpdateState(policy.PolicyOrderId, "I"))
                                 _unitOfWork.PolicyOrderDetail.Insert(new PolicyOrderDetail { IdPolicyOrder = policy.PolicyOrderId, IdPolicy = idPolicy, CreationDate = DateTime.Now, State = "A" });
+                            //Debemos dar la tarea por terminada y crear una gestión indicando la sistematización que se hizo
+                            //tarea
+                            Management task = _unitOfWork.Management.ManagementByPolicyOrder(policy.PolicyOrderId, "T");
+                            task.State = "R";
+                            _unitOfWork.Management.Update(task);
+                            //gestión
+                            Customer h = _unitOfWork.Customer.GetById(policy.Policy.IdPolicyHolder);
+                            string policyHolder = h.FirstName + (string.IsNullOrEmpty(h.MiddleName) ? "" : " " + h.MiddleName) + h.LastName + (string.IsNullOrEmpty(h.MiddleLastName) ? "" : " " + h.MiddleLastName);
+                            string movto = _unitOfWork.MovementType.GetList().Where(m => m.Id.Equals(policy.Policy.IdMovementType)).FirstOrDefault().Alias;
+                            string insurance = _unitOfWork.Insurance.GetById(policy.Policy.IdInsurance).Description;
+                            string insuranceLine = _unitOfWork.InsuranceLine.GetById(policy.Policy.IdInsuranceLine).Description;
+                            string insuranceSubline = _unitOfWork.InsuranceSubline.GetById(policy.Policy.IdInsuranceSubline).Description;
+                            string text = "Póliza #{0} {1} {2} {3} {4} , Tomador: {5} , Asegurado/s: {6}, Beneficiarios: {7}, Placa: {8}, Valor Prima: {9}, Total:{10} ";
+                            string subject = string.Format(text, policy.Policy.Number, movto, insurance, insuranceLine, insuranceSubline, policyHolder, insuredNames.ToString(), beneficariesNames.ToString(), policy.Policy.License, String.Format("{0:0,0.0}", policy.Policy.PremiumValue), String.Format("{0:0,0.0}", policy.Policy.TotalValue));
+                            Management management = new Management
+                            {
+                                ManagementType = "G",
+                                IdPolicyOrder = policy.PolicyOrderId,
+                                CreationUser = int.Parse(idUser),
+                                StartDate = DateTime.Now,
+                                EndDate = DateTime.Now,
+                                State = "R",
+                                Subject = subject,
+                                ManagementPartner = "O",
+                                IsExtra = false,
+                            };
+                            _unitOfWork.Management.Insert(management);
                         }
                     }
                     transaction.Complete();

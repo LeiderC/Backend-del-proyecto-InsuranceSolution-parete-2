@@ -50,5 +50,18 @@ namespace InsuranceBackend.DataAccess
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }
+
+        public Management ManagementByPolicyOrder(int idPolicyOrder, string managementType)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idPolicyOrder", idPolicyOrder);
+            parameters.Add("@managementType", managementType);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.QueryFirst<Management>("dbo.ManagementByPolicyOrder", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
     }
 }
