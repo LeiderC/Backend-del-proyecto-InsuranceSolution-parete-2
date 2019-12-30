@@ -22,6 +22,7 @@ namespace InsuranceBackend.Models
         public string FinancialDesc { get; set; }
         public string SalesmanName { get; set; }
         public string ExternalSalesmanName { get; set; }
+        public int IdPolicyOrder { get; set; }
         public int TotalRecords { get; set; }
     }
 }
