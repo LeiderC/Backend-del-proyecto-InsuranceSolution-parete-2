@@ -11,5 +11,17 @@ namespace InsuranceBackend.DataAccess
         public PolicyProductRepository(string connectionString) : base(connectionString)
         {
         }
+
+        public bool DeletePolicyProductByPolicy(int idPolicy)
+        {
+            string sql = "DELETE PolicyProduct WHERE IdPolicy = @IdPolicy;";
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                int affectedRows = connection.Execute(sql, new { IdPolicy = idPolicy });
+                if (affectedRows > 0)
+                    return true;
+                return false;
+            }
+        }
     }
 }

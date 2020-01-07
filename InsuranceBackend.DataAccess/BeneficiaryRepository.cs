@@ -12,14 +12,27 @@ namespace InsuranceBackend.DataAccess
         {
         }
 
-        public Beneficiary BeneficiaryByIdentification(string identification)
+        public Beneficiary BeneficiaryByIdentification(string identification, int idIdentificationType)
         {
             var parameters = new DynamicParameters();
+            parameters.Add("@idIdentificationType", idIdentificationType);
             parameters.Add("@identification", identification);
 
             using (var connection = new SqlConnection(_connectionString))
             {
                 return connection.QueryFirstOrDefault<Beneficiary>("dbo.BeneficiaryByIdentification", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public IEnumerable<BeneficiaryList> BeneficiaryListByPolicy(int idPolicy)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idPolicy", idPolicy);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<BeneficiaryList>("dbo.BeneficiaryListByPolicy", parameters,
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }

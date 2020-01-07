@@ -16,7 +16,6 @@ namespace InsuranceBackend.Models
         public string MiddleLastName { get; set; }
         public DateTime? BirthDate { get; set; }
         public int? IdGender { get; set; }
-        [Write(false)]
-        public double Percentage { get; set; }
+        public int? IdRelationship { get; set; }
     }
 }

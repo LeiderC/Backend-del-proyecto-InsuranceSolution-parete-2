@@ -60,12 +60,13 @@ namespace InsuranceBackend.UnitOfWork
         ISalesmanParamRepository SalesmanParam { get; }
         ISettingsRepository Settings { get; }
         IBeneficiaryRepository Beneficiary { get; }
-        IPolicyBeneficiary PolicyBeneficiary { get; }
-        IPolicyInsured PolicyInsured { get; }
+        IPolicyBeneficiaryRepository PolicyBeneficiary { get; }
+        IPolicyInsuredRepository PolicyInsured { get; }
         IRelationshiprepository Relationship { get; }
         IPolicyOrderRepository PolicyOrder { get; }
         ISystemProfile SystemProfile { get; }
         IUserProfileRepository UserProfile { get; }
         IPolicyOrderDetailRepository PolicyOrderDetail { get; }
+        IPolicyFeeRepository PolicyFee { get; }
     }
 }
