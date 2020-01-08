@@ -6,7 +6,7 @@ using System.Text;
 
 namespace InsuranceBackend.DataAccess
 {
-    public class SystemProfileRepository : Repository<SystemProfile>, ISystemProfile
+    public class SystemProfileRepository : Repository<SystemProfile>, ISystemProfileRepository
     {
         public SystemProfileRepository(string connectionString) : base(connectionString)
         {

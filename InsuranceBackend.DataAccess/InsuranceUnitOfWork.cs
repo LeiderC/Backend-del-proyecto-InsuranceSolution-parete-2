@@ -71,6 +71,7 @@ namespace InsuranceBackend.DataAccess
             UserProfile = new UserProfileRepository(connectionString);
             PolicyOrderDetail = new PolicyOrderDetailRepository(connectionString);
             PolicyFee = new PolicyFeeRepository(connectionString);
+            SystemAudit = new SystemAuditRepository(connectionString);
         }
         public ICityRepository City { get; private set; }
         public ICountryRepository Country { get; private set; }
@@ -132,9 +133,10 @@ namespace InsuranceBackend.DataAccess
         public IPolicyInsuredRepository PolicyInsured { get; private set; }
         public IRelationshiprepository Relationship { get; private set; }
         public IPolicyOrderRepository PolicyOrder { get; private set; }
-        public ISystemProfile SystemProfile { get; private set; }
+        public ISystemProfileRepository SystemProfile { get; private set; }
         public IUserProfileRepository UserProfile { get; private set; }
         public IPolicyOrderDetailRepository PolicyOrderDetail { get; private set; }
         public IPolicyFeeRepository PolicyFee { get; private set; }
+        public ISystemAuditRepository SystemAudit { get; private set; }
     }
 }

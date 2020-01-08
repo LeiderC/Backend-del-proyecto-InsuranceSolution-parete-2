@@ -64,9 +64,10 @@ namespace InsuranceBackend.UnitOfWork
         IPolicyInsuredRepository PolicyInsured { get; }
         IRelationshiprepository Relationship { get; }
         IPolicyOrderRepository PolicyOrder { get; }
-        ISystemProfile SystemProfile { get; }
+        ISystemProfileRepository SystemProfile { get; }
         IUserProfileRepository UserProfile { get; }
         IPolicyOrderDetailRepository PolicyOrderDetail { get; }
         IPolicyFeeRepository PolicyFee { get; }
+        ISystemAuditRepository SystemAudit { get; }
     }
 }

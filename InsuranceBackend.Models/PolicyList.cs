@@ -13,7 +13,6 @@ namespace InsuranceBackend.Models
         public string InsuranceLineShort { get; set; }
         public string InsuranceSublineDesc { get; set; }
         public string State { get; set; }
-        public string License { get; set; }
         public string InsuranceList { get; set; }
         public string BeneficiariesList { get; set; }
         public string MovementShort { get; set; }
@@ -24,5 +23,9 @@ namespace InsuranceBackend.Models
         public string ExternalSalesmanName { get; set; }
         public int IdPolicyOrder { get; set; }
         public int TotalRecords { get; set; }
+        public string Phone { get; set; }
+        public string Movil { get; set; }
+        public string IdentificationNumber { get; set; }
+        public string Email { get; set; }
     }
 }

@@ -1,11 +1,9 @@
 ﻿using InsuranceBackend.Models;
 using InsuranceBackend.UnitOfWork;
 using InsuranceBackend.WebApi.Authentication;
+using InsuranceBackend.WebApi.Utils;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace InsuranceBackend.WebApi.Controllers
 {
@@ -25,13 +23,13 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                //var user = _unitOfWork.User.ValidateUser(userLogin.Login, userLogin.Password);
                 var user = _unitOfWork.User.ValidateUserPassword(userLogin.Login, userLogin.Password);
                 if (user == null)
                 {
                     throw new UnauthorizedAccessException();
                 }
-
+                string detail = string.Format("Login correcto usuario: {0}", user.FirstName + " " + user.LastName);
+                Audit.InsertAudit(_unitOfWork, "F", user.Id, "I", detail);
                 return new JsonWebToken
                 {
                     Access_Token = _tokenProvider.CreateToken(user, DateTime.UtcNow.AddHours(8)),
