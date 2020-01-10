@@ -6,8 +6,9 @@ namespace InsuranceBackend.Models
 {
     public class Financial
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
         public string Description { get; set; }
         public string Alias { get; set; }
+        public bool InitialFeeIncluded { get; set; }
     }
 }

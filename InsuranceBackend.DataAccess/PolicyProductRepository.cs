@@ -23,5 +23,17 @@ namespace InsuranceBackend.DataAccess
                 return false;
             }
         }
+
+        public IEnumerable<PolicyProductList> PolicyProductListByPolicy(int idPolicy)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idPolicy", idPolicy);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PolicyProductList>("dbo.PolicyProductListByPolicy", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
     }
 }
