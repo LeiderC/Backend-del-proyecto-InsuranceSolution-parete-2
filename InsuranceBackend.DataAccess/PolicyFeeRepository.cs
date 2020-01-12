@@ -24,14 +24,15 @@ namespace InsuranceBackend.DataAccess
             }
         }
 
-        public IEnumerable<PolicyFee> PolicyFeeListByPolicy(int idPolicy)
+        public IEnumerable<PolicyFeeList> PolicyFeeListByPolicy(int idPolicy, bool paid)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@idPolicy", idPolicy);
+            parameters.Add("@paid", paid);
 
             using (var connection = new SqlConnection(_connectionString))
             {
-                return connection.Query<PolicyFee>("dbo.PolicyFeeListByPolicy", parameters,
+                return connection.Query<PolicyFeeList>("dbo.PolicyFeeListByPolicy", parameters,
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }

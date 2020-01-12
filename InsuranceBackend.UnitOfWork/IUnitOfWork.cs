@@ -69,5 +69,8 @@ namespace InsuranceBackend.UnitOfWork
         IPolicyOrderDetailRepository PolicyOrderDetail { get; }
         IPolicyFeeRepository PolicyFee { get; }
         ISystemAuditRepository SystemAudit { get; }
+        IPaymentTypeRepository PaymentType { get; }
+        IPaymentRepository Payment { get; }
+        IPaymentDetailRepository PaymentDetail { get; }
     }
 }

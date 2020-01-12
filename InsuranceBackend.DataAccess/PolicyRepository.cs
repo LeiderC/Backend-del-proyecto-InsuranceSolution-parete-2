@@ -56,17 +56,30 @@ namespace InsuranceBackend.DataAccess
             }
         }
 
-        public IEnumerable<PolicyList> PolicyCustomerPagedListSearchTerms(string type, string searchCriteria, int page, int rows)
+        public IEnumerable<PolicyList> PolicyCustomerPagedListSearchTerms(string type, string searchCriteria, bool onlyPolicy, int page, int rows)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@page", page);
             parameters.Add("@rows", rows);
             parameters.Add("@type", type);
             parameters.Add("@searchCriteria", searchCriteria);
+            parameters.Add("@onlyPolicy", onlyPolicy);
 
             using (var connection = new SqlConnection(_connectionString))
             {
                 return connection.Query<PolicyList>("dbo.PolicyCustomerPagedListSearchTerms", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public PolicyList PolicyListById(int idPolicy)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idPolicy", idPolicy);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.QueryFirst<PolicyList>("dbo.PolicyListByIdPolicy", parameters,
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }

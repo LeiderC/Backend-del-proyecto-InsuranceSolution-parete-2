@@ -23,11 +23,11 @@ namespace InsuranceBackend.WebApi.Controllers
 
         [HttpPost]
         [Route("GetPolicyFeeListByPolicy")]
-        public IActionResult GetPolicyFeeListByPolicy([FromBody]GetSearchTerm request)
+        public IActionResult GetPolicyFeeListByPolicy([FromBody]GetPolicyFee request)
         {
             try
             {
-                return Ok(_unitOfWork.PolicyFee.PolicyFeeListByPolicy(int.Parse(request.SearchTerm)));
+                return Ok(_unitOfWork.PolicyFee.PolicyFeeListByPolicy(request.IdPolicy, request.Paid));
             }
             catch (Exception ex)
             {

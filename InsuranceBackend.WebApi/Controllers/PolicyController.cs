@@ -30,7 +30,7 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                return Ok(_unitOfWork.Policy.GetById(id));
+                return Ok(_unitOfWork.Policy.PolicyListById(id));
             }
             catch (Exception ex)
             {
@@ -40,7 +40,7 @@ namespace InsuranceBackend.WebApi.Controllers
 
         [HttpPost]
         [Route("GetPolicyBySearchTerms")]
-        public IActionResult GetCustomerByIdentification([FromBody]GetPaginatedPolicySearchTerm request)
+        public IActionResult GetPolicyBySearchTerms([FromBody]GetPaginatedPolicySearchTerm request)
         {
             try
             {
@@ -61,7 +61,7 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                return Ok(_unitOfWork.Policy.PolicyCustomerPagedListSearchTerms(request.Type, request.SearchTerm, request.Page, request.Rows));
+                return Ok(_unitOfWork.Policy.PolicyCustomerPagedListSearchTerms(request.Type, request.SearchTerm, request.OnlyPolicy, request.Page, request.Rows));
             }
             catch (Exception ex)
             {

@@ -72,6 +72,9 @@ namespace InsuranceBackend.DataAccess
             PolicyOrderDetail = new PolicyOrderDetailRepository(connectionString);
             PolicyFee = new PolicyFeeRepository(connectionString);
             SystemAudit = new SystemAuditRepository(connectionString);
+            PaymentType = new PaymentTypeRepository(connectionString);
+            Payment = new PaymentRepository(connectionString);
+            PaymentDetail = new PaymentDetailRepository(connectionString);
         }
         public ICityRepository City { get; private set; }
         public ICountryRepository Country { get; private set; }
@@ -138,5 +141,8 @@ namespace InsuranceBackend.DataAccess
         public IPolicyOrderDetailRepository PolicyOrderDetail { get; private set; }
         public IPolicyFeeRepository PolicyFee { get; private set; }
         public ISystemAuditRepository SystemAudit { get; private set; }
+        public IPaymentTypeRepository PaymentType { get; private set; }
+        public IPaymentRepository Payment { get; private set; }
+        public IPaymentDetailRepository PaymentDetail { get; private set; }
     }
 }
