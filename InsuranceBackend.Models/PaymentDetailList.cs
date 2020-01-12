@@ -14,6 +14,8 @@ namespace InsuranceBackend.Models
         public DateTime EndDate { get; set; }
         public string License { get; set; }
         public string MovementShort { get; set; }
-
+        public string PaymentTypeDesc { get; set; }
+        public int PaymentNumber { get; set; }
+        public DateTime DatePayment { get; set; }
     }
 }

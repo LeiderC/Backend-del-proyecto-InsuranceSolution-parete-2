@@ -66,6 +66,20 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpPost]
+        [Route("GetPaymentDetailListByPolicy")]
+        public IActionResult GetPaymentDetailListByPolicy([FromBody]GetSearchTerm request)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Payment.PaymentDetailListByPolicy(int.Parse(request.SearchTerm)));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
         public IActionResult Post([FromBody]PaymentSave Payment)
         {
             int idPayment = 0;
