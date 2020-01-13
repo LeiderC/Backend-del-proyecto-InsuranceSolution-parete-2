@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Transactions;
 using InsuranceBackend.Models;
 using InsuranceBackend.UnitOfWork;
 using InsuranceBackend.WebApi.Models;
@@ -82,34 +83,78 @@ namespace InsuranceBackend.WebApi.Controllers
         [HttpPost]
         public IActionResult Post([FromBody]Customer customer)
         {
-            try
+            int idCustomer = 0;
+            if (!ModelState.IsValid)
+                return BadRequest();
+            using (var transaction = new TransactionScope())
             {
-                if (!ModelState.IsValid)
-                    return BadRequest();
-                return Ok(_unitOfWork.Customer.Insert(customer));
+                try
+                {
+                    idCustomer = _unitOfWork.Customer.Insert(customer);
+                    IdentificationType it = _unitOfWork.IdentificationType.GetById(customer.IdIdentificationType);
+                    string idUser = User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value;
+                    string fullName = customer.FirstName + (string.IsNullOrEmpty(customer.MiddleName) ? "" : " " + customer.MiddleName) + customer.LastName + (string.IsNullOrEmpty(customer.MiddleLastName) ? "" : " " + customer.MiddleLastName);
+                    //Insertamos la gestión realizada
+                    Management management = new Management
+                    {
+                        ManagementType = "G",
+                        CreationUser = int.Parse(idUser),
+                        StartDate = DateTime.Now,
+                        EndDate = DateTime.Now,
+                        State = "R",
+                        Subject = "SE CREA CLIENTE " + it.Alias + " # " + customer.IdentificationNumber + " " + fullName,
+                        ManagementPartner = "C",
+                        IdCustomer = idCustomer,
+                        IsExtra = false,
+                    };
+                    _unitOfWork.Management.Insert(management);
+                    transaction.Complete();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Dispose();
+                    return StatusCode(500, "Internal server error: " + ex.Message);
+                }
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Internal server error: " + ex.Message);
-            }
+            return Ok(idCustomer);
         }
 
         [HttpPut]
         public IActionResult Put([FromBody]Customer customer)
         {
-            try
+            if (!ModelState.IsValid)
+                return BadRequest();
+            using (var transaction = new TransactionScope())
             {
-                if (ModelState.IsValid && _unitOfWork.Customer.Update(customer))
+                try
                 {
-                    return Ok(new { Message = "El cliente se ha actualizado" });
+                    _unitOfWork.Customer.Update(customer);
+                    IdentificationType it = _unitOfWork.IdentificationType.GetById(customer.IdIdentificationType);
+                    string idUser = User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value;
+                    string fullName = customer.FirstName + (string.IsNullOrEmpty(customer.MiddleName) ? "" : " " + customer.MiddleName) + customer.LastName + (string.IsNullOrEmpty(customer.MiddleLastName) ? "" : " " + customer.MiddleLastName);
+                    //Insertamos la gestión realizada
+                    Management management = new Management
+                    {
+                        ManagementType = "G",
+                        CreationUser = int.Parse(idUser),
+                        StartDate = DateTime.Now,
+                        EndDate = DateTime.Now,
+                        State = "R",
+                        Subject = "SE MODIFICA CLIENTE " + it.Alias + " # " + customer.IdentificationNumber + " " + fullName,
+                        ManagementPartner = "C",
+                        IdCustomer = customer.Id,
+                        IsExtra = false,
+                    };
+                    _unitOfWork.Management.Insert(management);
+                    transaction.Complete();
                 }
-                else
-                    return BadRequest();
+                catch (Exception ex)
+                {
+                    transaction.Dispose();
+                    return StatusCode(500, "Internal server error: " + ex.Message);
+                }
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Internal server error: " + ex.Message);
-            }
+            return Ok(new { Message = "El cliente se ha actualizado" });
         }
 
         [HttpDelete("{id}")]
