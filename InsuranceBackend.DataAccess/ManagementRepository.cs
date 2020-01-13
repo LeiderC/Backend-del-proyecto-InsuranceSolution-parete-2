@@ -63,5 +63,20 @@ namespace InsuranceBackend.DataAccess
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }
+
+        public IEnumerable<ManagementList> ManagementByCustomerList(int page, int rows, int idCustomer, string state)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idCustomer", idCustomer);
+            parameters.Add("@state", state);
+            parameters.Add("@page", page);
+            parameters.Add("@rows", rows);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<ManagementList>("dbo.ManagementByCustomer", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
     }
 }

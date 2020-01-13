@@ -7,6 +7,6 @@ namespace InsuranceBackend.Models
     public class PaymentSave
     {
         public Payment Payment { get; set; }
-        public List<PaymentDetail> PaymentDetails { get; set; }
+        public List<PaymentDetailList> PaymentDetails { get; set; }
     }
 }

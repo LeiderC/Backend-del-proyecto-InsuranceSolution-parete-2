@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 using InsuranceBackend.Models;
@@ -93,18 +94,42 @@ namespace InsuranceBackend.WebApi.Controllers
                     Payment.Payment.IdUser = int.Parse(idUser);
                     Payment.Payment.DatePayment = DateTime.Now;
                     idPayment = _unitOfWork.Payment.Insert(Payment.Payment);
-                    if(Payment.PaymentDetails!=null && Payment.PaymentDetails.Count > 0)
+                    StringBuilder policyList = new StringBuilder();
+                    if (Payment.PaymentDetails!=null && Payment.PaymentDetails.Count > 0)
                     {
-                        foreach(var item in Payment.PaymentDetails)
+                        foreach (var item in Payment.PaymentDetails)
                         {
-                            item.IdPayment = idPayment;
-                            _unitOfWork.PaymentDetail.Insert(item);
+                            string text = "Póliza #{0} {1} {2} {3} {4}, Cuota: {5}, Valor {6}";
+                            if (policyList.Length > 0)
+                                policyList.Append(" | " + string.Format(text, item.Number, item.MovementShort, item.InsuranceDesc, item.InsuranceLineDesc, item.InsuranceSublineDesc, item.FeeNumber, String.Format("{0:0,0.0}", item.Value)));
+                            else
+                                policyList.Append(string.Format(text, item.Number, item.MovementShort, item.InsuranceDesc, item.InsuranceLineDesc, item.InsuranceSublineDesc, item.FeeNumber, String.Format("{0:0,0.0}", item.Value)));
+                            PaymentDetail paymentDetail = new PaymentDetail { FeeNumber = item.FeeNumber, IdPayment = idPayment, IdPolicy = item.IdPolicy, Value = item.Value };
+                            _unitOfWork.PaymentDetail.Insert(paymentDetail);
                         }
                     }
                     //Actualizamos el consecutivo
                     PaymentType paymentType = _unitOfWork.PaymentType.GetList().Where(p => p.Id.Equals(Payment.Payment.IdPaymentType)).FirstOrDefault();
                     paymentType.Number = Payment.Payment.Number;
                     _unitOfWork.PaymentType.Update(paymentType);
+                    //Creamos gestión con el recaudo realizado
+                    Customer customer = _unitOfWork.Customer.GetById(Payment.Payment.IdCustomer);
+                    string customerName = customer.FirstName + (string.IsNullOrEmpty(customer.MiddleName) ? "" : " " + customer.MiddleName) + customer.LastName + (string.IsNullOrEmpty(customer.MiddleLastName) ? "" : " " + customer.MiddleLastName);
+                    string textSubject = "Creación Pago {1} # {2}, Total: {3}, Cliente: {4}, Detalle Pago: {5}";
+                    string subject = string.Format(textSubject, paymentType.Alias, Payment.Payment.Number, String.Format("{0:0,0.0}", Payment.Payment.TotalValue), customerName, policyList.ToString());
+                    Management management = new Management
+                    {
+                        ManagementType = "G",
+                        CreationUser = int.Parse(idUser),
+                        StartDate = DateTime.Now,
+                        EndDate = DateTime.Now,
+                        State = "R",
+                        Subject = subject,
+                        ManagementPartner = "R",
+                        IdCustomer = Payment.Payment.IdCustomer,
+                        IsExtra = false,
+                        IdPayment = idPayment
+                    };
                     transaction.Complete();
                 }
                 catch (Exception ex)
@@ -126,17 +151,43 @@ namespace InsuranceBackend.WebApi.Controllers
             {
                 try
                 {
+                    string idUser = User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value;
                     _unitOfWork.Payment.Update(Payment.Payment);
                     //Primero debemos eliminar los detalles del pago
                     _unitOfWork.PaymentDetail.DeletePaymentDetailByPayment(Payment.Payment.Id);
+                    StringBuilder policyList = new StringBuilder();
                     if (Payment.PaymentDetails != null && Payment.PaymentDetails.Count > 0)
                     {
                         foreach (var item in Payment.PaymentDetails)
                         {
-                            item.IdPayment = Payment.Payment.Id;
-                            _unitOfWork.PaymentDetail.Insert(item);
+                            string text = "Póliza #{0} {1} {2} {3} {4}, Cuota: {5}, Valor {6}";
+                            if (policyList.Length > 0)
+                                policyList.Append(" | " + string.Format(text, item.Number, item.MovementShort, item.InsuranceDesc, item.InsuranceLineDesc, item.InsuranceSublineDesc, item.FeeNumber, String.Format("{0:0,0.0}", item.Value)));
+                            else
+                                policyList.Append(string.Format(text, item.Number, item.MovementShort, item.InsuranceDesc, item.InsuranceLineDesc, item.InsuranceSublineDesc, item.FeeNumber, String.Format("{0:0,0.0}", item.Value)));
+                            PaymentDetail paymentDetail = new PaymentDetail { FeeNumber = item.FeeNumber, IdPayment = Payment.Payment.Id, IdPolicy = item.IdPolicy, Value = item.Value };
+                            _unitOfWork.PaymentDetail.Insert(paymentDetail);
                         }
                     }
+                    //Creamos gestión con el recaudo realizado
+                    PaymentType paymentType = _unitOfWork.PaymentType.GetList().Where(p => p.Id.Equals(Payment.Payment.IdPaymentType)).FirstOrDefault();
+                    Customer customer = _unitOfWork.Customer.GetById(Payment.Payment.IdCustomer);
+                    string customerName = customer.FirstName + (string.IsNullOrEmpty(customer.MiddleName) ? "" : " " + customer.MiddleName) + customer.LastName + (string.IsNullOrEmpty(customer.MiddleLastName) ? "" : " " + customer.MiddleLastName);
+                    string textSubject = "Modificación Pago {1} # {2}, Total: {3}, Cliente: {4}, Detalle Pago: {5}";
+                    string subject = string.Format(textSubject, paymentType.Alias, Payment.Payment.Number, String.Format("{0:0,0.0}", Payment.Payment.TotalValue), customerName, policyList.ToString());
+                    Management management = new Management
+                    {
+                        ManagementType = "G",
+                        CreationUser = int.Parse(idUser),
+                        StartDate = DateTime.Now,
+                        EndDate = DateTime.Now,
+                        State = "R",
+                        Subject = subject,
+                        ManagementPartner = "R",
+                        IdCustomer = Payment.Payment.IdCustomer,
+                        IsExtra = false,
+                        IdPayment = Payment.Payment.Id
+                    };
                     transaction.Complete();
                 }
                 catch (Exception ex)

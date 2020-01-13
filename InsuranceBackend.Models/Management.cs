@@ -23,6 +23,7 @@ namespace InsuranceBackend.Models
         public bool IsExtra { get; set; }
         [Write(false)]
         public int IdManagementParent { get; set; }
-        public int IdPolicyOrder { get; set; }
+        public int? IdPolicyOrder { get; set; }
+        public int? IdPayment { get; set; }
     }
 }

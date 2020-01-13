@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using InsuranceBackend.Models;
 using InsuranceBackend.UnitOfWork;
+using InsuranceBackend.WebApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -57,6 +58,20 @@ namespace InsuranceBackend.WebApi.Controllers
             try
             {
                 return Ok(_unitOfWork.Management.ManagementPagedList(page, rows));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("GetPaginatedManagementByCustomer")]
+        public IActionResult GetPaginatedManagementByCustomer([FromBody]GetPaginatedManagementByCustomer request)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Management.ManagementByCustomerList(request.Page, request.Rows, request.IdCustomer, request.State));
             }
             catch (Exception ex)
             {

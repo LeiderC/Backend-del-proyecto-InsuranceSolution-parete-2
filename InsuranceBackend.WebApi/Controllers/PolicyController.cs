@@ -244,6 +244,7 @@ namespace InsuranceBackend.WebApi.Controllers
                             State = "R",
                             Subject = subject,
                             ManagementPartner = "O",
+                            IdCustomer = policy.Policy.IdPolicyHolder,
                             IsExtra = false,
                         };
                         int idManagement = _unitOfWork.Management.Insert(management);
@@ -271,6 +272,7 @@ namespace InsuranceBackend.WebApi.Controllers
                             State = "P",
                             Subject = subjectTask,
                             ManagementPartner = "O",
+                            IdCustomer = policy.Policy.IdPolicyHolder,
                             IsExtra = true,
                         };
                         int idTask = _unitOfWork.Management.Insert(task);
@@ -317,6 +319,7 @@ namespace InsuranceBackend.WebApi.Controllers
                                 State = "R",
                                 Subject = subject,
                                 ManagementPartner = "O",
+                                IdCustomer = policy.Policy.IdPolicyHolder,
                                 IsExtra = false,
                             };
                             _unitOfWork.Management.Insert(management);
@@ -495,6 +498,7 @@ namespace InsuranceBackend.WebApi.Controllers
                                 State = "R",
                                 Subject = subject,
                                 ManagementPartner = "O",
+                                IdCustomer = policy.Policy.IdPolicyHolder,
                                 IsExtra = false,
                             };
                             _unitOfWork.Management.Insert(management);
@@ -530,6 +534,7 @@ namespace InsuranceBackend.WebApi.Controllers
                                 State = "R",
                                 Subject = subject,
                                 ManagementPartner = "O",
+                                IdCustomer = policy.Policy.IdPolicyHolder,
                                 IsExtra = false,
                             };
                             _unitOfWork.Management.Insert(management);
