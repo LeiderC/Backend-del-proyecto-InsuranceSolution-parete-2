@@ -11,6 +11,5 @@ namespace InsuranceBackend.WebApi.Models
         public int Rows { get; set; }
         public string SearchTerm { get; set; }
         public string Type { get; set; }
-        public bool OnlyPolicy { get; set; }
     }
 }

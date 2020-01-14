@@ -61,7 +61,35 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                return Ok(_unitOfWork.Policy.PolicyCustomerPagedListSearchTerms(request.Type, request.SearchTerm, request.OnlyPolicy, request.Page, request.Rows));
+                return Ok(_unitOfWork.Policy.PolicyCustomerPagedListSearchTerms(request.Type, request.SearchTerm, request.Page, request.Rows));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("GetPolicyCustomerBySearchTermsOnlyPolicy")]
+        public IActionResult GetPolicyCustomerBySearchTermsOnlyPolicy([FromBody]GetPaginatedSearchTermType request)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Policy.PolicyCustomerPagedListSearchTermsOnlyPolicy(request.Type, request.SearchTerm, request.Page, request.Rows));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("GetPolicyCustomerBySearchTermsOnlyOrder")]
+        public IActionResult GetPolicyCustomerBySearchTermsOnlyOrder([FromBody]GetPaginatedSearchTermType request)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Policy.PolicyCustomerPagedListSearchTermsOnlyOrder(request.Type, request.SearchTerm, request.Page, request.Rows));
             }
             catch (Exception ex)
             {

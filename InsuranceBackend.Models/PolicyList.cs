@@ -29,5 +29,7 @@ namespace InsuranceBackend.Models
         public string Email { get; set; }
         public int IdCustomer { get; set; }
         public bool Leaflet { get; set; }
+        public string StateOrder { get; set; }
+        public string StateOrderDesc { get; set; }
     }
 }
