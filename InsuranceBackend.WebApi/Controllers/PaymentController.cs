@@ -115,7 +115,7 @@ namespace InsuranceBackend.WebApi.Controllers
                     //Creamos gestión con el recaudo realizado
                     Customer customer = _unitOfWork.Customer.GetById(Payment.Payment.IdCustomer);
                     string customerName = customer.FirstName + (string.IsNullOrEmpty(customer.MiddleName) ? "" : " " + customer.MiddleName) + customer.LastName + (string.IsNullOrEmpty(customer.MiddleLastName) ? "" : " " + customer.MiddleLastName);
-                    string textSubject = "Creación Pago {1} # {2}, Total: {3}, Cliente: {4}, Detalle Pago: {5}";
+                    string textSubject = "Creación Pago {0} # {1}, Total: {2}, Cliente: {3}, Detalle Pago: {4}";
                     string subject = string.Format(textSubject, paymentType.Alias, Payment.Payment.Number, String.Format("{0:0,0.0}", Payment.Payment.TotalValue), customerName, policyList.ToString());
                     Management management = new Management
                     {
@@ -130,6 +130,7 @@ namespace InsuranceBackend.WebApi.Controllers
                         IsExtra = false,
                         IdPayment = idPayment
                     };
+                    _unitOfWork.Management.Insert(management);
                     transaction.Complete();
                 }
                 catch (Exception ex)
@@ -173,7 +174,7 @@ namespace InsuranceBackend.WebApi.Controllers
                     PaymentType paymentType = _unitOfWork.PaymentType.GetList().Where(p => p.Id.Equals(Payment.Payment.IdPaymentType)).FirstOrDefault();
                     Customer customer = _unitOfWork.Customer.GetById(Payment.Payment.IdCustomer);
                     string customerName = customer.FirstName + (string.IsNullOrEmpty(customer.MiddleName) ? "" : " " + customer.MiddleName) + customer.LastName + (string.IsNullOrEmpty(customer.MiddleLastName) ? "" : " " + customer.MiddleLastName);
-                    string textSubject = "Modificación Pago {1} # {2}, Total: {3}, Cliente: {4}, Detalle Pago: {5}";
+                    string textSubject = "Modificación Pago {0} # {1}, Total: {2}, Cliente: {3}, Detalle Pago: {4}";
                     string subject = string.Format(textSubject, paymentType.Alias, Payment.Payment.Number, String.Format("{0:0,0.0}", Payment.Payment.TotalValue), customerName, policyList.ToString());
                     Management management = new Management
                     {
@@ -188,6 +189,7 @@ namespace InsuranceBackend.WebApi.Controllers
                         IsExtra = false,
                         IdPayment = Payment.Payment.Id
                     };
+                    _unitOfWork.Management.Insert(management);
                     transaction.Complete();
                 }
                 catch (Exception ex)
