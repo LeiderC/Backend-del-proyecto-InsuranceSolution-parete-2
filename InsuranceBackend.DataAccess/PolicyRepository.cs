@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using InsuranceBackend.Models;
 using InsuranceBackend.Repositories;
 using System.Data.SqlClient;
+using System;
 
 namespace InsuranceBackend.DataAccess
 {
@@ -107,6 +108,21 @@ namespace InsuranceBackend.DataAccess
             using (var connection = new SqlConnection(_connectionString))
             {
                 return connection.Query<PolicyList>("dbo.PolicyCustomerPagedListSearchTermsOnlyOrder", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public IEnumerable<PolicyList> PolicyPromisoryNotePagedList(DateTime startDate, DateTime endDate, int page, int rows)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@page", page);
+            parameters.Add("@rows", rows);
+            parameters.Add("@startDate", startDate);
+            parameters.Add("@endDate", endDate);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PolicyList>("dbo.PolicyPromisoryNotePagedList", parameters,
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }

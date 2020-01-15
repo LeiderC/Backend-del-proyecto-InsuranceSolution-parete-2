@@ -75,6 +75,7 @@ namespace InsuranceBackend.DataAccess
             PaymentType = new PaymentTypeRepository(connectionString);
             Payment = new PaymentRepository(connectionString);
             PaymentDetail = new PaymentDetailRepository(connectionString);
+            PolicyPromisoryNote = new PolicyPromisoryNoteRepository(connectionString);
         }
         public ICityRepository City { get; private set; }
         public ICountryRepository Country { get; private set; }
@@ -144,5 +145,6 @@ namespace InsuranceBackend.DataAccess
         public IPaymentTypeRepository PaymentType { get; private set; }
         public IPaymentRepository Payment { get; private set; }
         public IPaymentDetailRepository PaymentDetail { get; private set; }
+        public IPolicyPromisoryNoteRepository PolicyPromisoryNote { get; private set; }
     }
 }

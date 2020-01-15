@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using InsuranceBackend.Models;
 
 namespace InsuranceBackend.Repositories
@@ -12,5 +13,6 @@ namespace InsuranceBackend.Repositories
         IEnumerable<PolicyList> PolicyCustomerPagedListSearchTermsOnlyPolicy(string type, string searchCriteria, int page, int rows);
         IEnumerable<PolicyList> PolicyCustomerPagedListSearchTermsOnlyOrder(string type, string searchCriteria, int page, int rows);
         PolicyList PolicyListById(int idPolicy);
+        IEnumerable<PolicyList> PolicyPromisoryNotePagedList(DateTime startDate, DateTime endDate, int page, int rows);
     }
 }

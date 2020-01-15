@@ -112,6 +112,20 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpPost]
+        [Route("GetPolicyPromisoryNotePaged")]
+        public IActionResult GetPolicyPromisoryNotePaged([FromBody]GetPaginatedPolicyPromisoryNote request)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Policy.PolicyPromisoryNotePagedList(request.StartDate.Date, request.EndDate.Date, request.Page, request.Rows));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
         public IActionResult Post([FromBody]PolicySave policy)
         {
             int idPolicy = 0;

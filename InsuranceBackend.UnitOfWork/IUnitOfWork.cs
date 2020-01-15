@@ -72,5 +72,6 @@ namespace InsuranceBackend.UnitOfWork
         IPaymentTypeRepository PaymentType { get; }
         IPaymentRepository Payment { get; }
         IPaymentDetailRepository PaymentDetail { get; }
+        IPolicyPromisoryNoteRepository PolicyPromisoryNote { get; }
     }
 }
