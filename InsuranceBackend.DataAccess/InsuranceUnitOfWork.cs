@@ -76,6 +76,8 @@ namespace InsuranceBackend.DataAccess
             Payment = new PaymentRepository(connectionString);
             PaymentDetail = new PaymentDetailRepository(connectionString);
             PolicyPromisoryNote = new PolicyPromisoryNoteRepository(connectionString);
+            ManagementReason = new ManagementReasonRepository(connectionString);
+            InterestDue = new InterestDueRepository(connectionString);
         }
         public ICityRepository City { get; private set; }
         public ICountryRepository Country { get; private set; }
@@ -146,5 +148,7 @@ namespace InsuranceBackend.DataAccess
         public IPaymentRepository Payment { get; private set; }
         public IPaymentDetailRepository PaymentDetail { get; private set; }
         public IPolicyPromisoryNoteRepository PolicyPromisoryNote { get; private set; }
+        public IManagementReasonRepository ManagementReason { get; private set; }
+        public IInterestDueRepository InterestDue { get; private set; }
     }
 }

@@ -126,6 +126,34 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpPost]
+        [Route("GetPolicyCommissionPaged")]
+        public IActionResult GetPolicyCommissionPaged([FromBody]GetPaginatedPolicyCommission request)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Policy.PolicyCommissionPagedList(request.InsuranceId, request.StartDate.Date, request.EndDate.Date, request.Page, request.Rows));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("GetPolicyCommission")]
+        public IActionResult GetPolicyCommission([FromBody]GetPaginatedPolicyCommission request)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Policy.PolicyCommissionList(request.InsuranceId, request.StartDate.Date, request.EndDate.Date));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
         public IActionResult Post([FromBody]PolicySave policy)
         {
             int idPolicy = 0;
@@ -252,6 +280,22 @@ namespace InsuranceBackend.WebApi.Controllers
                             _unitOfWork.PolicyFee.Insert(policyFee);
                         }
                     }
+                    else
+                    {
+                        if (policy.Policy.IdPaymentMethod != "2") // Si no es financiado debemos crear por lo menos una cuota para poder hacer los pagos
+                        {
+                            PolicyFee policyFee = new PolicyFee
+                            {
+                                Number = 1,
+                                IdPolicy = idPolicy,
+                                Date = DateTime.Now,
+                                Value = policy.Policy.TotalValue,
+                                DateInsurance = DateTime.Now,
+                                DatePayment = DateTime.Now
+                            };
+                            _unitOfWork.PolicyFee.Insert(policyFee);
+                        }
+                    }
                     //Si es una orden se debe guardar
                     if (policy.Policy.IsOrder)
                     {
@@ -325,13 +369,16 @@ namespace InsuranceBackend.WebApi.Controllers
                         if (policy.PolicyOrderId > 0)
                         {
                             //Primero deshabilitamos la que existe
-                            if (_unitOfWork.PolicyOrderDetail.UpdateState(policy.PolicyOrderId, "I"))
-                                _unitOfWork.PolicyOrderDetail.Insert(new PolicyOrderDetail { IdPolicyOrder = policy.PolicyOrderId, IdPolicy = idPolicy, CreationDate = DateTime.Now, State = "A" });
+                            _unitOfWork.PolicyOrderDetail.UpdateState(policy.PolicyOrderId, "I");
+                            _unitOfWork.PolicyOrderDetail.Insert(new PolicyOrderDetail { IdPolicyOrder = policy.PolicyOrderId, IdPolicy = idPolicy, CreationDate = DateTime.Now, State = "A" });
                             //Debemos dar la tarea por terminada y crear una gestión indicando la sistematización que se hizo
                             //tarea
                             Management task = _unitOfWork.Management.ManagementByPolicyOrder(policy.PolicyOrderId, "T");
-                            task.State = "R";
-                            _unitOfWork.Management.Update(task);
+                            if (task != null)
+                            {
+                                task.State = "R";
+                                _unitOfWork.Management.Update(task);
+                            }
                             //gestión
                             Customer h = _unitOfWork.Customer.GetById(policy.Policy.IdPolicyHolder);
                             string policyHolder = h.FirstName + (string.IsNullOrEmpty(h.MiddleName) ? "" : " " + h.MiddleName) + h.LastName + (string.IsNullOrEmpty(h.MiddleLastName) ? "" : " " + h.MiddleLastName);

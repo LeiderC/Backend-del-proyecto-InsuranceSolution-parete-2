@@ -10,12 +10,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace InsuranceBackend.WebApi.Controllers
 {
     [Produces("application/json")]
-    [Route("api/paymentType")]
+    [Route("api/interestDue")]
     [Authorize]
-    public class PaymentTypeController : Controller
+    public class InterestDueController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-        public PaymentTypeController(IUnitOfWork unitOfWork)
+        public InterestDueController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
@@ -25,7 +25,7 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                return Ok(_unitOfWork.PaymentType.GetList());
+                return Ok(_unitOfWork.InterestDue.GetList());
             }
             catch (Exception ex)
             {
@@ -39,7 +39,7 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                return Ok(_unitOfWork.PaymentType.GetById(id));
+                return Ok(_unitOfWork.InterestDue.GetById(id));
             }
             catch (Exception ex)
             {
@@ -47,14 +47,13 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
-
         [HttpGet]
-        [Route("GetPaginatedPaymentType/{page:int}/{rows:int}")]
-        public IActionResult GetPaginatedPaymentType(int page, int rows)
+        [Route("GetPaginatedInterestDue/{page:int}/{rows:int}")]
+        public IActionResult GetPaginatedInterestDue(int page, int rows)
         {
             try
             {
-                return Ok(_unitOfWork.PaymentType.PaymentTypePagedList(page, rows));
+                return Ok(_unitOfWork.InterestDue.InterestDuePagedList(page, rows));
             }
             catch (Exception ex)
             {
@@ -62,15 +61,14 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
-
         [HttpPost]
-        public IActionResult Post([FromBody]PaymentType PaymentType)
+        public IActionResult Post([FromBody]InterestDue InterestDue)
         {
             try
             {
                 if (!ModelState.IsValid)
                     return BadRequest();
-                return Ok(_unitOfWork.PaymentType.Insert(PaymentType));
+                return Ok(_unitOfWork.InterestDue.Insert(InterestDue));
             }
             catch (Exception ex)
             {
@@ -78,15 +76,14 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
-
         [HttpPut]
-        public IActionResult Put([FromBody]PaymentType PaymentType)
+        public IActionResult Put([FromBody]InterestDue InterestDue)
         {
             try
             {
-                if (ModelState.IsValid && _unitOfWork.PaymentType.Update(PaymentType))
+                if (ModelState.IsValid && _unitOfWork.InterestDue.Update(InterestDue))
                 {
-                    return Ok(new { Message = "El tipo de pago se ha actualizado" });
+                    return Ok(new { Message = "Tasa de interés se ha actualizado" });
                 }
                 else
                     return BadRequest();
@@ -97,17 +94,16 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
-
         [HttpDelete("{id}")]
-        public IActionResult Delete(string id)
+        public IActionResult Delete(int id)
         {
             try
             {
-                PaymentType paymentType = _unitOfWork.PaymentType.GetList().Where(p => p.Id.Equals(id)).FirstOrDefault();
-                if (paymentType == null)
+                var InterestDue = _unitOfWork.InterestDue.GetById(id);
+                if (InterestDue == null)
                     return NotFound();
-                if (_unitOfWork.PaymentType.Delete(paymentType))
-                    return Ok(new { Message = "Tipo de pago se ha eliminado" });
+                if (_unitOfWork.InterestDue.Delete(InterestDue))
+                    return Ok(new { Message = "Tasa de interés se ha eliminado" });
                 else
                     return BadRequest();
             }
@@ -116,6 +112,5 @@ namespace InsuranceBackend.WebApi.Controllers
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
-
     }
 }

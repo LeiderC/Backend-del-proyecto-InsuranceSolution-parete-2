@@ -57,7 +57,8 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                return Ok(_unitOfWork.Management.ManagementPagedList(page, rows));
+                string idUser = User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value;
+                return Ok(_unitOfWork.Management.ManagementPagedList(page, rows, int.Parse(idUser)));
             }
             catch (Exception ex)
             {

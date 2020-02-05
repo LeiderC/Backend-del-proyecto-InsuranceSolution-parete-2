@@ -10,12 +10,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace InsuranceBackend.WebApi.Controllers
 {
     [Produces("application/json")]
-    [Route("api/paymentType")]
+    [Route("api/managementReason")]
     [Authorize]
-    public class PaymentTypeController : Controller
+    public class ManagementReasonController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-        public PaymentTypeController(IUnitOfWork unitOfWork)
+        public ManagementReasonController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
@@ -25,7 +25,7 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                return Ok(_unitOfWork.PaymentType.GetList());
+                return Ok(_unitOfWork.ManagementReason.GetList());
             }
             catch (Exception ex)
             {
@@ -39,7 +39,7 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                return Ok(_unitOfWork.PaymentType.GetById(id));
+                return Ok(_unitOfWork.ManagementReason.GetById(id));
             }
             catch (Exception ex)
             {
@@ -47,14 +47,13 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
-
         [HttpGet]
-        [Route("GetPaginatedPaymentType/{page:int}/{rows:int}")]
-        public IActionResult GetPaginatedPaymentType(int page, int rows)
+        [Route("GetPaginatedManagementReason/{page:int}/{rows:int}")]
+        public IActionResult GetPaginatedManagementReason(int page, int rows)
         {
             try
             {
-                return Ok(_unitOfWork.PaymentType.PaymentTypePagedList(page, rows));
+                return Ok(_unitOfWork.ManagementReason.ManagementReasonPagedList(page, rows));
             }
             catch (Exception ex)
             {
@@ -62,15 +61,14 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
-
         [HttpPost]
-        public IActionResult Post([FromBody]PaymentType PaymentType)
+        public IActionResult Post([FromBody]ManagementReason ManagementReason)
         {
             try
             {
                 if (!ModelState.IsValid)
-                    return BadRequest();
-                return Ok(_unitOfWork.PaymentType.Insert(PaymentType));
+                return BadRequest();
+                return Ok(_unitOfWork.ManagementReason.Insert(ManagementReason));
             }
             catch (Exception ex)
             {
@@ -80,16 +78,16 @@ namespace InsuranceBackend.WebApi.Controllers
 
 
         [HttpPut]
-        public IActionResult Put([FromBody]PaymentType PaymentType)
+        public IActionResult Put([FromBody]ManagementReason ManagementReason)
         {
             try
             {
-                if (ModelState.IsValid && _unitOfWork.PaymentType.Update(PaymentType))
-                {
-                    return Ok(new { Message = "El tipo de pago se ha actualizado" });
-                }
-                else
-                    return BadRequest();
+                if (ModelState.IsValid && _unitOfWork.ManagementReason.Update(ManagementReason))
+            {
+                return Ok(new { Message = "Motivo de gestión se ha actualizado" });
+            }
+            else
+                return BadRequest();
             }
             catch (Exception ex)
             {
@@ -99,15 +97,15 @@ namespace InsuranceBackend.WebApi.Controllers
 
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(string id)
+        public IActionResult Delete(int id)
         {
             try
             {
-                PaymentType paymentType = _unitOfWork.PaymentType.GetList().Where(p => p.Id.Equals(id)).FirstOrDefault();
-                if (paymentType == null)
+                var managementReason = _unitOfWork.ManagementReason.GetById(id);
+                if (managementReason == null)
                     return NotFound();
-                if (_unitOfWork.PaymentType.Delete(paymentType))
-                    return Ok(new { Message = "Tipo de pago se ha eliminado" });
+                if (_unitOfWork.ManagementReason.Delete(managementReason))
+                    return Ok(new { Message = "Motivo de gestión se ha eliminado" });
                 else
                     return BadRequest();
             }
@@ -116,6 +114,5 @@ namespace InsuranceBackend.WebApi.Controllers
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
-
     }
 }

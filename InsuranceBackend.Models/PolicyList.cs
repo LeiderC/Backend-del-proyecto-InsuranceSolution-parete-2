@@ -31,5 +31,7 @@ namespace InsuranceBackend.Models
         public bool Leaflet { get; set; }
         public string StateOrder { get; set; }
         public string StateOrderDesc { get; set; }
+        public double CommissionPercentage { get; set; }
+        public double Commission { get; set; }
     }
 }

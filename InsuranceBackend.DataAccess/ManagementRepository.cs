@@ -24,11 +24,12 @@ namespace InsuranceBackend.DataAccess
             }
         }
 
-        public IEnumerable<ManagementList> ManagementPagedList(int page, int rows)
+        public IEnumerable<ManagementList> ManagementPagedList(int page, int rows, int idUser)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@page", page);
             parameters.Add("@rows", rows);
+            parameters.Add("@idUser", idUser);
 
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -59,7 +60,7 @@ namespace InsuranceBackend.DataAccess
 
             using (var connection = new SqlConnection(_connectionString))
             {
-                return connection.QueryFirst<Management>("dbo.ManagementByPolicyOrder", parameters,
+                return connection.QueryFirstOrDefault<Management>("dbo.ManagementByPolicyOrder", parameters,
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }

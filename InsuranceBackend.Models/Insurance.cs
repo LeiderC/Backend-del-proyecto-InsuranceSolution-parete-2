@@ -15,5 +15,9 @@ namespace InsuranceBackend.Models
         public string Phone { get; set; }
         public string Email { get; set; }
         public string State { get; set; }
+        public bool Weekly { get; set; }
+        public int Weekday { get; set; }
+        public int Day1 { get; set; }
+        public int Day2 { get; set; }
     }
 }
