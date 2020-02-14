@@ -33,5 +33,6 @@ namespace InsuranceBackend.Models
         public string StateOrderDesc { get; set; }
         public double CommissionPercentage { get; set; }
         public double Commission { get; set; }
+        public int RowNumber { get; set; }
     }
 }
