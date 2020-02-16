@@ -99,18 +99,18 @@ namespace InsuranceBackend.WebApi.Controllers
                     {
                         foreach (var item in Payment.PaymentDetails)
                         {
-                            string text = "Póliza #{0} {1} {2} {3} {4}, Cuota: {5}, Valor {6}";
+                            string text = "Póliza #{0} {1} {2} {3} {4}, Cuota: {5}, Valor {6}, Valor Int. Mora {7}";
                             if (policyList.Length > 0)
-                                policyList.Append(" | " + string.Format(text, item.Number, item.MovementShort, item.InsuranceDesc, item.InsuranceLineDesc, item.InsuranceSublineDesc, item.FeeNumber, String.Format("{0:0,0.0}", item.Value)));
+                                policyList.Append(" | " + string.Format(text, item.Number, item.MovementShort, item.InsuranceDesc, item.InsuranceLineDesc, item.InsuranceSublineDesc, item.FeeNumber, String.Format("{0:0,0.0}", item.Value), String.Format("{0:0,0.0}", item.DueInterestValue)));
                             else
-                                policyList.Append(string.Format(text, item.Number, item.MovementShort, item.InsuranceDesc, item.InsuranceLineDesc, item.InsuranceSublineDesc, item.FeeNumber, String.Format("{0:0,0.0}", item.Value)));
-                            PaymentDetail paymentDetail = new PaymentDetail { FeeNumber = item.FeeNumber, IdPayment = idPayment, IdPolicy = item.IdPolicy, Value = item.Value };
+                                policyList.Append(string.Format(text, item.Number, item.MovementShort, item.InsuranceDesc, item.InsuranceLineDesc, item.InsuranceSublineDesc, item.FeeNumber, String.Format("{0:0,0.0}", item.Value), String.Format("{0:0,0.0}", item.DueInterestValue)));
+                            PaymentDetail paymentDetail = new PaymentDetail { FeeNumber = item.FeeNumber, IdPayment = idPayment, IdPolicy = item.IdPolicy, Value = item.Value, DueInterestValue = item.DueInterestValue };
                             _unitOfWork.PaymentDetail.Insert(paymentDetail);
                         }
                     }
                     //Actualizamos el consecutivo
                     PaymentType paymentType = _unitOfWork.PaymentType.GetList().Where(p => p.Id.Equals(Payment.Payment.IdPaymentType)).FirstOrDefault();
-                    paymentType.Number = Payment.Payment.Number;
+                    paymentType.Number = Payment.Payment.Number + 1;
                     _unitOfWork.PaymentType.Update(paymentType);
                     //Creamos gestión con el recaudo realizado
                     Customer customer = _unitOfWork.Customer.GetById(Payment.Payment.IdCustomer);

@@ -34,5 +34,6 @@ namespace InsuranceBackend.Models
         public double CommissionPercentage { get; set; }
         public double Commission { get; set; }
         public int RowNumber { get; set; }
+        public bool GenerateInterestDue { get; set; }
     }
 }

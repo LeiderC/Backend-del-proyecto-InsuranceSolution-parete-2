@@ -16,5 +16,6 @@ namespace InsuranceBackend.Repositories
         IEnumerable<PolicyList> PolicyPromisoryNotePagedList(DateTime startDate, DateTime endDate, int page, int rows);
         IEnumerable<PolicyList> PolicyCommissionPagedList(int InsuranceId, DateTime startDate, DateTime endDate, int page, int rows);
         IEnumerable<PolicyList> PolicyCommissionList(int InsuranceId, DateTime startDate, DateTime endDate);
+        IEnumerable<PolicyPortfolioList> PortfolioReportList(DateTime? startDate, DateTime? endDate, int idInsurance, int idCustomer, string license);
     }
 }

@@ -9,5 +9,7 @@ namespace InsuranceBackend.Models
         public int TotalRecords { get; set; }
         public bool Paid { get; set; }
         public string PaidDesc { get; set; }
+        public bool Expire { get; set; }
+        public double DueInterestValue { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using InsuranceBackend.Models;
 using InsuranceBackend.UnitOfWork;
+using InsuranceBackend.WebApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -54,6 +55,20 @@ namespace InsuranceBackend.WebApi.Controllers
             try
             {
                 return Ok(_unitOfWork.InterestDue.InterestDuePagedList(page, rows));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("ValidateInterestDue")]
+        public IActionResult ValidateInterestDue([FromBody]GetSearchTerm request)
+        {
+            try
+            {
+                return Ok(_unitOfWork.InterestDue.ValidateInterestDue(int.Parse(request.SearchTerm)));
             }
             catch (Exception ex)
             {

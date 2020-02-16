@@ -11,5 +11,6 @@ namespace InsuranceBackend.Models
         public int IdPolicy { get; set; }
         public float Value { get; set; }
         public int FeeNumber { get; set; }
+        public float DueInterestValue { get; set; }
     }
 }

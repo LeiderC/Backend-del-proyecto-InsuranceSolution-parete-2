@@ -156,5 +156,21 @@ namespace InsuranceBackend.DataAccess
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }
+
+        public IEnumerable<PolicyPortfolioList> PortfolioReportList(DateTime? startDate, DateTime? endDate, int idInsurance, int idCustomer, string license)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@startDate", startDate);
+            parameters.Add("@endDate", endDate);
+            parameters.Add("@idInsurance", idInsurance);
+            parameters.Add("@idCustomer", idCustomer);
+            parameters.Add("@license", license);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PolicyPortfolioList>("dbo.PolicyPortfolioReportList", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
     }
 }

@@ -10,5 +10,6 @@ namespace InsuranceBackend.Models
         public string Description { get; set; }
         public string Alias { get; set; }
         public bool InitialFeeIncluded { get; set; }
+        public bool GenerateInterestDue { get; set; }
     }
 }

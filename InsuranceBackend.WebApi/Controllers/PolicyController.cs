@@ -154,6 +154,20 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpPost]
+        [Route("GetPolicyPortfolioReport")]
+        public IActionResult GetPolicyPortfolioReport([FromBody]GetPolicyPortfolio request)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Policy.PortfolioReportList(request.StartDate, request.EndDate, request.IdInsurance, request.IdCustomer, request.License));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
         public IActionResult Post([FromBody]PolicySave policy)
         {
             int idPolicy = 0;
