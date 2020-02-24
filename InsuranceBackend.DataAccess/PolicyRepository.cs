@@ -127,6 +127,21 @@ namespace InsuranceBackend.DataAccess
             }
         }
 
+        public IEnumerable<PolicyList> PolicyOutlayPagedList(DateTime startDate, DateTime endDate, int page, int rows)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@page", page);
+            parameters.Add("@rows", rows);
+            parameters.Add("@startDate", startDate);
+            parameters.Add("@endDate", endDate);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PolicyList>("dbo.PolicyOutlayPagedList", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
         public IEnumerable<PolicyList> PolicyCommissionPagedList(int InsuranceId, DateTime startDate, DateTime endDate, int page, int rows)
         {
             var parameters = new DynamicParameters();
@@ -157,7 +172,21 @@ namespace InsuranceBackend.DataAccess
             }
         }
 
-        public IEnumerable<PolicyPortfolioList> PortfolioReportList(DateTime? startDate, DateTime? endDate, int idInsurance, int idCustomer, string license)
+        public IEnumerable<PolicyList> PolicyCommissionSalesmanList(int idSalesman, DateTime? startDate, DateTime? endDate)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idSalesman", idSalesman);
+            parameters.Add("@startDate", startDate);
+            parameters.Add("@endDate", endDate);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PolicyList>("dbo.PolicyCommissionSalesmanList", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public IEnumerable<PolicyPortfolioList> PolicyPortfolioReportList(DateTime? startDate, DateTime? endDate, int idInsurance, int idCustomer, string license)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@startDate", startDate);
@@ -169,6 +198,21 @@ namespace InsuranceBackend.DataAccess
             using (var connection = new SqlConnection(_connectionString))
             {
                 return connection.Query<PolicyPortfolioList>("dbo.PolicyPortfolioReportList", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public IEnumerable<PolicyList> PolicyPaymentThirdParties(DateTime? startDate, DateTime? endDate, int idInsurance, int idFinancial)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@startDate", startDate);
+            parameters.Add("@endDate", endDate);
+            parameters.Add("@idInsurance", idInsurance);
+            parameters.Add("@idFinancial", idFinancial);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PolicyList>("dbo.PolicyPaymentThirParties", parameters,
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }

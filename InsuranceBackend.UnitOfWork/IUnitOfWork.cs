@@ -75,5 +75,6 @@ namespace InsuranceBackend.UnitOfWork
         IPolicyPromisoryNoteRepository PolicyPromisoryNote { get; }
         IManagementReasonRepository ManagementReason { get; }
         IInterestDueRepository InterestDue { get; }
+        IPolicyOutlayRepository PolicyOutlay { get; }
     }
 }

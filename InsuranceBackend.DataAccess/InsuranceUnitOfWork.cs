@@ -78,6 +78,7 @@ namespace InsuranceBackend.DataAccess
             PolicyPromisoryNote = new PolicyPromisoryNoteRepository(connectionString);
             ManagementReason = new ManagementReasonRepository(connectionString);
             InterestDue = new InterestDueRepository(connectionString);
+            PolicyOutlay = new PolicyOutlayRepository(connectionString);
         }
         public ICityRepository City { get; private set; }
         public ICountryRepository Country { get; private set; }
@@ -150,5 +151,6 @@ namespace InsuranceBackend.DataAccess
         public IPolicyPromisoryNoteRepository PolicyPromisoryNote { get; private set; }
         public IManagementReasonRepository ManagementReason { get; private set; }
         public IInterestDueRepository InterestDue { get; private set; }
+        public IPolicyOutlayRepository PolicyOutlay { get; private set; }
     }
 }

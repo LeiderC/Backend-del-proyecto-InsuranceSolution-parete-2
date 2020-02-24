@@ -11,6 +11,9 @@ namespace InsuranceBackend.Models
         public string InsuranceLineDesc { get; set; }
         public string InsuranceLineShort { get; set; }
         public string InsuranceSublineDesc { get; set; }
+        public string PaymentMethodShort { get; set; }
+        public string PaymentMethodDesc { get; set; }
+        public string FinancialDesc { get; set; }
         public string State { get; set; }
         public string Name { get; set; }
         public string InsuranceList { get; set; }

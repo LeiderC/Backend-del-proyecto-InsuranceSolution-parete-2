@@ -35,5 +35,7 @@ namespace InsuranceBackend.Models
         public double Commission { get; set; }
         public int RowNumber { get; set; }
         public bool GenerateInterestDue { get; set; }
+        public double? Value { get; set; }
+        public DateTime? DatePayment { get; set; }
     }
 }
