@@ -26,5 +26,6 @@ namespace InsuranceBackend.Models
         public int? IdPolicyOrder { get; set; }
         public int? IdPayment { get; set; }
         public int? IdManagementReason { get; set; }
+        public bool? Assignable { get; set; }
     }
 }

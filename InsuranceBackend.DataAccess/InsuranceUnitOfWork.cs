@@ -79,6 +79,11 @@ namespace InsuranceBackend.DataAccess
             ManagementReason = new ManagementReasonRepository(connectionString);
             InterestDue = new InterestDueRepository(connectionString);
             PolicyOutlay = new PolicyOutlayRepository(connectionString);
+            Settlement = new SettlementRepository(connectionString);
+            PolicySettlement = new PolicySettlementRepository(connectionString);
+            Petition = new PetitionRepository(connectionString);
+            PetitionTrace = new PetitionTraceRepository(connectionString);
+            PetitionState = new PetitionStateRepository(connectionString);
         }
         public ICityRepository City { get; private set; }
         public ICountryRepository Country { get; private set; }
@@ -152,5 +157,10 @@ namespace InsuranceBackend.DataAccess
         public IManagementReasonRepository ManagementReason { get; private set; }
         public IInterestDueRepository InterestDue { get; private set; }
         public IPolicyOutlayRepository PolicyOutlay { get; private set; }
+        public ISettlementRepository Settlement { get; private set; }
+        public IPolicySettlementRepository PolicySettlement { get; private set; }
+        public IPetitionRepository Petition { get; private set; }
+        public IPetitionTraceRepository PetitionTrace { get; private set; }
+        public IPetitionStateRepository PetitionState { get; private set; }
     }
 }

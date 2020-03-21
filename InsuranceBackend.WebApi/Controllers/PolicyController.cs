@@ -126,6 +126,20 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpPost]
+        [Route("GetPolicyOutlayPaged")]
+        public IActionResult GetPolicyOutlayPaged([FromBody]GetPaginatedPolicyPromisoryNote request)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Policy.PolicyOutlayPagedList(request.StartDate.Date, request.EndDate.Date, request.Page, request.Rows));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
         [Route("GetPolicyCommissionPaged")]
         public IActionResult GetPolicyCommissionPaged([FromBody]GetPaginatedPolicyCommission request)
         {
@@ -154,17 +168,91 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpPost]
-        [Route("GetPolicyPortfolioReport")]
-        public IActionResult GetPolicyPortfolioReport([FromBody]GetPolicyPortfolio request)
+        [Route("GetPolicyCommissionSalesman")]
+        public IActionResult GetPolicyCommissionSalesman([FromBody]GetPolicyCommissionSalesman request)
         {
             try
             {
-                return Ok(_unitOfWork.Policy.PortfolioReportList(request.StartDate, request.EndDate, request.IdInsurance, request.IdCustomer, request.License));
+                return Ok(_unitOfWork.Policy.PolicyCommissionSalesmanList(request.IdSalesman, request.StartDate.Date, request.EndDate.Date));
             }
             catch (Exception ex)
             {
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
+        }
+
+        [HttpPost]
+        [Route("GetPolicyPortfolioReport")]
+        public IActionResult GetPolicyPortfolioReport([FromBody]GetPolicyPortfolio request)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Policy.PolicyPortfolioReportList(request.StartDate, request.EndDate, request.IdInsurance, request.IdCustomer, request.License));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("GetPolicyPaymentThirdParties")]
+        public IActionResult GetPolicyPaymentThirdParties([FromBody]GetPolicyPaymentThirdParties request)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Policy.PolicyPaymentThirdParties(request.StartDate, request.EndDate, request.IdInsurance, request.IdFinancial));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("SetPolicySettlement")]
+        public IActionResult SetPolicySettlement([FromBody]PolicySettlementSave request)
+        {
+            Settlement settlement = new Settlement();
+            if (!ModelState.IsValid)
+                return BadRequest();
+            using (var transaction = new TransactionScope())
+            {
+                try
+                {
+                    Settings settings = _unitOfWork.Settings.GetList().FirstOrDefault();
+                    settings.SettlementNumber += 1;
+                    _unitOfWork.Settings.Update(settings);
+                    //Primero debemos crear la liquidación (settlement)
+                    string idUser = User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value;
+                    request.Settlement.Number = settings.SettlementNumber;
+                    request.Settlement.IdUserSettle = int.Parse(idUser);
+                    request.Settlement.CreationDate = DateTime.Now;
+                    request.Settlement.DateSettle = DateTime.Now;
+                    double total = request.Policies.Sum(p => p.Commission);
+                    request.Settlement.Total = total;
+                    int idSettle = _unitOfWork.Settlement.Insert(request.Settlement);
+                    settlement = request.Settlement;
+                    settlement.Id = idSettle;
+                    //Debemos recorrer las pólizas e insertar en PolicySettlement
+                    foreach (var item in request.Policies)
+                    {
+                        PolicySettlement policySettlement = new PolicySettlement
+                        {
+                            IdPolicy = item.Id,
+                            IdSettle = idSettle
+                        };
+                        _unitOfWork.PolicySettlement.Insert(policySettlement);
+                    }
+                    transaction.Complete();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Dispose();
+                    return StatusCode(500, "Internal server error: " + ex.Message);
+                }
+            }
+            return Ok(settlement);
         }
 
         [HttpPost]
@@ -302,10 +390,9 @@ namespace InsuranceBackend.WebApi.Controllers
                             {
                                 Number = 1,
                                 IdPolicy = idPolicy,
-                                Date = DateTime.Now,
+                                Date = policy.Policy.StartDate.Value,
                                 Value = policy.Policy.TotalValue,
-                                DateInsurance = DateTime.Now,
-                                DatePayment = DateTime.Now
+                                DatePayment = policy.Policy.StartDate.Value,
                             };
                             _unitOfWork.PolicyFee.Insert(policyFee);
                         }
@@ -374,6 +461,7 @@ namespace InsuranceBackend.WebApi.Controllers
                             ManagementPartner = "O",
                             IdCustomer = policy.Policy.IdPolicyHolder,
                             IsExtra = true,
+                            Assignable = true
                         };
                         int idTask = _unitOfWork.Management.Insert(task);
                         _unitOfWork.ManagementExtra.Insert(new ManagementExtra { IdManagement = idManagement, IdManagementExtra = idTask });
@@ -566,6 +654,21 @@ namespace InsuranceBackend.WebApi.Controllers
                                     Value = item.Value,
                                     DateInsurance = item.DateInsurance,
                                     DatePayment = item.DatePayment
+                                };
+                                _unitOfWork.PolicyFee.Insert(policyFee);
+                            }
+                        }
+                        else
+                        {
+                            if (policy.Policy.IdPaymentMethod != "2") // Si no es financiado debemos crear por lo menos una cuota para poder hacer los pagos
+                            {
+                                PolicyFee policyFee = new PolicyFee
+                                {
+                                    Number = 1,
+                                    IdPolicy = idPolicy,
+                                    Date = policy.Policy.StartDate.Value,
+                                    Value = policy.Policy.TotalValue,
+                                    DatePayment = policy.Policy.StartDate.Value,
                                 };
                                 _unitOfWork.PolicyFee.Insert(policyFee);
                             }

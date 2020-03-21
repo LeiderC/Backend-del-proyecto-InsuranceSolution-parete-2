@@ -13,5 +13,7 @@ namespace InsuranceBackend.Models
         public double IVA { get; set; }
         public double IVAS { get; set; }
         public int TechnicalUserId { get; set; }
+        public int SettlementNumber { get; set; }
+        public int PetitionsNumber { get; set; }
     }
 }

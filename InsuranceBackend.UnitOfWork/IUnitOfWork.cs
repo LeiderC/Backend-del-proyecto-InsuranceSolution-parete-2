@@ -76,5 +76,10 @@ namespace InsuranceBackend.UnitOfWork
         IManagementReasonRepository ManagementReason { get; }
         IInterestDueRepository InterestDue { get; }
         IPolicyOutlayRepository PolicyOutlay { get; }
+        ISettlementRepository Settlement { get; }
+        IPolicySettlementRepository PolicySettlement { get; }
+        IPetitionRepository Petition { get; }
+        IPetitionTraceRepository PetitionTrace { get; }
+        IPetitionStateRepository PetitionState { get; }
     }
 }
