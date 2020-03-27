@@ -84,6 +84,8 @@ namespace InsuranceBackend.DataAccess
             Petition = new PetitionRepository(connectionString);
             PetitionTrace = new PetitionTraceRepository(connectionString);
             PetitionState = new PetitionStateRepository(connectionString);
+            CollectionMethod = new CollectionMethodRepository(connectionString);
+            PetitionType = new PetitionTypeRepository(connectionString);
         }
         public ICityRepository City { get; private set; }
         public ICountryRepository Country { get; private set; }
@@ -162,5 +164,7 @@ namespace InsuranceBackend.DataAccess
         public IPetitionRepository Petition { get; private set; }
         public IPetitionTraceRepository PetitionTrace { get; private set; }
         public IPetitionStateRepository PetitionState { get; private set; }
+        public ICollectionMethodRepository CollectionMethod { get; private set; }
+        public IPetitionTypeRepository PetitionType { get; private set; }
     }
 }
