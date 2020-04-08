@@ -37,13 +37,13 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("GetManagementByUser")]
-        public IActionResult GetManagementByUser()
+        [Route("GetManagementByUser/{idRenewal:int}")]
+        public IActionResult GetManagementByUser(int idRenewal)
         {
             try
             {
                 string idUser = User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value;
-                return Ok(_unitOfWork.Management.ManagementByUserList(int.Parse(idUser)));
+                return Ok(_unitOfWork.Management.ManagementByUserList(int.Parse(idUser), idRenewal));
             }
             catch (Exception ex)
             {

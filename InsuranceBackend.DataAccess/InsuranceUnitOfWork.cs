@@ -86,6 +86,8 @@ namespace InsuranceBackend.DataAccess
             PetitionState = new PetitionStateRepository(connectionString);
             CollectionMethod = new CollectionMethodRepository(connectionString);
             PetitionType = new PetitionTypeRepository(connectionString);
+            CancellationReason = new CancellationReasonRepository(connectionString);
+            Renewal = new RenewalRepository(connectionString);
         }
         public ICityRepository City { get; private set; }
         public ICountryRepository Country { get; private set; }
@@ -166,5 +168,7 @@ namespace InsuranceBackend.DataAccess
         public IPetitionStateRepository PetitionState { get; private set; }
         public ICollectionMethodRepository CollectionMethod { get; private set; }
         public IPetitionTypeRepository PetitionType { get; private set; }
+        public ICancellationReasonRepository CancellationReason { get; private set; }
+        public IRenewalRepository Renewal { get; private set; }
     }
 }

@@ -65,9 +65,6 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
-        /*[HttpPost]
-        [Route("GetPolicyBySearchTerms")]
-        public IActionResult GetCustomerByIdentification([FromBody]GetPaginatedPolicySearchTerm request)*/
         [HttpPost]
         [Route("CheckPermissions")]
         public IActionResult CheckPermissions([FromBody]GetCheckPermissions request)
@@ -76,6 +73,41 @@ namespace InsuranceBackend.WebApi.Controllers
             {
                 string idUser = User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value;
                 return Ok(_unitOfWork.User.CheckPermissions(int.Parse(idUser), request.Menu, request.Submenu, request.Action));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("ChangePassword")]
+        public IActionResult ChangePassword([FromBody]ChangePassword request)
+        {
+            try
+            {
+                string idUser = User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value;
+                SystemUser user = _unitOfWork.User.GetById(int.Parse(idUser));
+                if (user != null)
+                {
+                    SystemUser _user = _unitOfWork.User.ValidateUserPassword(user.Login, request.Password);
+                    if (_user != null)
+                    {
+                        // Actualizamos la contraseña
+                        _user.Password = request.NewPassword;
+                        _user.ChangePassword = false;
+                        HashSalt salt = new HashSalt();
+                        salt = PasswordUtil.GenerateSaltedHash(32, _user.Password);
+                        _user.Password = salt.Hash;
+                        _user.Help = salt.Salt;
+                        return Ok(_unitOfWork.User.Update(_user));
+                    }
+                    else
+                    {
+                        return StatusCode(500, "La clave ingresada no corresponde a la clave del usuario");
+                    }
+                }
+                return StatusCode(500, "No se encuentra el usuario");
             }
             catch (Exception ex)
             {
@@ -136,8 +168,9 @@ namespace InsuranceBackend.WebApi.Controllers
                     _unitOfWork.User.Update(user);
                     //UserProfile
                     UserProfile userProfile = _unitOfWork.UserProfile.UserProfileByUser(user.Id);
+                    _unitOfWork.UserProfile.Delete(userProfile);
                     userProfile.IdProfile = user.IdProfile;
-                    _unitOfWork.UserProfile.Update(userProfile);
+                    _unitOfWork.UserProfile.Insert(userProfile);
                     transaction.Complete();
                 }
                 catch (Exception ex)

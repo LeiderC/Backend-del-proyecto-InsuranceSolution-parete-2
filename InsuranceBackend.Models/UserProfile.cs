@@ -7,8 +7,9 @@ namespace InsuranceBackend.Models
 {
     public class UserProfile
     {
-        [Key]
+        [ExplicitKey]
         public int IdUser { get; set; }
+        [ExplicitKey]
         public int IdProfile { get; set; }
     }
 }

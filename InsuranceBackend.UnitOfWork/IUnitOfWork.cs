@@ -83,5 +83,7 @@ namespace InsuranceBackend.UnitOfWork
         IPetitionStateRepository PetitionState { get; }
         ICollectionMethodRepository CollectionMethod { get; }
         IPetitionTypeRepository PetitionType { get; }
+        ICancellationReasonRepository CancellationReason { get; }
+        IRenewalRepository Renewal { get; }
     }
 }
