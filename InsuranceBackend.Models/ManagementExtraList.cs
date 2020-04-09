@@ -23,5 +23,6 @@ namespace InsuranceBackend.Models
         public string DelegatedUserName { get; set; }
         public string Subject { get; set; }
         public int TotalRecords { get; set; }
+        public DateTime? Hour { get; set; }
     }
 }

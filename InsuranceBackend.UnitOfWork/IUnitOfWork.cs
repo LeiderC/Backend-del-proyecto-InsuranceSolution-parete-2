@@ -85,5 +85,6 @@ namespace InsuranceBackend.UnitOfWork
         IPetitionTypeRepository PetitionType { get; }
         ICancellationReasonRepository CancellationReason { get; }
         IRenewalRepository Renewal { get; }
+        ISubMenuProfilePermRepository SubMenuProfilePerm { get; }
     }
 }

@@ -52,6 +52,20 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpGet]
+        [Route("GetManagementReportListByUser/{idUser:int}")]
+        public IActionResult GetManagementReportListByUser(int idUser)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Management.ManagementReportByUserList(idUser));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpGet]
         [Route("GetPaginatedManagement/{page:int}/{rows:int}")]
         public IActionResult GetPaginatedManagement(int page, int rows)
         {

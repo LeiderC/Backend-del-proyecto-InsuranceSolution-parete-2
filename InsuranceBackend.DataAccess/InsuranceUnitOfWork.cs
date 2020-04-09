@@ -88,6 +88,7 @@ namespace InsuranceBackend.DataAccess
             PetitionType = new PetitionTypeRepository(connectionString);
             CancellationReason = new CancellationReasonRepository(connectionString);
             Renewal = new RenewalRepository(connectionString);
+            SubMenuProfilePerm = new SubMenuProfilePermRepository(connectionString);
         }
         public ICityRepository City { get; private set; }
         public ICountryRepository Country { get; private set; }
@@ -170,5 +171,6 @@ namespace InsuranceBackend.DataAccess
         public IPetitionTypeRepository PetitionType { get; private set; }
         public ICancellationReasonRepository CancellationReason { get; private set; }
         public IRenewalRepository Renewal { get; private set; }
+        public ISubMenuProfilePermRepository SubMenuProfilePerm { get; private set; }
     }
 }

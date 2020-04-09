@@ -19,5 +19,6 @@ namespace InsuranceBackend.Models
         [Write(false)]
         public int IdProfile { get; set; }
         public bool ChangePassword { get; set; }
+        public string State { get; set; }
     }
 }
