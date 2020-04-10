@@ -86,5 +86,7 @@ namespace InsuranceBackend.UnitOfWork
         ICancellationReasonRepository CancellationReason { get; }
         IRenewalRepository Renewal { get; }
         ISubMenuProfilePermRepository SubMenuProfilePerm { get; }
+        IRestrictedPhonesRepository RestrictedPhones { get; }
+        IAllowedDomainsRepository AllowedDomains { get; }
     }
 }

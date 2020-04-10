@@ -90,10 +90,10 @@ namespace InsuranceBackend.WebApi.Controllers
             {
                 try
                 {
+                    string fullName = customer.FirstName + (string.IsNullOrEmpty(customer.MiddleName) ? "" : " " + customer.MiddleName) + customer.LastName + (string.IsNullOrEmpty(customer.MiddleLastName) ? "" : " " + customer.MiddleLastName);
                     idCustomer = _unitOfWork.Customer.Insert(customer);
                     IdentificationType it = _unitOfWork.IdentificationType.GetById(customer.IdIdentificationType);
                     string idUser = User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value;
-                    string fullName = customer.FirstName + (string.IsNullOrEmpty(customer.MiddleName) ? "" : " " + customer.MiddleName) + customer.LastName + (string.IsNullOrEmpty(customer.MiddleLastName) ? "" : " " + customer.MiddleLastName);
                     //Insertamos la gestión realizada
                     Management management = new Management
                     {
@@ -109,6 +109,14 @@ namespace InsuranceBackend.WebApi.Controllers
                     };
                     _unitOfWork.Management.Insert(management);
                     transaction.Complete();
+                }
+                catch (System.Data.SqlClient.SqlException sqlex)
+                {
+                    if (sqlex.Number.Equals(2601))
+                    {
+                        return StatusCode(500, "No se puede registrar al cliente mas de una vez");
+                    }
+                    return StatusCode(500, "Internal server error: " + sqlex.Message);
                 }
                 catch (Exception ex)
                 {
