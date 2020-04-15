@@ -50,6 +50,21 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("GetRenewalsByUser/{idUser:int}")]
+        public IActionResult GetRenewalsByUser(int idUser)
+        {
+            try
+            {
+                List<Renewal> lst = _unitOfWork.Renewal.GetList().ToList().Where(r => r.IdUser.Equals(idUser)).ToList();
+                return Ok(lst);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
 
         [HttpPost]
         public IActionResult Post([FromBody]Renewal Renewal)
