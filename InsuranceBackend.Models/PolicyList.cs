@@ -37,5 +37,6 @@ namespace InsuranceBackend.Models
         public bool GenerateInterestDue { get; set; }
         public double? Value { get; set; }
         public DateTime? DatePayment { get; set; }
+        public string SalesType { get; set; }
     }
 }

@@ -13,5 +13,6 @@ namespace InsuranceBackend.Models
         public string InsuranceLine { get; set; }
         public string InsuranceSubline { get; set; }
         public string SalesmanProfile { get; set; }
+        public string SalesTypeDesc { get; set; }
     }
 }

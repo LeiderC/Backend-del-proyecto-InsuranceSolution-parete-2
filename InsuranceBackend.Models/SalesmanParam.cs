@@ -15,6 +15,8 @@ namespace InsuranceBackend.Models
         public float Budget { get; set; }
         public float CompliancePercentage { get; set; }
         public float BonusPercentage { get; set; }
+        public float BonusPercentageHigher { get; set; }
         public string IdSalesmanProfile { get; set; }
+        public string SalesType { get; set; }
     }
 }
