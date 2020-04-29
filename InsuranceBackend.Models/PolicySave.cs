@@ -13,5 +13,6 @@ namespace InsuranceBackend.Models
         public List<BeneficiaryList> PolicyBeneficiaries { get; set; }
         public List<PolicyFee> PolicyFees { get; set; }
         public int PolicyOrderId { get; set; }
+        public List<PolicyReferences> PolicyReferences { get; set; }
     }
 }

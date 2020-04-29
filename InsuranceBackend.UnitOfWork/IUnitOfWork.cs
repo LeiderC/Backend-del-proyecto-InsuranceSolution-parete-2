@@ -88,5 +88,7 @@ namespace InsuranceBackend.UnitOfWork
         ISubMenuProfilePermRepository SubMenuProfilePerm { get; }
         IRestrictedPhonesRepository RestrictedPhones { get; }
         IAllowedDomainsRepository AllowedDomains { get; }
+        IOnerousRepository Onerous { get; }
+        IPolicyReferencesRepository PolicyReferences { get; }
     }
 }

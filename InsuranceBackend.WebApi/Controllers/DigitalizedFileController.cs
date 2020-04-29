@@ -58,7 +58,7 @@ namespace InsuranceBackend.WebApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, "Internal server error, Error: " + ex.Message);
             }
         }
 

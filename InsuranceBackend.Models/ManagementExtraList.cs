@@ -24,5 +24,6 @@ namespace InsuranceBackend.Models
         public string Subject { get; set; }
         public int TotalRecords { get; set; }
         public DateTime? Hour { get; set; }
+        public string ManagementReasonDesc { get; set; }
     }
 }

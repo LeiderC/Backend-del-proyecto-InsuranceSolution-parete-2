@@ -100,7 +100,8 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                return Ok(_unitOfWork.Management.ManagementExtraPagedList(page, rows,idManagementParent));
+                List<ManagementExtraList> lst = _unitOfWork.Management.ManagementExtraPagedList(page, rows, idManagementParent).ToList();
+                return Ok(lst);
             }
             catch (Exception ex)
             {

@@ -397,6 +397,25 @@ namespace InsuranceBackend.WebApi.Controllers
                             _unitOfWork.PolicyFee.Insert(policyFee);
                         }
                     }
+                    //Referencias
+                    if (policy.PolicyReferences!=null && policy.PolicyReferences.Count > 0)
+                    {
+                        //Primero se debe eliminar las existentes
+                        _unitOfWork.PolicyReferences.DeletePolicyReferenciesByPolicy(idPolicy);
+                        foreach (var item in policy.PolicyReferences)
+                        {
+                            PolicyReferences policyReferences = new PolicyReferences
+                            {
+                                Name = item.Name,
+                                Phone = item.Phone,
+                                Mobile = item.Mobile,
+                                Address = item.Address,
+                                IdRelationship = item.IdRelationship,
+                                IdPolicy = idPolicy
+                            };
+                            _unitOfWork.PolicyReferences.Insert(policyReferences);
+                        }
+                    }
                     //Si es una orden se debe guardar
                     if (policy.Policy.IsOrder)
                     {

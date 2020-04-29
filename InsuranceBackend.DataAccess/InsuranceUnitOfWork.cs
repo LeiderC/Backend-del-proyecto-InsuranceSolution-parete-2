@@ -1,4 +1,5 @@
-﻿using InsuranceBackend.Repositories;
+﻿using InsuranceBackend.Models;
+using InsuranceBackend.Repositories;
 using InsuranceBackend.UnitOfWork;
 
 namespace InsuranceBackend.DataAccess
@@ -91,6 +92,8 @@ namespace InsuranceBackend.DataAccess
             SubMenuProfilePerm = new SubMenuProfilePermRepository(connectionString);
             RestrictedPhones = new RestrictedPhonesRepository(connectionString);
             AllowedDomains = new AllowedDomainsRepository(connectionString);
+            Onerous = new OnerousRepository(connectionString);
+            PolicyReferences = new PolicyReferencesRepository(connectionString);
         }
         public ICityRepository City { get; private set; }
         public ICountryRepository Country { get; private set; }
@@ -176,5 +179,7 @@ namespace InsuranceBackend.DataAccess
         public ISubMenuProfilePermRepository SubMenuProfilePerm { get; private set; }
         public IRestrictedPhonesRepository RestrictedPhones { get; private set; }
         public IAllowedDomainsRepository AllowedDomains { get; private set; }
+        public IOnerousRepository Onerous { get; private set; }
+        public IPolicyReferencesRepository PolicyReferences { get; private set; }
     }
 }
