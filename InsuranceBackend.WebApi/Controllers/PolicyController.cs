@@ -386,15 +386,30 @@ namespace InsuranceBackend.WebApi.Controllers
                     {
                         if (policy.Policy.IdPaymentMethod != "2") // Si no es financiado debemos crear por lo menos una cuota para poder hacer los pagos
                         {
-                            PolicyFee policyFee = new PolicyFee
+                            if (policy.Policy.StartDate.HasValue)
                             {
-                                Number = 1,
-                                IdPolicy = idPolicy,
-                                Date = policy.Policy.StartDate.Value,
-                                Value = policy.Policy.TotalValue,
-                                DatePayment = policy.Policy.StartDate.Value,
-                            };
-                            _unitOfWork.PolicyFee.Insert(policyFee);
+                                PolicyFee policyFee = new PolicyFee
+                                {
+                                    Number = 1,
+                                    IdPolicy = idPolicy,
+                                    Date = policy.Policy.StartDate.Value,
+                                    Value = policy.Policy.TotalValue,
+                                    DatePayment = policy.Policy.StartDate.Value,
+                                };
+                                _unitOfWork.PolicyFee.Insert(policyFee);
+                            }
+                            else
+                            {
+                                PolicyFee policyFee = new PolicyFee
+                                {
+                                    Number = 1,
+                                    IdPolicy = idPolicy,
+                                    Date = policy.Policy.ExpiditionDate,
+                                    Value = policy.Policy.TotalValue,
+                                    DatePayment = policy.Policy.ExpiditionDate,
+                                };
+                                _unitOfWork.PolicyFee.Insert(policyFee);
+                            }
                         }
                     }
                     //Referencias
@@ -454,8 +469,33 @@ namespace InsuranceBackend.WebApi.Controllers
                             IsExtra = false,
                         };
                         int idManagement = _unitOfWork.Management.Insert(management);
+                        int delegatedTechnical = 0;
                         //Creamos la tarea para sistematizar
                         Settings s = _unitOfWork.Settings.GetList().FirstOrDefault();
+                        //Traemos el listado de tecnicos para asignar la tarea
+                        List<TechnicalAsign> lst = _unitOfWork.TechnicalAsign.GetList().ToList();
+                        if (lst.Count > 0)
+                        {
+                            if (s.LastTechnicalUserId > 0)
+                            {
+                                TechnicalAsign lastTechnical = lst.Where(t => t.IdUser.Equals(s.LastTechnicalUserId)).FirstOrDefault();
+                                TechnicalAsign nextTechnicalAsign = lst.Where(t => t.OrderAssign.Equals(lastTechnical.OrderAssign + 1)).FirstOrDefault();
+                                if (nextTechnicalAsign == null)
+                                {
+                                    TechnicalAsign technicalAsign = lst.Where(t => t.OrderAssign.Equals(1)).FirstOrDefault();
+                                    delegatedTechnical = technicalAsign.IdUser;
+                                }
+                                else
+                                {
+                                    delegatedTechnical = nextTechnicalAsign.IdUser;
+                                }
+                            }
+                            else
+                            {
+                                TechnicalAsign technicalAsign = lst.Where(t => t.OrderAssign.Equals(1)).FirstOrDefault();
+                                delegatedTechnical = technicalAsign.IdUser;
+                            }
+                        }
                         string textTask = string.Empty;
                         string subjectTask = string.Empty;
                         if (string.IsNullOrEmpty(policy.Policy.License))
@@ -473,7 +513,7 @@ namespace InsuranceBackend.WebApi.Controllers
                             ManagementType = "T",
                             IdPolicyOrder = policy.PolicyOrderId,
                             CreationUser = int.Parse(idUser),
-                            DelegatedUser = s.TechnicalUserId,
+                            DelegatedUser = delegatedTechnical,
                             StartDate = DateTime.Now,
                             State = "P",
                             Subject = subjectTask,
@@ -484,6 +524,8 @@ namespace InsuranceBackend.WebApi.Controllers
                         };
                         int idTask = _unitOfWork.Management.Insert(task);
                         _unitOfWork.ManagementExtra.Insert(new ManagementExtra { IdManagement = idManagement, IdManagementExtra = idTask });
+                        s.LastTechnicalUserId = delegatedTechnical;
+                        _unitOfWork.Settings.Update(s);
                     }
                     else
                     {

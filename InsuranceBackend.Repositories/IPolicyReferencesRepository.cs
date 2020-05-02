@@ -7,6 +7,6 @@ namespace InsuranceBackend.Repositories
     public interface IPolicyReferencesRepository : IRepository<PolicyReferences>
     {
         bool DeletePolicyReferenciesByPolicy(int idPolicy);
-        IEnumerable<PolicyReferences> PolicyReferencesListByBolicy(int idPolicy);
+        IEnumerable<PolicyReferencesList> PolicyReferencesListByBolicy(int idPolicy);
     }
 }

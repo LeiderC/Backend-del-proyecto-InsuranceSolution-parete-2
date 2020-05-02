@@ -90,5 +90,6 @@ namespace InsuranceBackend.UnitOfWork
         IAllowedDomainsRepository AllowedDomains { get; }
         IOnerousRepository Onerous { get; }
         IPolicyReferencesRepository PolicyReferences { get; }
+        ITechnicalAsignRepository TechnicalAsign { get; }
     }
 }

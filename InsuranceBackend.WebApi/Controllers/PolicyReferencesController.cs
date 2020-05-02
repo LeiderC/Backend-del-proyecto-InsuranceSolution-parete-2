@@ -41,7 +41,8 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                return Ok(_unitOfWork.PolicyReferences.PolicyReferencesListByBolicy(int.Parse(request.SearchTerm)));
+                List<PolicyReferencesList> list = _unitOfWork.PolicyReferences.PolicyReferencesListByBolicy(int.Parse(request.SearchTerm)).ToList();
+                return Ok(list);
             }
             catch (Exception ex)
             {

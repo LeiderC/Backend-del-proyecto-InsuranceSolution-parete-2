@@ -15,5 +15,6 @@ namespace InsuranceBackend.Models
         public int TechnicalUserId { get; set; }
         public int SettlementNumber { get; set; }
         public int PetitionsNumber { get; set; }
+        public int LastTechnicalUserId { get; set; }
     }
 }

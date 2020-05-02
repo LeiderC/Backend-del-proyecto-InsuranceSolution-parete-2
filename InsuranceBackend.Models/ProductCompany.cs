@@ -12,5 +12,13 @@ namespace InsuranceBackend.Models
         public bool Authorization { get; set; }
         public string Alias { get; set; }
         public float Value { get; set; }
+        public int IVA { get; set; }
+        public float TotalValue { get; set; }
+        public float MinimumValue { get; set; }
+        public bool Calculate { get; set; }
+        public float MinimumValueRenewal { get; set; }
+        public string Observation { get; set; }
+        public float PercentageCalculate { get; set; }
+
     }
 }

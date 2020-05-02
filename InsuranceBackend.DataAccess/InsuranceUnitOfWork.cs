@@ -94,6 +94,7 @@ namespace InsuranceBackend.DataAccess
             AllowedDomains = new AllowedDomainsRepository(connectionString);
             Onerous = new OnerousRepository(connectionString);
             PolicyReferences = new PolicyReferencesRepository(connectionString);
+            TechnicalAsign = new TechnicalAssignRepository(connectionString);
         }
         public ICityRepository City { get; private set; }
         public ICountryRepository Country { get; private set; }
@@ -181,5 +182,6 @@ namespace InsuranceBackend.DataAccess
         public IAllowedDomainsRepository AllowedDomains { get; private set; }
         public IOnerousRepository Onerous { get; private set; }
         public IPolicyReferencesRepository PolicyReferences { get; private set; }
+        public ITechnicalAsignRepository TechnicalAsign { get; private set; }
     }
 }

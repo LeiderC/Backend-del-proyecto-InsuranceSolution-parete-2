@@ -24,14 +24,14 @@ namespace InsuranceBackend.DataAccess
             }
         }
 
-        public IEnumerable<PolicyReferences> PolicyReferencesListByBolicy(int idPolicy)
+        public IEnumerable<PolicyReferencesList> PolicyReferencesListByBolicy(int idPolicy)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@idPolicy", idPolicy);
 
             using (var connection = new SqlConnection(_connectionString))
             {
-                return connection.Query<PolicyReferences>("dbo.PolicyReferencesListByPolicy", parameters,
+                return connection.Query<PolicyReferencesList>("dbo.PolicyReferencesListByPolicy", parameters,
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }
