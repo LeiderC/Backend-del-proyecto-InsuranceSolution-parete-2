@@ -93,5 +93,29 @@ namespace InsuranceBackend.DataAccess
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }
+
+        public DashboardManagement DashboardManagementByUser(int idUser)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idUser", idUser);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.QueryFirstOrDefault<DashboardManagement>("dbo.DashboardManagementByUser", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public IEnumerable<ManagementList> ManagementCreatedByUserList(int idUser)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idUser", idUser);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<ManagementList>("dbo.ManagementCreatedByUser", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
     }
 }

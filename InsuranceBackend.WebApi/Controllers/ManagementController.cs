@@ -52,6 +52,22 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpGet]
+        [Route("GetManagementCreatedByUser")]
+        public IActionResult GetManagementCreatedByUser()
+        {
+            try
+            {
+                string idUser = User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value;
+                List<ManagementList> lst = _unitOfWork.Management.ManagementCreatedByUserList(int.Parse(idUser)).ToList();
+                return Ok(lst);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpGet]
         [Route("GetManagementReportListByUser/{idUser:int}/{idRenewal:int}")]
         public IActionResult GetManagementReportListByUser(int idUser, int idRenewal)
         {
@@ -102,6 +118,21 @@ namespace InsuranceBackend.WebApi.Controllers
             {
                 List<ManagementExtraList> lst = _unitOfWork.Management.ManagementExtraPagedList(page, rows, idManagementParent).ToList();
                 return Ok(lst);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("GetDashboardManagementByUser")]
+        public IActionResult GetDashboardManagementByUser()
+        {
+            try
+            {
+                string idUser = User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value;
+                return Ok(_unitOfWork.Management.DashboardManagementByUser(int.Parse(idUser)));
             }
             catch (Exception ex)
             {

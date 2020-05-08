@@ -91,5 +91,8 @@ namespace InsuranceBackend.UnitOfWork
         IOnerousRepository Onerous { get; }
         IPolicyReferencesRepository PolicyReferences { get; }
         ITechnicalAsignRepository TechnicalAsign { get; }
+        IDeleteDocumentPermissionRepository DeleteDocumentPermission { get; }
+        IPolicyAuthorizationRepository PolicyAuthorization { get; }
+        IFasecoldaRepository Fasecolda { get; }
     }
 }

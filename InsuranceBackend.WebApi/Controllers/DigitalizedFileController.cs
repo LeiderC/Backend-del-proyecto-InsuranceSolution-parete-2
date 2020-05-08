@@ -154,15 +154,19 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
-        [HttpDelete]
-        public IActionResult Delete([FromBody]DigitalizedFile digitalizedFile)
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
         {
-            if (digitalizedFile.Id > 0)
-                return Ok(_unitOfWork.DigitalizedFile.Delete(digitalizedFile
-                    ));
+            var df = _unitOfWork.DigitalizedFile.GetById(id);
+            if (df == null)
+                return NotFound();
+            if(_unitOfWork.DigitalizedFile.Delete(df))
+                return Ok(new { Message = "El documento se ha eliminado" });
             else
                 return BadRequest();
         }
+
     }
 }
+ 
  

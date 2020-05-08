@@ -95,6 +95,9 @@ namespace InsuranceBackend.DataAccess
             Onerous = new OnerousRepository(connectionString);
             PolicyReferences = new PolicyReferencesRepository(connectionString);
             TechnicalAsign = new TechnicalAssignRepository(connectionString);
+            DeleteDocumentPermission = new DeleteDocumentPermissionRepository(connectionString);
+            PolicyAuthorization = new PolicyAuthorizationRepository(connectionString);
+            Fasecolda = new FasecoldaRepository(connectionString);
         }
         public ICityRepository City { get; private set; }
         public ICountryRepository Country { get; private set; }
@@ -183,5 +186,8 @@ namespace InsuranceBackend.DataAccess
         public IOnerousRepository Onerous { get; private set; }
         public IPolicyReferencesRepository PolicyReferences { get; private set; }
         public ITechnicalAsignRepository TechnicalAsign { get; private set; }
+        public IDeleteDocumentPermissionRepository DeleteDocumentPermission { get; private set; }
+        public IPolicyAuthorizationRepository PolicyAuthorization { get; private set; }
+        public IFasecoldaRepository Fasecolda { get; private set; }
     }
 }

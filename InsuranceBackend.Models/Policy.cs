@@ -36,5 +36,9 @@ namespace InsuranceBackend.Models
         public string License { get; set; }
         public bool IsOrder { get; set; }
         public int? IdOnerous { get; set; }
+        public string Observation { get; set; }
+        public string PendingRegistration { get; set; }
+        public string Inspected { get; set; }
+        public bool ReqAuthorization { get; set; }
     }
 }

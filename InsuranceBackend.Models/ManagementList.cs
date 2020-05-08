@@ -16,5 +16,6 @@ namespace InsuranceBackend.Models
         public int TotalRecords { get; set; }
         public string ManagementReasonDesc { get; set; }
         public int TotalExtras { get; set; }
+        public bool ReqAuthorization { get; set; }
     }
 }

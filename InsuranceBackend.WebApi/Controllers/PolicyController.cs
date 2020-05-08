@@ -45,7 +45,7 @@ namespace InsuranceBackend.WebApi.Controllers
             try
             {
                 int idUser = 0;
-                if(request.FindByUserPolicyOrder)
+                if (request.FindByUserPolicyOrder)
                     idUser = int.Parse(User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value);
                 return Ok(_unitOfWork.Policy.PolicyPagedListSearchTerms(request.Identification, request.Name, request.Number, request.IdCustomer, idUser, request.IsOrder, request.Page, request.Rows));
             }
@@ -364,7 +364,7 @@ namespace InsuranceBackend.WebApi.Controllers
                         }
                     }
                     //Cuotas
-                    if(policy.PolicyFees!=null && policy.PolicyFees.Count>0)
+                    if (policy.PolicyFees != null && policy.PolicyFees.Count > 0)
                     {
                         //Primero se debe eliminar las existentes
                         _unitOfWork.PolicyFee.DeleteFeeByPolicy(idPolicy);
@@ -413,7 +413,7 @@ namespace InsuranceBackend.WebApi.Controllers
                         }
                     }
                     //Referencias
-                    if (policy.PolicyReferences!=null && policy.PolicyReferences.Count > 0)
+                    if (policy.PolicyReferences != null && policy.PolicyReferences.Count > 0)
                     {
                         //Primero se debe eliminar las existentes
                         _unitOfWork.PolicyReferences.DeletePolicyReferenciesByPolicy(idPolicy);
@@ -723,15 +723,49 @@ namespace InsuranceBackend.WebApi.Controllers
                         {
                             if (policy.Policy.IdPaymentMethod != "2") // Si no es financiado debemos crear por lo menos una cuota para poder hacer los pagos
                             {
-                                PolicyFee policyFee = new PolicyFee
+                                if (policy.Policy.StartDate.HasValue)
                                 {
-                                    Number = 1,
-                                    IdPolicy = idPolicy,
-                                    Date = policy.Policy.StartDate.Value,
-                                    Value = policy.Policy.TotalValue,
-                                    DatePayment = policy.Policy.StartDate.Value,
+                                    PolicyFee policyFee = new PolicyFee
+                                    {
+                                        Number = 1,
+                                        IdPolicy = idPolicy,
+                                        Date = policy.Policy.StartDate.Value,
+                                        Value = policy.Policy.TotalValue,
+                                        DatePayment = policy.Policy.StartDate.Value,
+                                    };
+                                    _unitOfWork.PolicyFee.Insert(policyFee);
+                                }
+                                else
+                                {
+                                    PolicyFee policyFee = new PolicyFee
+                                    {
+                                        Number = 1,
+                                        IdPolicy = idPolicy,
+                                        Date = policy.Policy.ExpiditionDate,
+                                        Value = policy.Policy.TotalValue,
+                                        DatePayment = policy.Policy.ExpiditionDate,
+                                    };
+                                    _unitOfWork.PolicyFee.Insert(policyFee);
+                                }
+                            }
+                        }
+                        //Referencias
+                        if (policy.PolicyReferences != null && policy.PolicyReferences.Count > 0)
+                        {
+                            //Primero se debe eliminar las existentes
+                            _unitOfWork.PolicyReferences.DeletePolicyReferenciesByPolicy(idPolicy);
+                            foreach (var item in policy.PolicyReferences)
+                            {
+                                PolicyReferences policyReferences = new PolicyReferences
+                                {
+                                    Name = item.Name,
+                                    Phone = item.Phone,
+                                    Mobile = item.Mobile,
+                                    Address = item.Address,
+                                    IdRelationship = item.IdRelationship,
+                                    IdPolicy = idPolicy
                                 };
-                                _unitOfWork.PolicyFee.Insert(policyFee);
+                                _unitOfWork.PolicyReferences.Insert(policyReferences);
                             }
                         }
                         if (policy.Policy.IsOrder)
