@@ -10,7 +10,7 @@ namespace InsuranceBackend.Models
         [ExplicitKey]
         public int IdPolicy { get; set; }
         public int IdUser { get; set; }
-        public DateTime CreationDate { get; set; }
+        public DateTime? CreationDate { get; set; }
         public string Observation { get; set; }
     }
 }

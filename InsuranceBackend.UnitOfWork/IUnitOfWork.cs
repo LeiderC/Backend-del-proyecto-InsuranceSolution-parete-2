@@ -94,5 +94,6 @@ namespace InsuranceBackend.UnitOfWork
         IDeleteDocumentPermissionRepository DeleteDocumentPermission { get; }
         IPolicyAuthorizationRepository PolicyAuthorization { get; }
         IFasecoldaRepository Fasecolda { get; }
+        IWaytoPayRepository WaytoPay { get; }
     }
 }

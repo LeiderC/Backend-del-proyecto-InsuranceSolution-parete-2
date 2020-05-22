@@ -47,6 +47,8 @@ namespace InsuranceBackend.WebApi.Controllers
                 int idUser = 0;
                 if (request.FindByUserPolicyOrder)
                     idUser = int.Parse(User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value);
+                if (request.IdUser > 0)
+                    idUser = request.IdUser;
                 return Ok(_unitOfWork.Policy.PolicyPagedListSearchTerms(request.Identification, request.Name, request.Number, request.IdCustomer, idUser, request.IsOrder, request.Page, request.Rows));
             }
             catch (Exception ex)
@@ -61,7 +63,15 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                return Ok(_unitOfWork.Policy.PolicyCustomerPagedListSearchTerms(request.Type, request.SearchTerm, request.Page, request.Rows));
+                int idUser = 0;
+                idUser = int.Parse(User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value);
+                SystemUser systemUser = _unitOfWork.User.GetById(idUser);
+                UserProfile userProfile = _unitOfWork.UserProfile.UserProfileByUser(idUser);
+                SystemProfile systemProfile = _unitOfWork.SystemProfile.GetById(userProfile.IdProfile);
+                int idSalesman = 0;
+                if(systemProfile.ValidateCustomer)
+                    idSalesman = systemUser.IdSalesman;
+                return Ok(_unitOfWork.Policy.PolicyCustomerPagedListSearchTerms(request.Type, request.SearchTerm, request.Page, request.Rows, idSalesman));
             }
             catch (Exception ex)
             {
@@ -866,6 +876,48 @@ namespace InsuranceBackend.WebApi.Controllers
                     return Ok(new { Message = "Politica se ha eliminado" });
                 else
                     return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("GetPolicyPendingAuthorization")]
+        public IActionResult GetPolicyPendingAuthorization()
+        {
+            try
+            {
+                return Ok(_unitOfWork.Policy.PolicyPendingAuthorizationList());
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("GetPolicyReportProduction")]
+        public IActionResult GetPolicyReportProduction([FromBody]GetPolicyReportProduction request)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Policy.PolicyReportProduction(request.IdUser));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("GetPolicyReportProductionConsolidated")]
+        public IActionResult GetPolicyReportProductionConsolidated([FromBody]GetPolicyReportProduction request)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Policy.PolicyReportProductionConsolidated(request.IdUser));
             }
             catch (Exception ex)
             {

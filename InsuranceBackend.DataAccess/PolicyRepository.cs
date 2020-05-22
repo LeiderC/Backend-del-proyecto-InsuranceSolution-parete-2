@@ -68,13 +68,14 @@ namespace InsuranceBackend.DataAccess
             }
         }
 
-        public IEnumerable<PolicyList> PolicyCustomerPagedListSearchTerms(string type, string searchCriteria, int page, int rows)
+        public IEnumerable<PolicyList> PolicyCustomerPagedListSearchTerms(string type, string searchCriteria, int page, int rows, int idSalesman)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@page", page);
             parameters.Add("@rows", rows);
             parameters.Add("@type", type);
             parameters.Add("@searchCriteria", searchCriteria);
+            parameters.Add("@idSalesman", idSalesman);
 
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -213,6 +214,39 @@ namespace InsuranceBackend.DataAccess
             using (var connection = new SqlConnection(_connectionString))
             {
                 return connection.Query<PolicyList>("dbo.PolicyPaymentThirParties", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public IEnumerable<PolicyList> PolicyPendingAuthorizationList()
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PolicyList>("dbo.PolicyPendingAuthorizationList", null,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public IEnumerable<PolicyList> PolicyReportProduction(int idUser)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idUser", idUser);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PolicyList>("dbo.PolicyReportProduction", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public IEnumerable<PolicyList> PolicyReportProductionConsolidated(int idUser)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idUser", idUser);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PolicyList>("dbo.PolicyReportProductionConsolidated", parameters,
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }

@@ -43,7 +43,10 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                return Ok(_unitOfWork.User.GetById(id));
+                SystemUser user = _unitOfWork.User.GetById(id);
+                UserProfile profile = _unitOfWork.UserProfile.UserProfileByUser(user.Id);
+                user.IdProfile = profile.IdProfile;
+                return Ok(user);
             }
             catch (Exception ex)
             {

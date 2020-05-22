@@ -43,7 +43,15 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                return Ok(_unitOfWork.Customer.CustomerByIdentificationNumber(request.SearchTerm));
+                int idUser = 0;
+                idUser = int.Parse(User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value);
+                SystemUser systemUser = _unitOfWork.User.GetById(idUser);
+                UserProfile userProfile = _unitOfWork.UserProfile.UserProfileByUser(idUser);
+                SystemProfile systemProfile = _unitOfWork.SystemProfile.GetById(userProfile.IdProfile);
+                int idSalesman = 0;
+                if (systemProfile.ValidateCustomer)
+                    idSalesman = systemUser.IdSalesman;
+                return Ok(_unitOfWork.Customer.CustomerByIdentificationNumber(request.SearchTerm, idSalesman, request.Type));
             }
             catch (Exception ex)
             {

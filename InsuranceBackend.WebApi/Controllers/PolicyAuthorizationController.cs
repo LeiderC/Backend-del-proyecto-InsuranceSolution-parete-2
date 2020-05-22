@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using InsuranceBackend.Models;
 using InsuranceBackend.UnitOfWork;
@@ -40,6 +41,10 @@ namespace InsuranceBackend.WebApi.Controllers
             {
                 if (!ModelState.IsValid)
                     return BadRequest();
+                if (!PolicyAuthorization.CreationDate.HasValue)
+                    PolicyAuthorization.CreationDate = DateTime.Now;
+                string idUser = User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value;
+                PolicyAuthorization.IdUser = int.Parse(idUser);
                 return Ok(_unitOfWork.PolicyAuthorization.Insert(PolicyAuthorization));
             }
             catch(System.Data.SqlClient.SqlException sqlex)

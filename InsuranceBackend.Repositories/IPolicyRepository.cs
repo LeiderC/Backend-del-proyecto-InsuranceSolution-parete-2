@@ -9,7 +9,7 @@ namespace InsuranceBackend.Repositories
         Policy PolicyByIdPolicyOrder(int idPolicyOrder);
         IEnumerable<PolicyList> PolicyPagedList(int page, int rows);
         IEnumerable<PolicyList> PolicyPagedListSearchTerms(string identification, string name, string number, int idcustomer, int iduserpolicyorder, bool isOrder, int page, int rows);
-        IEnumerable<PolicyList> PolicyCustomerPagedListSearchTerms(string type, string searchCriteria, int page, int rows);
+        IEnumerable<PolicyList> PolicyCustomerPagedListSearchTerms(string type, string searchCriteria, int page, int rows, int idSalesman);
         IEnumerable<PolicyList> PolicyCustomerPagedListSearchTermsOnlyPolicy(string type, string searchCriteria, int page, int rows);
         IEnumerable<PolicyList> PolicyCustomerPagedListSearchTermsOnlyOrder(string type, string searchCriteria, int page, int rows);
         PolicyList PolicyListById(int idPolicy);
@@ -20,5 +20,8 @@ namespace InsuranceBackend.Repositories
         IEnumerable<PolicyPortfolioList> PolicyPortfolioReportList(DateTime? startDate, DateTime? endDate, int idInsurance, int idCustomer, string license);
         IEnumerable<PolicyList> PolicyPaymentThirdParties(DateTime? startDate, DateTime? endDate, int idInsurance, int idFinancial);
         IEnumerable<PolicyList> PolicyCommissionSalesmanList(int idSalesman, DateTime? startDate, DateTime? endDate);
+        IEnumerable<PolicyList> PolicyPendingAuthorizationList();
+        IEnumerable<PolicyList> PolicyReportProduction(int idUser);
+        IEnumerable<PolicyList> PolicyReportProductionConsolidated(int idUser);
     }
 }

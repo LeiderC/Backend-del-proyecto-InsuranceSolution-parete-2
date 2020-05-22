@@ -52,6 +52,28 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpGet]
+        [Route("GetManagementRenewalByUser")]
+        public IActionResult GetManagementRenewalByUser()
+        {
+            try
+            {
+                string idUser = User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value;
+                List<Renewal> lst = _unitOfWork.Renewal.GetList().ToList().Where(r => r.IdUser.Equals(int.Parse(idUser))).ToList();
+                Renewal renewal = lst.Where(r => r.RenewalDate.Year == DateTime.Now.Year && r.RenewalDate.Month == DateTime.Now.Month).FirstOrDefault();
+                List<ManagementList> managements = new List<ManagementList>();
+                if (renewal != null)
+                {
+                    managements = _unitOfWork.Management.ManagementByUserList(int.Parse(idUser), renewal.Id).ToList();
+                }
+                return Ok(managements);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpGet]
         [Route("GetManagementCreatedByUser")]
         public IActionResult GetManagementCreatedByUser()
         {
@@ -68,12 +90,12 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("GetManagementReportListByUser/{idUser:int}/{idRenewal:int}")]
-        public IActionResult GetManagementReportListByUser(int idUser, int idRenewal)
+        [Route("GetManagementReportListByUser/{idUser:int}/{idRenewal:int}/{finished:int}")]
+        public IActionResult GetManagementReportListByUser(int idUser, int idRenewal, int finished)
         {
             try
             {
-                return Ok(_unitOfWork.Management.ManagementReportByUserList(idUser, idRenewal));
+                return Ok(_unitOfWork.Management.ManagementReportByUserList(idUser, idRenewal, finished != 0));
             }
             catch (Exception ex)
             {
@@ -153,7 +175,20 @@ namespace InsuranceBackend.WebApi.Controllers
                     //Debemos validar si se está guardando una tarea o gestión que tiene una gestión padre
                     if (Management.IsExtra)
                     {
-                        return Ok(_unitOfWork.ManagementExtra.Insert(new ManagementExtra { IdManagement = Management.IdManagementParent, IdManagementExtra = idManagement }));
+                        int idManagementExtra = _unitOfWork.ManagementExtra.Insert(new ManagementExtra { IdManagement = Management.IdManagementParent, IdManagementExtra = idManagement });
+                        //Si la tarea de de cancelación se debe marcar la tarea principal como realizada
+                        ManagementReason managementReason = _unitOfWork.ManagementReason.GetList().Where(m => m.Subgroup.Equals("C") && m.Id.Equals(Management.IdManagementReason)).FirstOrDefault();
+                        if (managementReason != null)
+                        {
+                            Management parent = _unitOfWork.Management.GetById(Management.IdManagementParent);
+                            if(parent!=null)
+                            {
+                                parent.State = "R";
+                                _unitOfWork.Management.Update(parent);
+                            }
+                        }
+                        return Ok(idManagementExtra);
+                        
                     }
                     else
                         return Ok(idManagement);

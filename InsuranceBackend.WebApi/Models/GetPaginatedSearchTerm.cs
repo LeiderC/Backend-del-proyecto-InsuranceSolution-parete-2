@@ -10,5 +10,6 @@ namespace InsuranceBackend.WebApi.Models
         public int Page { get; set; }
         public int Rows { get; set; }
         public string SearchTerm { get; set; }
+        public string Type { get; set; }
     }
 }

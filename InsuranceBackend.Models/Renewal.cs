@@ -11,5 +11,6 @@ namespace InsuranceBackend.Models
         public string Description { get; set; }
         public DateTime CreationDate { get; set; }
         public int IdUser { get; set; }
+        public DateTime RenewalDate { get; set; }
     }
 }

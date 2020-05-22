@@ -11,5 +11,6 @@ namespace InsuranceBackend.Models
         public string CustomerName { get; set; }
         public string UserName { get; set; }
         public string StateDesc { get; set; }
+        public string WaytoPayDesc { get; set; }
     }
 }

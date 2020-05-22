@@ -20,5 +20,8 @@ namespace InsuranceBackend.Models
         public int IdProfile { get; set; }
         public bool ChangePassword { get; set; }
         public string State { get; set; }
+        public bool Authorizing { get; set; }
+        public int IdSalesman { get; set; }
+        public bool CancelOrders { get; set; }
     }
 }

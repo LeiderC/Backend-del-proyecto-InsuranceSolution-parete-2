@@ -11,5 +11,6 @@ namespace InsuranceBackend.Models
         public int Urgent { get; set; }
         public int Important { get; set; }
         public int Finished { get; set; }
+        public int WithoutPromissoryNote { get; set; }
     }
 }

@@ -26,10 +26,12 @@ namespace InsuranceBackend.DataAccess
             }
         }
 
-        public IEnumerable<CustomerList> CustomerByIdentificationNumber(string identificationNumber)
+        public IEnumerable<CustomerList> CustomerByIdentificationNumber(string identificationNumber, int idSalesman, string type)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@identificationNumber", identificationNumber);
+            parameters.Add("@idSalesman", idSalesman);
+            parameters.Add("@type", type);
 
             using (var connection = new SqlConnection(_connectionString))
             {

@@ -98,6 +98,7 @@ namespace InsuranceBackend.DataAccess
             DeleteDocumentPermission = new DeleteDocumentPermissionRepository(connectionString);
             PolicyAuthorization = new PolicyAuthorizationRepository(connectionString);
             Fasecolda = new FasecoldaRepository(connectionString);
+            WaytoPay = new WaytoPayRepository(connectionString);
         }
         public ICityRepository City { get; private set; }
         public ICountryRepository Country { get; private set; }
@@ -189,5 +190,6 @@ namespace InsuranceBackend.DataAccess
         public IDeleteDocumentPermissionRepository DeleteDocumentPermission { get; private set; }
         public IPolicyAuthorizationRepository PolicyAuthorization { get; private set; }
         public IFasecoldaRepository Fasecolda { get; private set; }
+        public IWaytoPayRepository WaytoPay { get; private set; }
     }
 }

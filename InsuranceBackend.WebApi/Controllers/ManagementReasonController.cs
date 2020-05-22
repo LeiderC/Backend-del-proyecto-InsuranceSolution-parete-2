@@ -25,7 +25,24 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                return Ok(_unitOfWork.ManagementReason.GetList());
+                List<ManagementReason> Lst = _unitOfWork.ManagementReason.GetList().Where(m => m.Subgroup.Equals("A")).ToList();
+                Lst.Sort((x, y) => x.Description.CompareTo(y.Description));
+                return Ok(Lst);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("GetListCancel")]
+        public IActionResult GetCancel()
+        {
+            try
+            {
+                List<ManagementReason> Lst = _unitOfWork.ManagementReason.GetList().Where(m => m.Subgroup.Equals("C")).ToList();
+                return Ok(Lst);
             }
             catch (Exception ex)
             {

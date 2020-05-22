@@ -81,11 +81,12 @@ namespace InsuranceBackend.DataAccess
             }
         }
 
-        public IEnumerable<ManagementList> ManagementReportByUserList(int idUser, int idRenewal)
+        public IEnumerable<ManagementList> ManagementReportByUserList(int idUser, int idRenewal, bool finished)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@idUser", idUser);
             parameters.Add("@idRenewal", idRenewal);
+            parameters.Add("@finished", finished);
 
             using (var connection = new SqlConnection(_connectionString))
             {

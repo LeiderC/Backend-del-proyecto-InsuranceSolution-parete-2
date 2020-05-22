@@ -10,5 +10,6 @@ namespace InsuranceBackend.Models
         [ExplicitKey]
         public string Id { get; set; }
         public string Description { get; set; }
+        public string Subgroup { get; set; }
     }
 }

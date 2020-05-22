@@ -14,5 +14,7 @@ namespace InsuranceBackend.Models
         public string Movil { get; set; }
         public int IdCity { get; set; }
         public DateTime BirthDate { get; set; }
+        public string IdentificationNumber { get; set; }
+        public string Email { get; set; }
     }
 }

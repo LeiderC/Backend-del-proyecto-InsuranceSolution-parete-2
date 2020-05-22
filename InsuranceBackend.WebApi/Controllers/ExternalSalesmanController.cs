@@ -25,7 +25,8 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                return Ok(_unitOfWork.ExternalSalesman.GetList());
+                List<ExternalSalesman> lst = _unitOfWork.ExternalSalesman.GetList().ToList();
+                return Ok(lst);
             }
             catch (Exception ex)
             {

@@ -10,19 +10,28 @@ using Microsoft.AspNetCore.Mvc;
 namespace InsuranceBackend.WebApi.Controllers
 {
     [Produces("application/json")]
-    [Route("api/managementState")]
-    public class ManagementStateController : Controller
+    [Route("api/waytoPay")]
+    [Authorize]
+    public class WaytoPayController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-        public ManagementStateController(IUnitOfWork unitOfWork)
+        public WaytoPayController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<ManagementState>> Get()
+        public IActionResult Get()
         {
-            return Ok(_unitOfWork.ManagementState.GetList().Where(m=>m.Visible));
+            try
+            {
+                return Ok(_unitOfWork.WaytoPay.GetList());
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+
     }
 }
