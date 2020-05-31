@@ -40,7 +40,7 @@ namespace InsuranceBackend.WebApi.Controllers
 
         [HttpPost]
         [Route("GetPolicyBySearchTerms")]
-        public IActionResult GetPolicyBySearchTerms([FromBody]GetPaginatedPolicySearchTerm request)
+        public IActionResult GetPolicyBySearchTerms([FromBody] GetPaginatedPolicySearchTerm request)
         {
             try
             {
@@ -58,8 +58,36 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpPost]
+        [Route("GetPolicyOrderReport")]
+        public IActionResult GetPolicyOrderReport([FromBody] GetPolicyOrderReport request)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Policy.PolicyOrderReport(request.Page, request.Rows, request.IdUser, request.StartDate, request.EndDate, request.All));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("GetPolicyOrderReportConsolidated")]
+        public IActionResult GetPolicyOrderReportConsolidated([FromBody] GetPolicyOrderReport request)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Policy.PolicyOrderReportConsolidated(request.StartDate.Value, request.EndDate.Value));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
         [Route("GetPolicyCustomerBySearchTerms")]
-        public IActionResult GetPolicyCustomerBySearchTerms([FromBody]GetPaginatedSearchTermType request)
+        public IActionResult GetPolicyCustomerBySearchTerms([FromBody] GetPaginatedSearchTermType request)
         {
             try
             {
@@ -69,7 +97,7 @@ namespace InsuranceBackend.WebApi.Controllers
                 UserProfile userProfile = _unitOfWork.UserProfile.UserProfileByUser(idUser);
                 SystemProfile systemProfile = _unitOfWork.SystemProfile.GetById(userProfile.IdProfile);
                 int idSalesman = 0;
-                if(systemProfile.ValidateCustomer)
+                if (systemProfile.ValidateCustomer)
                     idSalesman = systemUser.IdSalesman;
                 return Ok(_unitOfWork.Policy.PolicyCustomerPagedListSearchTerms(request.Type, request.SearchTerm, request.Page, request.Rows, idSalesman));
             }
@@ -81,7 +109,7 @@ namespace InsuranceBackend.WebApi.Controllers
 
         [HttpPost]
         [Route("GetPolicyCustomerBySearchTermsOnlyPolicy")]
-        public IActionResult GetPolicyCustomerBySearchTermsOnlyPolicy([FromBody]GetPaginatedSearchTermType request)
+        public IActionResult GetPolicyCustomerBySearchTermsOnlyPolicy([FromBody] GetPaginatedSearchTermType request)
         {
             try
             {
@@ -95,7 +123,7 @@ namespace InsuranceBackend.WebApi.Controllers
 
         [HttpPost]
         [Route("GetPolicyCustomerBySearchTermsOnlyOrder")]
-        public IActionResult GetPolicyCustomerBySearchTermsOnlyOrder([FromBody]GetPaginatedSearchTermType request)
+        public IActionResult GetPolicyCustomerBySearchTermsOnlyOrder([FromBody] GetPaginatedSearchTermType request)
         {
             try
             {
@@ -123,7 +151,7 @@ namespace InsuranceBackend.WebApi.Controllers
 
         [HttpPost]
         [Route("GetPolicyPromisoryNotePaged")]
-        public IActionResult GetPolicyPromisoryNotePaged([FromBody]GetPaginatedPolicyPromisoryNote request)
+        public IActionResult GetPolicyPromisoryNotePaged([FromBody] GetPaginatedPolicyPromisoryNote request)
         {
             try
             {
@@ -137,7 +165,7 @@ namespace InsuranceBackend.WebApi.Controllers
 
         [HttpPost]
         [Route("GetPolicyOutlayPaged")]
-        public IActionResult GetPolicyOutlayPaged([FromBody]GetPaginatedPolicyPromisoryNote request)
+        public IActionResult GetPolicyOutlayPaged([FromBody] GetPaginatedPolicyPromisoryNote request)
         {
             try
             {
@@ -151,7 +179,7 @@ namespace InsuranceBackend.WebApi.Controllers
 
         [HttpPost]
         [Route("GetPolicyCommissionPaged")]
-        public IActionResult GetPolicyCommissionPaged([FromBody]GetPaginatedPolicyCommission request)
+        public IActionResult GetPolicyCommissionPaged([FromBody] GetPaginatedPolicyCommission request)
         {
             try
             {
@@ -165,7 +193,7 @@ namespace InsuranceBackend.WebApi.Controllers
 
         [HttpPost]
         [Route("GetPolicyCommission")]
-        public IActionResult GetPolicyCommission([FromBody]GetPaginatedPolicyCommission request)
+        public IActionResult GetPolicyCommission([FromBody] GetPaginatedPolicyCommission request)
         {
             try
             {
@@ -179,7 +207,7 @@ namespace InsuranceBackend.WebApi.Controllers
 
         [HttpPost]
         [Route("GetPolicyCommissionSalesman")]
-        public IActionResult GetPolicyCommissionSalesman([FromBody]GetPolicyCommissionSalesman request)
+        public IActionResult GetPolicyCommissionSalesman([FromBody] GetPolicyCommissionSalesman request)
         {
             try
             {
@@ -193,7 +221,7 @@ namespace InsuranceBackend.WebApi.Controllers
 
         [HttpPost]
         [Route("GetPolicyPortfolioReport")]
-        public IActionResult GetPolicyPortfolioReport([FromBody]GetPolicyPortfolio request)
+        public IActionResult GetPolicyPortfolioReport([FromBody] GetPolicyPortfolio request)
         {
             try
             {
@@ -207,7 +235,7 @@ namespace InsuranceBackend.WebApi.Controllers
 
         [HttpPost]
         [Route("GetPolicyPaymentThirdParties")]
-        public IActionResult GetPolicyPaymentThirdParties([FromBody]GetPolicyPaymentThirdParties request)
+        public IActionResult GetPolicyPaymentThirdParties([FromBody] GetPolicyPaymentThirdParties request)
         {
             try
             {
@@ -221,7 +249,7 @@ namespace InsuranceBackend.WebApi.Controllers
 
         [HttpPost]
         [Route("SetPolicySettlement")]
-        public IActionResult SetPolicySettlement([FromBody]PolicySettlementSave request)
+        public IActionResult SetPolicySettlement([FromBody] PolicySettlementSave request)
         {
             Settlement settlement = new Settlement();
             if (!ModelState.IsValid)
@@ -266,7 +294,7 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody]PolicySave policy)
+        public IActionResult Post([FromBody] PolicySave policy)
         {
             int idPolicy = 0;
             if (!ModelState.IsValid)
@@ -276,7 +304,7 @@ namespace InsuranceBackend.WebApi.Controllers
                 try
                 {
                     //Datos de vehículo
-                    if (policy.Vehicle != null)
+                    if (policy.Vehicle != null && !string.IsNullOrEmpty(policy.Vehicle.License))
                     {
                         int idVehicle = 0;
                         //Validamos primero si existe, de ser así se debe actualizar la info
@@ -601,7 +629,7 @@ namespace InsuranceBackend.WebApi.Controllers
 
 
         [HttpPut]
-        public IActionResult Put([FromBody]PolicySave policy)
+        public IActionResult Put([FromBody] PolicySave policy)
         {
             int idPolicy = 0;
             if (!ModelState.IsValid)
@@ -899,11 +927,12 @@ namespace InsuranceBackend.WebApi.Controllers
 
         [HttpPost]
         [Route("GetPolicyReportProduction")]
-        public IActionResult GetPolicyReportProduction([FromBody]GetPolicyReportProduction request)
+        public IActionResult GetPolicyReportProduction([FromBody] GetPolicyReportProduction request)
         {
             try
             {
-                return Ok(_unitOfWork.Policy.PolicyReportProduction(request.IdUser));
+                var result = _unitOfWork.Policy.PolicyReportProduction(request.IdUser, request.StartDate, request.EndDate);
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -913,11 +942,11 @@ namespace InsuranceBackend.WebApi.Controllers
 
         [HttpPost]
         [Route("GetPolicyReportProductionConsolidated")]
-        public IActionResult GetPolicyReportProductionConsolidated([FromBody]GetPolicyReportProduction request)
+        public IActionResult GetPolicyReportProductionConsolidated([FromBody] GetPolicyReportProduction request)
         {
             try
             {
-                return Ok(_unitOfWork.Policy.PolicyReportProductionConsolidated(request.IdUser));
+                return Ok(_unitOfWork.Policy.PolicyReportProductionConsolidated(request.IdUser, request.StartDate, request.EndDate));
             }
             catch (Exception ex)
             {

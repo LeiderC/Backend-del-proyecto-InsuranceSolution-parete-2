@@ -81,12 +81,13 @@ namespace InsuranceBackend.DataAccess
             }
         }
 
-        public IEnumerable<ManagementList> ManagementReportByUserList(int idUser, int idRenewal, bool finished)
+        public IEnumerable<ManagementList> ManagementReportByUserList(int idUser, int idRenewal, bool finished, bool cancel)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@idUser", idUser);
             parameters.Add("@idRenewal", idRenewal);
             parameters.Add("@finished", finished);
+            parameters.Add("@cancel", cancel);
 
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -115,6 +116,18 @@ namespace InsuranceBackend.DataAccess
             using (var connection = new SqlConnection(_connectionString))
             {
                 return connection.Query<ManagementList>("dbo.ManagementCreatedByUser", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public IEnumerable<dynamic> ManagementReportRenewalByUserList(int idUser)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idUser", idUser);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query("dbo.ManagementReportRenewalByUser", parameters,
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }

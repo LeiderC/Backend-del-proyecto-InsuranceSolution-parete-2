@@ -38,5 +38,6 @@ namespace InsuranceBackend.Models
         public double? Value { get; set; }
         public DateTime? DatePayment { get; set; }
         public string SalesType { get; set; }
+        public double TotalOwnProducts { get; set; }
     }
 }

@@ -42,7 +42,7 @@ namespace InsuranceBackend.Models
         public int ChildNumber { get; set; }
         public string WebSite { get; set; }
         public int EmployeeNumber { get; set; }
-
         public bool Leaflet { get; set; }
+        public DateTime? ExpeditionDate { get; set; }
     }
 }

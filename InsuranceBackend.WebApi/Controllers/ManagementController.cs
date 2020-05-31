@@ -95,7 +95,24 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                return Ok(_unitOfWork.Management.ManagementReportByUserList(idUser, idRenewal, finished != 0));
+                string currentIdUser = User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value;
+                SystemUser user = _unitOfWork.User.GetById(int.Parse(currentIdUser));
+                return Ok(_unitOfWork.Management.ManagementReportByUserList(idUser, idRenewal, finished != 0, user.CancelOrders));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("GetManagementReportRenewalListByUser/{idUser:int}")]
+        public IActionResult GetManagementReportRenewalListByUser(int idUser)
+        {
+            try
+            {
+                var result = _unitOfWork.Management.ManagementReportRenewalByUserList(idUser);
+                return Ok(result);
             }
             catch (Exception ex)
             {

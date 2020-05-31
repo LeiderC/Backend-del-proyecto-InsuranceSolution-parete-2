@@ -227,26 +227,60 @@ namespace InsuranceBackend.DataAccess
             }
         }
 
-        public IEnumerable<PolicyList> PolicyReportProduction(int idUser)
+        public IEnumerable<dynamic> PolicyReportProduction(int idUser, DateTime startDate, DateTime endDate)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@idUser", idUser);
+            parameters.Add("@startDate", startDate);
+            parameters.Add("@endDate", endDate);
 
             using (var connection = new SqlConnection(_connectionString))
             {
-                return connection.Query<PolicyList>("dbo.PolicyReportProduction", parameters,
+                return connection.Query("dbo.PolicyReportProduction", parameters,
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }
 
-        public IEnumerable<PolicyList> PolicyReportProductionConsolidated(int idUser)
+        public IEnumerable<PolicyList> PolicyReportProductionConsolidated(int idUser, DateTime startDate, DateTime endDate)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@idUser", idUser);
+            parameters.Add("@startDate", startDate);
+            parameters.Add("@endDate", endDate);
 
             using (var connection = new SqlConnection(_connectionString))
             {
                 return connection.Query<PolicyList>("dbo.PolicyReportProductionConsolidated", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public IEnumerable<PolicyList> PolicyOrderReport(int page, int rows, int idUser, DateTime? startDate, DateTime? endDate, bool all)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@page", page);
+            parameters.Add("@rows", rows);
+            parameters.Add("@startDate", startDate);
+            parameters.Add("@endDate", endDate);
+            parameters.Add("@idUser", idUser);
+            parameters.Add("@all", all);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PolicyList>("dbo.PolicyOrderReport", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public IEnumerable<PolicyOrderListConsolidated> PolicyOrderReportConsolidated(DateTime startDate, DateTime endDate)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@startDate", startDate);
+            parameters.Add("@endDate", endDate);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PolicyOrderListConsolidated>("dbo.PolicyOrderReportConsolidated", parameters,
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }

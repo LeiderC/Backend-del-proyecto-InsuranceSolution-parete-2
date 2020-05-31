@@ -35,13 +35,13 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("GetListCancel")]
-        public IActionResult GetCancel()
+        [HttpPost]
+        [Route("GetListBySubGroup")]
+        public IActionResult GetListBySubGroup([FromBody] ManagementReason managementReason)
         {
             try
             {
-                List<ManagementReason> Lst = _unitOfWork.ManagementReason.GetList().Where(m => m.Subgroup.Equals("C")).ToList();
+                List<ManagementReason> Lst = _unitOfWork.ManagementReason.GetList().Where(m => m.Subgroup.Equals(managementReason.Subgroup)).ToList();
                 return Ok(Lst);
             }
             catch (Exception ex)
