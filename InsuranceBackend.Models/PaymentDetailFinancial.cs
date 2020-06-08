@@ -4,7 +4,7 @@ using System.Text;
 
 namespace InsuranceBackend.Models
 {
-    public class PaymentDetail
+    public class PaymentDetailFinancial
     {
         public int Id { get; set; }
         public int IdPayment { get; set; }
@@ -15,6 +15,5 @@ namespace InsuranceBackend.Models
         public bool InitialFee { get; set; }
         public bool WithoutFee { get; set; }
         public DateTime? DatePayFinancial { get; set; }
-        public double ValueOwnProduct { get; set; }
     }
 }

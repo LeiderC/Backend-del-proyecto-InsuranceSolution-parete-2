@@ -81,6 +81,36 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpPost]
+        [Route("RevokePayment")]
+        public IActionResult RevokePayment([FromBody] Payment payment)
+        {
+            int idPayment = 0;
+            if (!ModelState.IsValid)
+                return BadRequest();
+            using (var transaction = new TransactionScope())
+            {
+                try
+                {
+                    Payment _payment = _unitOfWork.Payment.GetById(payment.Id);
+                    if (_payment == null)
+                        return BadRequest("No existe el recaudo ingresado");
+                    idPayment = _payment.Id;
+                    _payment.State = "R";
+                    _unitOfWork.Payment.Update(_payment);
+                    _unitOfWork.PaymentDetail.DeletePaymentDetailByPayment(idPayment);
+                    _unitOfWork.PaymentDetailFinancial.DeletePaymentDetailFinancialByPayment(idPayment);
+                    transaction.Complete();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Dispose();
+                    return StatusCode(500, "Internal server error: " + ex.Message);
+                }
+            }
+            return Ok(idPayment);
+        }
+
+        [HttpPost]
         public IActionResult Post([FromBody]PaymentSave Payment)
         {
             int idPayment = 0;
@@ -97,15 +127,31 @@ namespace InsuranceBackend.WebApi.Controllers
                     StringBuilder policyList = new StringBuilder();
                     if (Payment.PaymentDetails!=null && Payment.PaymentDetails.Count > 0)
                     {
-                        foreach (var item in Payment.PaymentDetails)
+                        if (Payment.Payment.PaidDestination.Equals("A"))
                         {
-                            string text = "Póliza #{0} {1} {2} {3} {4}, Cuota: {5}, Valor {6}, Valor Int. Mora {7}";
-                            if (policyList.Length > 0)
-                                policyList.Append(" | " + string.Format(text, item.Number, item.MovementShort, item.InsuranceDesc, item.InsuranceLineDesc, item.InsuranceSublineDesc, item.FeeNumber, String.Format("{0:0,0.0}", item.Value), String.Format("{0:0,0.0}", item.DueInterestValue)));
-                            else
-                                policyList.Append(string.Format(text, item.Number, item.MovementShort, item.InsuranceDesc, item.InsuranceLineDesc, item.InsuranceSublineDesc, item.FeeNumber, String.Format("{0:0,0.0}", item.Value), String.Format("{0:0,0.0}", item.DueInterestValue)));
-                            PaymentDetail paymentDetail = new PaymentDetail { FeeNumber = item.FeeNumber, IdPayment = idPayment, IdPolicy = item.IdPolicy, Value = item.Value, DueInterestValue = item.DueInterestValue };
-                            _unitOfWork.PaymentDetail.Insert(paymentDetail);
+                            foreach (var item in Payment.PaymentDetails)
+                            {
+                                string text = "Póliza #{0} {1} {2} {3} {4}, Cuota: {5}, Valor {6}, Valor Int. Mora {7}";
+                                if (policyList.Length > 0)
+                                    policyList.Append(" | " + string.Format(text, item.Number, item.MovementShort, item.InsuranceDesc, item.InsuranceLineDesc, item.InsuranceSublineDesc, item.FeeNumber, String.Format("{0:0,0.0}", item.Value), String.Format("{0:0,0.0}", item.DueInterestValue)));
+                                else
+                                    policyList.Append(string.Format(text, item.Number, item.MovementShort, item.InsuranceDesc, item.InsuranceLineDesc, item.InsuranceSublineDesc, item.FeeNumber, String.Format("{0:0,0.0}", item.Value), String.Format("{0:0,0.0}", item.DueInterestValue)));
+                                PaymentDetail paymentDetail = new PaymentDetail { FeeNumber = item.FeeNumber, IdPayment = idPayment, IdPolicy = item.IdPolicy, Value = item.Value, ValueOwnProduct = item.ValueOwnProduct, DueInterestValue = item.DueInterestValue };
+                                _unitOfWork.PaymentDetail.Insert(paymentDetail);
+                            }
+                        }
+                        else
+                        {
+                            foreach (var item in Payment.PaymentDetails)
+                            {
+                                string text = "Póliza #{0} {1} {2} {3} {4}, Cuota: {5}, Valor {6}, Valor Int. Mora {7}";
+                                if (policyList.Length > 0)
+                                    policyList.Append(" | " + string.Format(text, item.Number, item.MovementShort, item.InsuranceDesc, item.InsuranceLineDesc, item.InsuranceSublineDesc, item.FeeNumber, String.Format("{0:0,0.0}", item.Value), String.Format("{0:0,0.0}", item.DueInterestValue)));
+                                else
+                                    policyList.Append(string.Format(text, item.Number, item.MovementShort, item.InsuranceDesc, item.InsuranceLineDesc, item.InsuranceSublineDesc, item.FeeNumber, String.Format("{0:0,0.0}", item.Value), String.Format("{0:0,0.0}", item.DueInterestValue)));
+                                PaymentDetailFinancial paymentDetail = new PaymentDetailFinancial { FeeNumber = item.FeeNumber, IdPayment = idPayment, IdPolicy = item.IdPolicy, Value = item.Value, DueInterestValue = item.DueInterestValue };
+                                _unitOfWork.PaymentDetailFinancial.Insert(paymentDetail);
+                            }
                         }
                     }
                     //Actualizamos el consecutivo

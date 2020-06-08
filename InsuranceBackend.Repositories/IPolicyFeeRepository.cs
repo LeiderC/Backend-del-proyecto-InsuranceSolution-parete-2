@@ -8,5 +8,7 @@ namespace InsuranceBackend.Repositories
     {
         bool DeleteFeeByPolicy(int idPolicy);
         IEnumerable<PolicyFeeList> PolicyFeeListByPolicy(int idPolicy, bool paid);
+        bool DeleteFeeByPolicyFeeNumber(int idPolicy, int feeNumber);
     }
 }
+

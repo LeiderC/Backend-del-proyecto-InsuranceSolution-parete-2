@@ -25,7 +25,9 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                return Ok(_unitOfWork.FinancialOption.GetList());
+                List<FinancialOption> lst = _unitOfWork.FinancialOption.GetList().ToList();
+                lst.Sort((x,y)=> x.Description.CompareTo(y.Description));
+                return Ok(lst);
             }
             catch (Exception ex)
             {

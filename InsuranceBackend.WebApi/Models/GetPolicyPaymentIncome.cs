@@ -5,12 +5,9 @@ using System.Threading.Tasks;
 
 namespace InsuranceBackend.WebApi.Models
 {
-    public class GetPolicyPaymentThirdParties
+    public class GetPolicyPaymentIncome
     {
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
-        public int IdInsurance { get; set; }
-        public int IdFinancial { get; set; }
-        public string Type { get; set; }
     }
 }

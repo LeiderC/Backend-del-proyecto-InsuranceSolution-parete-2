@@ -24,6 +24,18 @@ namespace InsuranceBackend.DataAccess
             }
         }
 
+        public bool DeleteFeeByPolicyFeeNumber(int idPolicy, int feeNumber)
+        {
+            string sql = "DELETE PolicyFee WHERE IdPolicy = @IdPolicy AND Number =@FeeNumber;";
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                int affectedRows = connection.Execute(sql, new { IdPolicy = idPolicy, FeeNumber = feeNumber });
+                if (affectedRows > 0)
+                    return true;
+                return false;
+            }
+        }
+
         public IEnumerable<PolicyFeeList> PolicyFeeListByPolicy(int idPolicy, bool paid)
         {
             var parameters = new DynamicParameters();

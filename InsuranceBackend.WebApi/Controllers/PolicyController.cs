@@ -30,7 +30,8 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                return Ok(_unitOfWork.Policy.PolicyListById(id));
+                PolicyList policy = _unitOfWork.Policy.PolicyListById(id);
+                return Ok(policy);
             }
             catch (Exception ex)
             {
@@ -155,7 +156,7 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                return Ok(_unitOfWork.Policy.PolicyPromisoryNotePagedList(request.StartDate.Date, request.EndDate.Date, request.Page, request.Rows));
+                return Ok(_unitOfWork.Policy.PolicyPromisoryNotePagedList(request.StartDate.Date, request.EndDate.Date, request.Page, request.Rows, request.IdFinancial));
             }
             catch (Exception ex)
             {
@@ -239,7 +240,42 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                return Ok(_unitOfWork.Policy.PolicyPaymentThirdParties(request.StartDate, request.EndDate, request.IdInsurance, request.IdFinancial));
+                List<PolicyList> lst = _unitOfWork.Policy.PolicyPaymentThirdParties(request.StartDate, request.EndDate, request.IdInsurance, request.IdFinancial, request.Type).ToList();
+                if (request.Type.Equals("A"))
+                {
+                    lst.RemoveAll(P => P.IdPaymentMethod.Equals("4") && P.IdPaymentType != "L3");
+                }
+                return Ok(lst);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("GetPolicyPaymentIncome")]
+        public IActionResult GetPolicyPaymentIncome([FromBody] GetPolicyPaymentIncome request)
+        {
+            try
+            {
+                List<PolicyList> lst = _unitOfWork.Policy.PolicyPaymentIncome(request.StartDate, request.EndDate).ToList();
+                return Ok(lst);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("GetPolicyPaymentAccountReceivable")]
+        public IActionResult GetPolicyPaymentAccountReceivable([FromBody] GetPolicyPaymentIncome request)
+        {
+            try
+            {
+                List<PolicyList> lst = _unitOfWork.Policy.PolicyPaymentAccountReceivable(request.StartDate, request.EndDate).ToList();
+                return Ok(lst);
             }
             catch (Exception ex)
             {
@@ -402,7 +438,7 @@ namespace InsuranceBackend.WebApi.Controllers
                         }
                     }
                     //Cuotas
-                    if (policy.PolicyFees != null && policy.PolicyFees.Count > 0)
+                    if (policy.PolicyFees != null && policy.PolicyFees.Count > 0 && policy.Policy.IdPaymentMethod != "4")
                     {
                         //Primero se debe eliminar las existentes
                         _unitOfWork.PolicyFee.DeleteFeeByPolicy(idPolicy);
@@ -422,7 +458,7 @@ namespace InsuranceBackend.WebApi.Controllers
                     }
                     else
                     {
-                        if (policy.Policy.IdPaymentMethod != "2") // Si no es financiado debemos crear por lo menos una cuota para poder hacer los pagos
+                        if (policy.Policy.IdPaymentMethod != "3") // Si no es financiado debemos crear por lo menos una cuota para poder hacer los pagos
                         {
                             if (policy.Policy.StartDate.HasValue)
                             {
@@ -448,6 +484,74 @@ namespace InsuranceBackend.WebApi.Controllers
                                 };
                                 _unitOfWork.PolicyFee.Insert(policyFee);
                             }
+                        }
+                        if(policy.Policy.IdPaymentMethod == "4")
+                        {
+                            //Primero se debe eliminar las existentes
+                            _unitOfWork.PolicyFeeFinancial.DeleteFeeByPolicy(idPolicy);
+                            foreach (var item in policy.PolicyFees)
+                            {
+                                PolicyFeeFinancial policyFeeFinancial = new PolicyFeeFinancial
+                                {
+                                    Number = item.Number,
+                                    IdPolicy = idPolicy,
+                                    Date = item.Date,
+                                    Value = item.Value,
+                                    DateInsurance = item.DateInsurance,
+                                    DatePayment = item.DatePayment
+                                };
+                                _unitOfWork.PolicyFeeFinancial.Insert(policyFeeFinancial);
+                            }
+                        }
+                    }
+                    if (policy.Policy.IdPaymentMethod == "2" && policy.Policy.StartDate.HasValue)
+                    {
+                        //Primero se debe eliminar las existentes
+                        _unitOfWork.PolicyFeeFinancial.DeleteFeeByPolicy(idPolicy);
+                        DateTime start = new DateTime(policy.Policy.StartDate.Value.Year, policy.Policy.StartDate.Value.Month, policy.Policy.Payday);
+                        for (int i = 1; i <= policy.Policy.FeeNumbers; i++)
+                        {
+                            PolicyFeeFinancial policyFeeFinancial = new PolicyFeeFinancial
+                            {
+                                Number = i,
+                                IdPolicy = idPolicy,
+                                Date = policy.Policy.StartDate.Value.AddMonths(i - 1),
+                                Value = policy.Policy.FeeValue,
+                                DateInsurance = start.AddMonths(i - 1),
+                                DatePayment = start.AddMonths(i - 1)
+                            };
+                            _unitOfWork.PolicyFeeFinancial.Insert(policyFeeFinancial);
+                        }
+                    }
+                    //Cuota incial
+                    if (policy.Policy.TotalInitialFee > 0)
+                    {
+                        _unitOfWork.PolicyFee.DeleteFeeByPolicyFeeNumber(idPolicy, 0);
+                        if (policy.Policy.StartDate.HasValue)
+                        {
+                            PolicyFee policyFee = new PolicyFee
+                            {
+                                Number = 0,
+                                IdPolicy = idPolicy,
+                                Date = policy.Policy.StartDate.Value,
+                                Value = policy.Policy.InitialFee,
+                                ValueOwnProduct = policy.Policy.OwnProducts,
+                                DatePayment = policy.Policy.StartDate.Value,
+                            };
+                            _unitOfWork.PolicyFee.Insert(policyFee);
+                        }
+                        else
+                        {
+                            PolicyFee policyFee = new PolicyFee
+                            {
+                                Number = 0,
+                                IdPolicy = idPolicy,
+                                Date = policy.Policy.ExpiditionDate,
+                                Value = policy.Policy.InitialFee,
+                                ValueOwnProduct = policy.Policy.OwnProducts,
+                                DatePayment = policy.Policy.ExpiditionDate,
+                            };
+                            _unitOfWork.PolicyFee.Insert(policyFee);
                         }
                     }
                     //Referencias
@@ -739,7 +843,7 @@ namespace InsuranceBackend.WebApi.Controllers
                             }
                         }
                         //Cuotas
-                        if (policy.PolicyFees != null && policy.PolicyFees.Count > 0)
+                        if (policy.PolicyFees != null && policy.PolicyFees.Count > 0 && policy.Policy.IdPaymentMethod != "4")
                         {
                             //Primero se debe eliminar las existentes
                             _unitOfWork.PolicyFee.DeleteFeeByPolicy(idPolicy);
@@ -759,7 +863,7 @@ namespace InsuranceBackend.WebApi.Controllers
                         }
                         else
                         {
-                            if (policy.Policy.IdPaymentMethod != "2") // Si no es financiado debemos crear por lo menos una cuota para poder hacer los pagos
+                            if (policy.Policy.IdPaymentMethod != "3") // Si no es financiado debemos crear por lo menos una cuota para poder hacer los pagos
                             {
                                 if (policy.Policy.StartDate.HasValue)
                                 {
@@ -785,6 +889,74 @@ namespace InsuranceBackend.WebApi.Controllers
                                     };
                                     _unitOfWork.PolicyFee.Insert(policyFee);
                                 }
+                            }
+                            if (policy.Policy.IdPaymentMethod == "4")
+                            {
+                                //Primero se debe eliminar las existentes
+                                _unitOfWork.PolicyFeeFinancial.DeleteFeeByPolicy(idPolicy);
+                                foreach (var item in policy.PolicyFees)
+                                {
+                                    PolicyFeeFinancial policyFeeFinancial = new PolicyFeeFinancial
+                                    {
+                                        Number = item.Number,
+                                        IdPolicy = idPolicy,
+                                        Date = item.Date,
+                                        Value = item.Value,
+                                        DateInsurance = item.DateInsurance,
+                                        DatePayment = item.DatePayment
+                                    };
+                                    _unitOfWork.PolicyFeeFinancial.Insert(policyFeeFinancial);
+                                }
+                            }
+                        }
+                        if (policy.Policy.IdPaymentMethod == "2" && policy.Policy.StartDate.HasValue)
+                        {
+                            //Primero se debe eliminar las existentes
+                            _unitOfWork.PolicyFeeFinancial.DeleteFeeByPolicy(idPolicy);
+                            DateTime start = new DateTime(policy.Policy.StartDate.Value.Year, policy.Policy.StartDate.Value.Month, policy.Policy.Payday);
+                            for (int i = 1; i <= policy.Policy.FeeNumbers; i++)
+                            {
+                                PolicyFeeFinancial policyFeeFinancial = new PolicyFeeFinancial
+                                {
+                                    Number = i,
+                                    IdPolicy = idPolicy,
+                                    Date = policy.Policy.StartDate.Value.AddMonths(i - 1),
+                                    Value = policy.Policy.FeeValue,
+                                    DateInsurance = start.AddMonths(i - 1),
+                                    DatePayment = start.AddMonths(i - 1)
+                                };
+                                _unitOfWork.PolicyFeeFinancial.Insert(policyFeeFinancial);
+                            }
+                        }
+                        //Cuota incial
+                        if (policy.Policy.TotalInitialFee > 0)
+                        {
+                            _unitOfWork.PolicyFee.DeleteFeeByPolicyFeeNumber(idPolicy, 0);
+                            if (policy.Policy.StartDate.HasValue)
+                            {
+                                PolicyFee policyFee = new PolicyFee
+                                {
+                                    Number = 0,
+                                    IdPolicy = idPolicy,
+                                    Date = policy.Policy.StartDate.Value,
+                                    Value = policy.Policy.InitialFee,
+                                    ValueOwnProduct = policy.Policy.OwnProducts,
+                                    DatePayment = policy.Policy.StartDate.Value,
+                                };
+                                _unitOfWork.PolicyFee.Insert(policyFee);
+                            }
+                            else
+                            {
+                                PolicyFee policyFee = new PolicyFee
+                                {
+                                    Number = 0,
+                                    IdPolicy = idPolicy,
+                                    Date = policy.Policy.ExpiditionDate,
+                                    Value = policy.Policy.InitialFee,
+                                    ValueOwnProduct = policy.Policy.OwnProducts,
+                                    DatePayment = policy.Policy.ExpiditionDate,
+                                };
+                                _unitOfWork.PolicyFee.Insert(policyFee);
                             }
                         }
                         //Referencias

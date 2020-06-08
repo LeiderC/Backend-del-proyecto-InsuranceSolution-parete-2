@@ -12,5 +12,16 @@ namespace InsuranceBackend.DataAccess
         {
         }
 
+        public IEnumerable<WaytoPay> GetWaytoPaysByPaymentType(string idPaymentType)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idPaymentType", idPaymentType);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<WaytoPay>("dbo.WayToPayByPaymentType", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
     }
 }

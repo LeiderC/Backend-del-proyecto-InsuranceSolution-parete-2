@@ -12,6 +12,18 @@ namespace InsuranceBackend.DataAccess
         {
         }
 
+        public IEnumerable<PaymentType> PaymentTypeByPaymentMethod(string paymentMethod)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idPaymentMethod", paymentMethod);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PaymentTypeList>("dbo.PaymentTypeByPaymentMethod", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
         public IEnumerable<PaymentTypeList> PaymentTypePagedList(int page, int rows)
         {
             var parameters = new DynamicParameters();

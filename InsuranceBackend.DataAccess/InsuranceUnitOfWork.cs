@@ -72,10 +72,12 @@ namespace InsuranceBackend.DataAccess
             UserProfile = new UserProfileRepository(connectionString);
             PolicyOrderDetail = new PolicyOrderDetailRepository(connectionString);
             PolicyFee = new PolicyFeeRepository(connectionString);
+            PolicyFeeFinancial = new PolicyFeeFinancialRepository(connectionString);
             SystemAudit = new SystemAuditRepository(connectionString);
             PaymentType = new PaymentTypeRepository(connectionString);
             Payment = new PaymentRepository(connectionString);
             PaymentDetail = new PaymentDetailRepository(connectionString);
+            PaymentDetailFinancial = new PaymentDetailFinancialRepository(connectionString);
             PolicyPromisoryNote = new PolicyPromisoryNoteRepository(connectionString);
             ManagementReason = new ManagementReasonRepository(connectionString);
             InterestDue = new InterestDueRepository(connectionString);
@@ -164,10 +166,12 @@ namespace InsuranceBackend.DataAccess
         public IUserProfileRepository UserProfile { get; private set; }
         public IPolicyOrderDetailRepository PolicyOrderDetail { get; private set; }
         public IPolicyFeeRepository PolicyFee { get; private set; }
+        public IPolicyFeeFinancialRepository PolicyFeeFinancial { get; private set; }
         public ISystemAuditRepository SystemAudit { get; private set; }
         public IPaymentTypeRepository PaymentType { get; private set; }
         public IPaymentRepository Payment { get; private set; }
         public IPaymentDetailRepository PaymentDetail { get; private set; }
+        public IPaymentDetailFinancialRepository PaymentDetailFinancial { get; private set; }
         public IPolicyPromisoryNoteRepository PolicyPromisoryNote { get; private set; }
         public IManagementReasonRepository ManagementReason { get; private set; }
         public IInterestDueRepository InterestDue { get; private set; }

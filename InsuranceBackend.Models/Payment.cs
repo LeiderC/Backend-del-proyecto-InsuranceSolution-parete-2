@@ -15,5 +15,8 @@ namespace InsuranceBackend.Models
         public float TotalValue { get; set; }
         public string State { get; set; }
         public string IdWaytoPay { get; set; }
+        public float AdditionalCharge { get; set; }
+        public float Total { get; set; }
+        public string PaidDestination { get; set; }
     }
 }

@@ -40,5 +40,7 @@ namespace InsuranceBackend.Models
         public string PendingRegistration { get; set; }
         public string Inspected { get; set; }
         public bool ReqAuthorization { get; set; }
+        public double OwnProducts { get; set; }
+        public double TotalInitialFee { get; set; }
     }
 }

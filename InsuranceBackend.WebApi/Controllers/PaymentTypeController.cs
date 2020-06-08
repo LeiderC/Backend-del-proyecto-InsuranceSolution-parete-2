@@ -62,6 +62,20 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("GetPaymentTypeByPayMet")]
+        public IActionResult GetPaymentTypeByPayMet([FromBody] PaymentMethod paymentMethod)
+        {
+            try
+            {
+                return Ok(_unitOfWork.PaymentType.PaymentTypeByPaymentMethod(paymentMethod.Id));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
 
         [HttpPost]
         public IActionResult Post([FromBody]PaymentType PaymentType)
@@ -119,3 +133,4 @@ namespace InsuranceBackend.WebApi.Controllers
 
     }
 }
+ 

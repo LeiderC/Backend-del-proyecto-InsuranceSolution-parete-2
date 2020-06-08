@@ -4,7 +4,7 @@ using System.Text;
 
 namespace InsuranceBackend.Models
 {
-    public class PolicyPortfolioList: Policy
+    public class PolicyPortfolioList : Policy
     {
         public string InsuranceDesc { get; set; }
         public string InsuranceShort { get; set; }
@@ -26,5 +26,9 @@ namespace InsuranceBackend.Models
         public double BetThirtySixty { get; set; }
         public double BetSixtyNinety { get; set; }
         public double MoreNinety { get; set; }
+        public string SalesmanName { get; set; }
+        public string ExternalSalesmanName { get; set; }
+        public double InitialFeePaid { get; set; }
+        public double OwnProductsPaid { get; set; }
     }
 }

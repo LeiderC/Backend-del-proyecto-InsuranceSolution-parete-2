@@ -5,6 +5,6 @@ namespace InsuranceBackend.Repositories
 {
     public interface IWaytoPayRepository : IRepository<WaytoPay>
     {
-
+        IEnumerable<WaytoPay> GetWaytoPaysByPaymentType(string idPaymentType);
     }
 }

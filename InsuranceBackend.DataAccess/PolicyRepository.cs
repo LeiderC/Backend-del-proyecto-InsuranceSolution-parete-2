@@ -113,13 +113,14 @@ namespace InsuranceBackend.DataAccess
             }
         }
 
-        public IEnumerable<PolicyList> PolicyPromisoryNotePagedList(DateTime startDate, DateTime endDate, int page, int rows)
+        public IEnumerable<PolicyList> PolicyPromisoryNotePagedList(DateTime startDate, DateTime endDate, int page, int rows, int idFinancial)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@page", page);
             parameters.Add("@rows", rows);
             parameters.Add("@startDate", startDate);
             parameters.Add("@endDate", endDate);
+            parameters.Add("@idFinancial", idFinancial);
 
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -203,13 +204,14 @@ namespace InsuranceBackend.DataAccess
             }
         }
 
-        public IEnumerable<PolicyList> PolicyPaymentThirdParties(DateTime? startDate, DateTime? endDate, int idInsurance, int idFinancial)
+        public IEnumerable<PolicyList> PolicyPaymentThirdParties(DateTime? startDate, DateTime? endDate, int idInsurance, int idFinancial, string type)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@startDate", startDate);
             parameters.Add("@endDate", endDate);
             parameters.Add("@idInsurance", idInsurance);
             parameters.Add("@idFinancial", idFinancial);
+            parameters.Add("@type", type);
 
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -281,6 +283,32 @@ namespace InsuranceBackend.DataAccess
             using (var connection = new SqlConnection(_connectionString))
             {
                 return connection.Query<PolicyOrderListConsolidated>("dbo.PolicyOrderReportConsolidated", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public IEnumerable<PolicyList> PolicyPaymentIncome(DateTime? startDate, DateTime? endDate)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@startDate", startDate);
+            parameters.Add("@endDate", endDate);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PolicyList>("dbo.PolicyPaymentIncome", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public IEnumerable<PolicyList> PolicyPaymentAccountReceivable(DateTime? startDate, DateTime? endDate)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@startDate", startDate);
+            parameters.Add("@endDate", endDate);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PolicyList>("dbo.PolicyPaymentAccount", parameters,
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }
