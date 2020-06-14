@@ -18,5 +18,9 @@ namespace InsuranceBackend.Models
         public float AdditionalCharge { get; set; }
         public float Total { get; set; }
         public string PaidDestination { get; set; }
+        public string Observation { get; set; }
+        public string ObservationRevoke { get; set; }
+        public DateTime DateCreated { get; set; }
+        public float TotalReceived { get; set; }
     }
 }

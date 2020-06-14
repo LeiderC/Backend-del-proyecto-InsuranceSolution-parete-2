@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using InsuranceBackend.Models;
 using InsuranceBackend.Repositories;
 using System.Data.SqlClient;
+using System;
 
 namespace InsuranceBackend.DataAccess
 {
@@ -49,6 +50,56 @@ namespace InsuranceBackend.DataAccess
             using (var connection = new SqlConnection(_connectionString))
             {
                 return connection.Query<PaymentDetailList>("dbo.PaymentDetailListByPolicy", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public PaymentList PaymentListById(int id)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@id", id);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.QueryFirstOrDefault<PaymentList>("dbo.PaymentListById", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public IEnumerable<PaymentDetailFinancialList> PaymentDetailFinancialListByPayment(int idPayment)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idPayment", idPayment);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PaymentDetailFinancialList>("dbo.PaymentDetailFinancialListByPayment", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public IEnumerable<PaymentDetailFinancialList> PaymentDetailFinancialListByPolicy(int idPolicy)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idPolicy", idPolicy);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PaymentDetailFinancialList>("dbo.PaymentDetailFinancialListByPolicy", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public IEnumerable<PaymentList> PaymentDetailReport(DateTime? startDate, DateTime? endDate, int idSalesman)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@startDate", startDate);
+            parameters.Add("@endDate", endDate);
+            parameters.Add("@idSalesman", idSalesman);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PaymentList>("dbo.PaymentDetailReport", parameters,
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }

@@ -106,12 +106,12 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("GetManagementReportRenewalListByUser/{idUser:int}")]
-        public IActionResult GetManagementReportRenewalListByUser(int idUser)
+        [Route("GetManagementReportRenewalListByUser/{idUser:int}/{idRenewal:int}")]
+        public IActionResult GetManagementReportRenewalListByUser(int idUser, int idRenewal)
         {
             try
             {
-                var result = _unitOfWork.Management.ManagementReportRenewalByUserList(idUser);
+                var result = _unitOfWork.Management.ManagementReportRenewalByUserList(idUser, idRenewal);
                 return Ok(result);
             }
             catch (Exception ex)

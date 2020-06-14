@@ -41,5 +41,11 @@ namespace InsuranceBackend.Models
         public double TotalOwnProducts { get; set; }
         public bool HasPaid { get; set; }
         public string IdPaymentType { get; set; }
+        public double InitialFeePaid { get; set; }
+        public double OwnProductsPaid { get; set; }
+        public int IdPayment { get; set; }
+        public DateTime DatePaymentThird { get; set; }
+        public string PaymentMethodThird { get; set; }
+        public string Account { get; set; }
     }
 }

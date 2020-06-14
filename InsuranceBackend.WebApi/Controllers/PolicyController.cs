@@ -212,7 +212,21 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                return Ok(_unitOfWork.Policy.PolicyCommissionSalesmanList(request.IdSalesman, request.StartDate.Date, request.EndDate.Date));
+                return Ok(_unitOfWork.Policy.PolicyCommissionSalesmanList(request.IdSalesman, request.StartDate, request.EndDate));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("GetPolicyCommissionExternalSalesman")]
+        public IActionResult GetPolicyCommissionExternalSalesman([FromBody] GetPolicyCommissionSalesman request)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Policy.PolicyCommissionExternalSalesmanList(request.IdSalesman, request.StartDate, request.EndDate));
             }
             catch (Exception ex)
             {
@@ -240,7 +254,8 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                List<PolicyList> lst = _unitOfWork.Policy.PolicyPaymentThirdParties(request.StartDate, request.EndDate, request.IdInsurance, request.IdFinancial, request.Type).ToList();
+                List<PolicyList> lst = _unitOfWork.Policy.PolicyPaymentThirdParties(request.StartDate, request.EndDate, request.IdInsurance, 
+                    request.IdFinancial, request.Type, request.Paid, request.IdPaymentMethodThird, request.IdAccountThird).ToList();
                 if (request.Type.Equals("A"))
                 {
                     lst.RemoveAll(P => P.IdPaymentMethod.Equals("4") && P.IdPaymentType != "L3");
@@ -327,6 +342,52 @@ namespace InsuranceBackend.WebApi.Controllers
                 }
             }
             return Ok(settlement);
+        }
+
+        [HttpPost]
+        [Route("SetPolicyPaymentThird")]
+        public IActionResult SetPolicyPaymentThird([FromBody] PolicyPaymentThird policyPaymentThird)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+            try
+            {
+                int idUser = 0;
+                idUser = int.Parse(User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value);
+                policyPaymentThird.CreationDate = DateTime.Now;
+                policyPaymentThird.PaymentDate = DateTime.Now;
+                policyPaymentThird.ThirdPayDate = DateTime.Now;
+                policyPaymentThird.IdUser = idUser;
+                return Ok(_unitOfWork.PolicyPaymentThird.Insert(policyPaymentThird));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("RevokePromisoryNote")]
+        public IActionResult RevokePromisoryNote([FromBody] Policy request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+            try
+            {
+                Policy policy = _unitOfWork.Policy.GetById(request.Id);
+                if (policy == null)
+                    return BadRequest("No se encuentra la póliza enviada");
+                if (policy.RevokePromisoryNote)
+                    policy.RevokePromisoryNote = true;
+                else
+                    policy.RevokePromisoryNote = false;
+                _unitOfWork.Policy.Update(policy);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
         [HttpPost]
@@ -743,7 +804,7 @@ namespace InsuranceBackend.WebApi.Controllers
                 try
                 {
                     //Datos de vehículo
-                    if (policy.Vehicle != null)
+                    if (policy.Vehicle != null && !string.IsNullOrEmpty(policy.Vehicle.License))
                     {
                         int idVehicle = 0;
                         //Validamos primero si existe, de ser así se debe actualizar la info

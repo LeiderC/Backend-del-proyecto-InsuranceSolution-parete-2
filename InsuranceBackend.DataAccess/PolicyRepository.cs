@@ -178,8 +178,8 @@ namespace InsuranceBackend.DataAccess
         {
             var parameters = new DynamicParameters();
             parameters.Add("@idSalesman", idSalesman);
-            parameters.Add("@startDate", startDate);
-            parameters.Add("@endDate", endDate);
+            parameters.Add("@startDate", startDate.HasValue ? startDate.Value.Date : startDate);
+            parameters.Add("@endDate", endDate.HasValue ? endDate.Value.Date : endDate);
 
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -204,7 +204,8 @@ namespace InsuranceBackend.DataAccess
             }
         }
 
-        public IEnumerable<PolicyList> PolicyPaymentThirdParties(DateTime? startDate, DateTime? endDate, int idInsurance, int idFinancial, string type)
+        public IEnumerable<PolicyList> PolicyPaymentThirdParties(DateTime? startDate, DateTime? endDate, int idInsurance, int idFinancial, string type,
+            bool paid, int idPaymentMethodThird, int idPaymentThirdAccount)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@startDate", startDate);
@@ -212,6 +213,9 @@ namespace InsuranceBackend.DataAccess
             parameters.Add("@idInsurance", idInsurance);
             parameters.Add("@idFinancial", idFinancial);
             parameters.Add("@type", type);
+            parameters.Add("@paid", paid);
+            parameters.Add("@idPaymentMethodThird", idPaymentMethodThird);
+            parameters.Add("@idPaymentThirdAccount", idPaymentThirdAccount);
 
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -309,6 +313,20 @@ namespace InsuranceBackend.DataAccess
             using (var connection = new SqlConnection(_connectionString))
             {
                 return connection.Query<PolicyList>("dbo.PolicyPaymentAccount", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public IEnumerable<PolicyList> PolicyCommissionExternalSalesmanList(int idExternalSalesman, DateTime? startDate, DateTime? endDate)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idExternalSalesman", idExternalSalesman);
+            parameters.Add("@startDate", startDate.HasValue ? startDate.Value.Date : startDate);
+            parameters.Add("@endDate", endDate.HasValue ? endDate.Value.Date : endDate);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PolicyList>("dbo.PolicyCommissionExternalSalesmanList", parameters,
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }

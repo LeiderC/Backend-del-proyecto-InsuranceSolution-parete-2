@@ -38,6 +38,28 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("GetPaymentListById/{id:int}")]
+        public IActionResult GetPaymentListById(int id)
+        {
+            try
+            {
+                PaymentList paymentList = _unitOfWork.Payment.PaymentListById(id);
+                if (paymentList != null)
+                {
+                    List<PaymentDetailList> paymentDetailLists = _unitOfWork.Payment.PaymentDetailListByPayment(id).ToList();
+                    List<PaymentDetailFinancialList> paymentDetailFinancialLists = _unitOfWork.Payment.PaymentDetailFinancialListByPayment(id).ToList();
+                    paymentList.PaymentDetailLists = paymentDetailLists;
+                    paymentList.PaymentDetailFinancialLists = paymentDetailFinancialLists;
+                }
+                return Ok(paymentList);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
         [HttpPost]
         [Route("GetPaymentPagedBySearchTerms")]
         public IActionResult GetPolicyCustomerBySearchTerms([FromBody]GetPaginatedPaymentSearchTerm request)
@@ -81,6 +103,20 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpPost]
+        [Route("GetPaymentDetailFinancialListByPolicy")]
+        public IActionResult GetPaymentDetailFinancialListByPolicy([FromBody] GetSearchTerm request)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Payment.PaymentDetailFinancialListByPolicy(int.Parse(request.SearchTerm)));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
         [Route("RevokePayment")]
         public IActionResult RevokePayment([FromBody] Payment payment)
         {
@@ -96,6 +132,7 @@ namespace InsuranceBackend.WebApi.Controllers
                         return BadRequest("No existe el recaudo ingresado");
                     idPayment = _payment.Id;
                     _payment.State = "R";
+                    _payment.ObservationRevoke = payment.ObservationRevoke;
                     _unitOfWork.Payment.Update(_payment);
                     _unitOfWork.PaymentDetail.DeletePaymentDetailByPayment(idPayment);
                     _unitOfWork.PaymentDetailFinancial.DeletePaymentDetailFinancialByPayment(idPayment);
@@ -122,7 +159,7 @@ namespace InsuranceBackend.WebApi.Controllers
                 {
                     string idUser = User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value;
                     Payment.Payment.IdUser = int.Parse(idUser);
-                    Payment.Payment.DatePayment = DateTime.Now;
+                    Payment.Payment.DateCreated = DateTime.Now;
                     idPayment = _unitOfWork.Payment.Insert(Payment.Payment);
                     StringBuilder policyList = new StringBuilder();
                     if (Payment.PaymentDetails!=null && Payment.PaymentDetails.Count > 0)
@@ -156,7 +193,7 @@ namespace InsuranceBackend.WebApi.Controllers
                     }
                     //Actualizamos el consecutivo
                     PaymentType paymentType = _unitOfWork.PaymentType.GetList().Where(p => p.Id.Equals(Payment.Payment.IdPaymentType)).FirstOrDefault();
-                    paymentType.Number = Payment.Payment.Number + 1;
+                    paymentType.Number = Payment.Payment.Number;
                     _unitOfWork.PaymentType.Update(paymentType);
                     //Creamos gestión con el recaudo realizado
                     Customer customer = _unitOfWork.Customer.GetById(Payment.Payment.IdCustomer);
@@ -260,6 +297,20 @@ namespace InsuranceBackend.WebApi.Controllers
                     return Ok(new { Message = "Pago se ha eliminado" });
                 else
                     return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("GetPaymentDetailReport")]
+        public IActionResult GetPaymentDetailReport([FromBody] GetPolicyPaymentThirdParties request)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Payment.PaymentDetailReport(request.StartDate, request.EndDate, request.IdSalesman));
             }
             catch (Exception ex)
             {

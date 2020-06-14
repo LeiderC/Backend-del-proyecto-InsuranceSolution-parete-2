@@ -8,7 +8,7 @@ namespace InsuranceBackend.Repositories
     {
         IEnumerable<ManagementList> ManagementByUserList(int idUser, int idRenewal);
         IEnumerable<ManagementList> ManagementReportByUserList(int idUser, int idRenewal, bool finished, bool cancel);
-        IEnumerable<dynamic> ManagementReportRenewalByUserList(int idUser);
+        IEnumerable<dynamic> ManagementReportRenewalByUserList(int idUser, int idRenewal);
         IEnumerable<ManagementList> ManagementPagedList(int page, int rows, int idUser);
         IEnumerable<ManagementExtraList> ManagementExtraPagedList(int page, int rows, int idManagementParent);
         Management ManagementByPolicyOrder(int idPolicyOrder, string managementType);

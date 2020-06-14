@@ -58,6 +58,7 @@ namespace InsuranceBackend.UnitOfWork
         ISalesmanProfileRepository SalesmanProfile { get; }
         IMovementTypeRepository MovementType { get; }
         ISalesmanParamRepository SalesmanParam { get; }
+        IExternalSalesmanParamRepository ExternalSalesmanParam { get; }
         ISettingsRepository Settings { get; }
         IBeneficiaryRepository Beneficiary { get; }
         IPolicyBeneficiaryRepository PolicyBeneficiary { get; }
@@ -97,5 +98,8 @@ namespace InsuranceBackend.UnitOfWork
         IPolicyAuthorizationRepository PolicyAuthorization { get; }
         IFasecoldaRepository Fasecolda { get; }
         IWaytoPayRepository WaytoPay { get; }
+        IPaymentMethodThirdRepository PaymentMethodThird { get; }
+        IPaymentThirdAccountRepository PaymentThirdAccount { get; }
+        IPolicyPaymentThirdRepository PolicyPaymentThird { get; }
     }
 }

@@ -19,5 +19,6 @@ namespace InsuranceBackend.Models
         public int Weekday { get; set; }
         public int Day1 { get; set; }
         public int Day2 { get; set; }
+        public bool SupportsDirect { get; set; }
     }
 }

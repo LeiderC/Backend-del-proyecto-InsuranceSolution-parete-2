@@ -42,5 +42,6 @@ namespace InsuranceBackend.Models
         public bool ReqAuthorization { get; set; }
         public double OwnProducts { get; set; }
         public double TotalInitialFee { get; set; }
+        public bool RevokePromisoryNote { get; set; }
     }
 }

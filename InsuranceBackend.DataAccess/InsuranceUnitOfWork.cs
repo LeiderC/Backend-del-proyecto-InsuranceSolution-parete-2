@@ -1,5 +1,4 @@
-﻿using InsuranceBackend.Models;
-using InsuranceBackend.Repositories;
+﻿using InsuranceBackend.Repositories;
 using InsuranceBackend.UnitOfWork;
 
 namespace InsuranceBackend.DataAccess
@@ -62,6 +61,7 @@ namespace InsuranceBackend.DataAccess
             SalesmanProfile = new SalesmanProfileRepository(connectionString);
             MovementType = new MovementTypeRepository(connectionString);
             SalesmanParam = new SalesmanParamRepository(connectionString);
+            ExternalSalesmanParam = new ExternalSalesmanParamRepository(connectionString);
             Settings = new SettingsRepository(connectionString);
             Beneficiary = new BeneficiaryRepository(connectionString);
             PolicyBeneficiary = new PolicyBeneficiaryRepository(connectionString);
@@ -101,6 +101,9 @@ namespace InsuranceBackend.DataAccess
             PolicyAuthorization = new PolicyAuthorizationRepository(connectionString);
             Fasecolda = new FasecoldaRepository(connectionString);
             WaytoPay = new WaytoPayRepository(connectionString);
+            PaymentMethodThird = new PaymentMethodThirdRepository(connectionString);
+            PaymentThirdAccount = new PaymentThirdAccountRepository(connectionString);
+            PolicyPaymentThird = new PolicyPaymentThirdRepository(connectionString);
         }
         public ICityRepository City { get; private set; }
         public ICountryRepository Country { get; private set; }
@@ -156,6 +159,7 @@ namespace InsuranceBackend.DataAccess
         public ISalesmanProfileRepository SalesmanProfile { get; private set; }
         public IMovementTypeRepository MovementType { get; private set; }
         public ISalesmanParamRepository SalesmanParam { get; private set; }
+        public IExternalSalesmanParamRepository ExternalSalesmanParam { get; private set; }
         public ISettingsRepository Settings { get; private set; }
         public IBeneficiaryRepository Beneficiary { get; private set; }
         public IPolicyBeneficiaryRepository PolicyBeneficiary { get; private set; }
@@ -195,5 +199,8 @@ namespace InsuranceBackend.DataAccess
         public IPolicyAuthorizationRepository PolicyAuthorization { get; private set; }
         public IFasecoldaRepository Fasecolda { get; private set; }
         public IWaytoPayRepository WaytoPay { get; private set; }
+        public IPaymentMethodThirdRepository PaymentMethodThird { get; private set; }
+        public IPaymentThirdAccountRepository PaymentThirdAccount { get; private set; }
+        public IPolicyPaymentThirdRepository PolicyPaymentThird { get; private set; }
     }
 }

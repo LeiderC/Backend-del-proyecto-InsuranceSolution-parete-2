@@ -34,12 +34,12 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("{id:int}")]
-        public IActionResult GetById(int id)
+        [Route("GetListProvisional")]
+        public IActionResult GetListProvisional()
         {
             try
             {
-                return Ok(_unitOfWork.PaymentType.GetById(id));
+                return Ok(_unitOfWork.PaymentType.GetList().Where(p => p.Id.Equals("PV")));
             }
             catch (Exception ex)
             {
