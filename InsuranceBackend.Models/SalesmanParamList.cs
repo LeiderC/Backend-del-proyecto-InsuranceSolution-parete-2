@@ -11,7 +11,7 @@ namespace InsuranceBackend.Models
         public string MovementType { get; set; }
         public string Insurance { get; set; }
         public string InsuranceLine { get; set; }
-        public string InsuranceSubline { get; set; }
+        public string InsuranceLineGroup { get; set; }
         public string SalesmanProfile { get; set; }
         public string SalesTypeDesc { get; set; }
     }

@@ -12,11 +12,12 @@ namespace InsuranceBackend.DataAccess
         {
         }
 
-        public IEnumerable<SalesmanParamList> SalesmanParamPagedList(int page, int rows)
+        public IEnumerable<SalesmanParamList> SalesmanParamPagedList(int page, int rows, int idSalesman)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@page", page);
             parameters.Add("@rows", rows);
+            parameters.Add("@idSalesman", idSalesman);
 
             using (var connection = new SqlConnection(_connectionString))
             {

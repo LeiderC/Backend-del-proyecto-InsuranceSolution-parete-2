@@ -35,12 +35,12 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("GetPaginatedSalesmanParam/{page:int}/{rows:int}")]
-        public IActionResult GetPaginatedSalesmanParam(int page, int rows)
+        [Route("GetPaginatedSalesmanParam/{page:int}/{rows:int}/{idSalesman:int}")]
+        public IActionResult GetPaginatedSalesmanParam(int page, int rows, int idSalesman)
         {
             try
             {
-                return Ok(_unitOfWork.SalesmanParam.SalesmanParamPagedList(page, rows));
+                return Ok(_unitOfWork.SalesmanParam.SalesmanParamPagedList(page, rows, idSalesman));
             }
             catch (Exception ex)
             {

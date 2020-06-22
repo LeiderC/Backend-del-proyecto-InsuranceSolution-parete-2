@@ -9,5 +9,6 @@ namespace InsuranceBackend.Models
         public string Id { get; set; }
         public string Description { get; set; }
         public string Alias { get; set; }
+        public bool PolicyHeader { get; set; }
     }
 }

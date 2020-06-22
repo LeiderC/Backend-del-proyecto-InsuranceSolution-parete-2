@@ -28,5 +28,7 @@ namespace InsuranceBackend.Repositories
         IEnumerable<PolicyList> PolicyReportProductionConsolidated(int idUser, DateTime startDate, DateTime endDate);
         IEnumerable<PolicyList> PolicyOrderReport(int page, int rows, int idUser, DateTime? startDate, DateTime? endDate, bool all);
         IEnumerable<PolicyOrderListConsolidated> PolicyOrderReportConsolidated(DateTime startDate, DateTime endDate);
+        IEnumerable<PolicyList> PolicyHeader();
+        Policy PolicyHeader(int idInsurance, int idInsuranceLine, int idInsuranceSubline, string number);
     }
 }

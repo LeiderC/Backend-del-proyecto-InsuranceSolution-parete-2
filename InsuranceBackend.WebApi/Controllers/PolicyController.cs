@@ -39,6 +39,34 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("GetPolicyHeader")]
+        public IActionResult GetAllPolicyHeader()
+        {
+            try
+            {
+                return Ok(_unitOfWork.Policy.PolicyHeader());
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("GetPolicyHeader")]
+        public IActionResult GetPolicyHeader([FromBody] GetPolicyHeader request)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Policy.PolicyHeader(request.IdInsurance, request.IdInsuranceLine, request.IdInsuranceSubline, request.Number));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
         [HttpPost]
         [Route("GetPolicyBySearchTerms")]
         public IActionResult GetPolicyBySearchTerms([FromBody] GetPaginatedPolicySearchTerm request)
@@ -433,11 +461,14 @@ namespace InsuranceBackend.WebApi.Controllers
                     policy.Policy.IdUser = int.Parse(idUser);
                     if (policy.Policy.IsOrder)
                     {
-                        policy.Policy.Number = "ORDEN-" + policy.PolicyOrderId;
+                        if (policy.Policy.IsAttached)
+                            policy.Policy.Number = "ORDEN-COL-" + policy.PolicyOrderId;
+                        else
+                            policy.Policy.Number = "ORDEN-" + policy.PolicyOrderId;
                     }
                     idPolicy = _unitOfWork.Policy.Insert(policy.Policy);
                     //Productos propios
-                    if (policy.PolicyProducts.Count > 0)
+                    if (policy.PolicyProducts!=null && policy.PolicyProducts.Count > 0)
                     {
                         //Primero debemos eliminar los productos propios
                         _unitOfWork.PolicyProduct.DeletePolicyProductByPolicy(idPolicy);
@@ -519,49 +550,52 @@ namespace InsuranceBackend.WebApi.Controllers
                     }
                     else
                     {
-                        if (policy.Policy.IdPaymentMethod != "3") // Si no es financiado debemos crear por lo menos una cuota para poder hacer los pagos
+                        if(!policy.Policy.IsAttached)
                         {
-                            if (policy.Policy.StartDate.HasValue)
+                            if (policy.Policy.IdPaymentMethod != "3") // Si no es financiado debemos crear por lo menos una cuota para poder hacer los pagos
                             {
-                                PolicyFee policyFee = new PolicyFee
+                                if (policy.Policy.StartDate.HasValue)
                                 {
-                                    Number = 1,
-                                    IdPolicy = idPolicy,
-                                    Date = policy.Policy.StartDate.Value,
-                                    Value = policy.Policy.TotalValue,
-                                    DatePayment = policy.Policy.StartDate.Value,
-                                };
-                                _unitOfWork.PolicyFee.Insert(policyFee);
+                                    PolicyFee policyFee = new PolicyFee
+                                    {
+                                        Number = 1,
+                                        IdPolicy = idPolicy,
+                                        Date = policy.Policy.StartDate.Value,
+                                        Value = policy.Policy.TotalValue,
+                                        DatePayment = policy.Policy.StartDate.Value,
+                                    };
+                                    _unitOfWork.PolicyFee.Insert(policyFee);
+                                }
+                                else
+                                {
+                                    PolicyFee policyFee = new PolicyFee
+                                    {
+                                        Number = 1,
+                                        IdPolicy = idPolicy,
+                                        Date = policy.Policy.ExpiditionDate,
+                                        Value = policy.Policy.TotalValue,
+                                        DatePayment = policy.Policy.ExpiditionDate,
+                                    };
+                                    _unitOfWork.PolicyFee.Insert(policyFee);
+                                }
                             }
-                            else
+                            if (policy.Policy.IdPaymentMethod == "4")
                             {
-                                PolicyFee policyFee = new PolicyFee
+                                //Primero se debe eliminar las existentes
+                                _unitOfWork.PolicyFeeFinancial.DeleteFeeByPolicy(idPolicy);
+                                foreach (var item in policy.PolicyFees)
                                 {
-                                    Number = 1,
-                                    IdPolicy = idPolicy,
-                                    Date = policy.Policy.ExpiditionDate,
-                                    Value = policy.Policy.TotalValue,
-                                    DatePayment = policy.Policy.ExpiditionDate,
-                                };
-                                _unitOfWork.PolicyFee.Insert(policyFee);
-                            }
-                        }
-                        if(policy.Policy.IdPaymentMethod == "4")
-                        {
-                            //Primero se debe eliminar las existentes
-                            _unitOfWork.PolicyFeeFinancial.DeleteFeeByPolicy(idPolicy);
-                            foreach (var item in policy.PolicyFees)
-                            {
-                                PolicyFeeFinancial policyFeeFinancial = new PolicyFeeFinancial
-                                {
-                                    Number = item.Number,
-                                    IdPolicy = idPolicy,
-                                    Date = item.Date,
-                                    Value = item.Value,
-                                    DateInsurance = item.DateInsurance,
-                                    DatePayment = item.DatePayment
-                                };
-                                _unitOfWork.PolicyFeeFinancial.Insert(policyFeeFinancial);
+                                    PolicyFeeFinancial policyFeeFinancial = new PolicyFeeFinancial
+                                    {
+                                        Number = item.Number,
+                                        IdPolicy = idPolicy,
+                                        Date = item.Date,
+                                        Value = item.Value,
+                                        DateInsurance = item.DateInsurance,
+                                        DatePayment = item.DatePayment
+                                    };
+                                    _unitOfWork.PolicyFeeFinancial.Insert(policyFeeFinancial);
+                                }
                             }
                         }
                     }
@@ -635,17 +669,17 @@ namespace InsuranceBackend.WebApi.Controllers
                         }
                     }
                     //Si es una orden se debe guardar
-                    if (policy.Policy.IsOrder)
+                    if (policy.Policy.IsOrder && !policy.Policy.IsAttached)
                     {
                         _unitOfWork.PolicyOrderDetail.Insert(new PolicyOrderDetail { IdPolicyOrder = policy.PolicyOrderId, IdPolicy = idPolicy, CreationDate = DateTime.Now, State = "A" });
                         //Debemos generar una tarea a un usuario para sistematizar (técnico)
                         //Primero la gestión
-                        Customer h = _unitOfWork.Customer.GetById(policy.Policy.IdPolicyHolder);
+                        Customer h = _unitOfWork.Customer.GetById(policy.Policy.IdPolicyHolder.Value);
                         string policyHolder = h.FirstName + (string.IsNullOrEmpty(h.MiddleName) ? "" : " " + h.MiddleName) + h.LastName + (string.IsNullOrEmpty(h.MiddleLastName) ? "" : " " + h.MiddleLastName);
                         string movto = _unitOfWork.MovementType.GetList().Where(m => m.Id.Equals(policy.Policy.IdMovementType)).FirstOrDefault().Alias;
-                        string insurance = _unitOfWork.Insurance.GetById(policy.Policy.IdInsurance).Description;
-                        string insuranceLine = _unitOfWork.InsuranceLine.GetById(policy.Policy.IdInsuranceLine).Description;
-                        string insuranceSubline = _unitOfWork.InsuranceSubline.GetById(policy.Policy.IdInsuranceSubline).Description;
+                        string insurance = _unitOfWork.Insurance.GetById(policy.Policy.IdInsurance.Value).Description;
+                        string insuranceLine = _unitOfWork.InsuranceLine.GetById(policy.Policy.IdInsuranceLine.Value).Description;
+                        string insuranceSubline = _unitOfWork.InsuranceSubline.GetById(policy.Policy.IdInsuranceSubline.Value).Description;
                         string text = string.Empty;
                         string subject = string.Empty;
                         if (string.IsNullOrEmpty(policy.Policy.License))
@@ -732,7 +766,7 @@ namespace InsuranceBackend.WebApi.Controllers
                     }
                     else
                     {
-                        if (policy.PolicyOrderId > 0)
+                        if (policy.PolicyOrderId > 0 && !policy.Policy.IsAttached)
                         {
                             //Primero deshabilitamos la que existe
                             _unitOfWork.PolicyOrderDetail.UpdateState(policy.PolicyOrderId, "I");
@@ -746,12 +780,12 @@ namespace InsuranceBackend.WebApi.Controllers
                                 _unitOfWork.Management.Update(task);
                             }
                             //gestión
-                            Customer h = _unitOfWork.Customer.GetById(policy.Policy.IdPolicyHolder);
+                            Customer h = _unitOfWork.Customer.GetById(policy.Policy.IdPolicyHolder.Value);
                             string policyHolder = h.FirstName + (string.IsNullOrEmpty(h.MiddleName) ? "" : " " + h.MiddleName) + h.LastName + (string.IsNullOrEmpty(h.MiddleLastName) ? "" : " " + h.MiddleLastName);
                             string movto = _unitOfWork.MovementType.GetList().Where(m => m.Id.Equals(policy.Policy.IdMovementType)).FirstOrDefault().Alias;
-                            string insurance = _unitOfWork.Insurance.GetById(policy.Policy.IdInsurance).Description;
-                            string insuranceLine = _unitOfWork.InsuranceLine.GetById(policy.Policy.IdInsuranceLine).Description;
-                            string insuranceSubline = _unitOfWork.InsuranceSubline.GetById(policy.Policy.IdInsuranceSubline).Description;
+                            string insurance = _unitOfWork.Insurance.GetById(policy.Policy.IdInsurance.Value).Description;
+                            string insuranceLine = _unitOfWork.InsuranceLine.GetById(policy.Policy.IdInsuranceLine.Value).Description;
+                            string insuranceSubline = _unitOfWork.InsuranceSubline.GetById(policy.Policy.IdInsuranceSubline.Value).Description;
                             string text = string.Empty;
                             string subject = string.Empty;
                             if (string.IsNullOrEmpty(policy.Policy.License))
@@ -1042,12 +1076,12 @@ namespace InsuranceBackend.WebApi.Controllers
                         if (policy.Policy.IsOrder)
                         {
                             //Creamos una gestión con la modificación realizada
-                            Customer h = _unitOfWork.Customer.GetById(policy.Policy.IdPolicyHolder);
+                            Customer h = _unitOfWork.Customer.GetById(policy.Policy.IdPolicyHolder.Value);
                             string policyHolder = h.FirstName + (string.IsNullOrEmpty(h.MiddleName) ? "" : " " + h.MiddleName) + h.LastName + (string.IsNullOrEmpty(h.MiddleLastName) ? "" : " " + h.MiddleLastName);
                             string movto = _unitOfWork.MovementType.GetList().Where(m => m.Id.Equals(policy.Policy.IdMovementType)).FirstOrDefault().Alias;
-                            string insurance = _unitOfWork.Insurance.GetById(policy.Policy.IdInsurance).Description;
-                            string insuranceLine = _unitOfWork.InsuranceLine.GetById(policy.Policy.IdInsuranceLine).Description;
-                            string insuranceSubline = _unitOfWork.InsuranceSubline.GetById(policy.Policy.IdInsuranceSubline).Description;
+                            string insurance = _unitOfWork.Insurance.GetById(policy.Policy.IdInsurance.Value).Description;
+                            string insuranceLine = _unitOfWork.InsuranceLine.GetById(policy.Policy.IdInsuranceLine.Value).Description;
+                            string insuranceSubline = _unitOfWork.InsuranceSubline.GetById(policy.Policy.IdInsuranceSubline.Value).Description;
                             string text = string.Empty;
                             string subject = string.Empty;
                             if (string.IsNullOrEmpty(policy.Policy.License))
@@ -1078,12 +1112,12 @@ namespace InsuranceBackend.WebApi.Controllers
                         else
                         {
                             //Creamos una gestión con la modificación realizada
-                            Customer h = _unitOfWork.Customer.GetById(policy.Policy.IdPolicyHolder);
+                            Customer h = _unitOfWork.Customer.GetById(policy.Policy.IdPolicyHolder.Value);
                             string policyHolder = h.FirstName + (string.IsNullOrEmpty(h.MiddleName) ? "" : " " + h.MiddleName) + h.LastName + (string.IsNullOrEmpty(h.MiddleLastName) ? "" : " " + h.MiddleLastName);
                             string movto = _unitOfWork.MovementType.GetList().Where(m => m.Id.Equals(policy.Policy.IdMovementType)).FirstOrDefault().Alias;
-                            string insurance = _unitOfWork.Insurance.GetById(policy.Policy.IdInsurance).Description;
-                            string insuranceLine = _unitOfWork.InsuranceLine.GetById(policy.Policy.IdInsuranceLine).Description;
-                            string insuranceSubline = _unitOfWork.InsuranceSubline.GetById(policy.Policy.IdInsuranceSubline).Description;
+                            string insurance = _unitOfWork.Insurance.GetById(policy.Policy.IdInsurance.Value).Description;
+                            string insuranceLine = _unitOfWork.InsuranceLine.GetById(policy.Policy.IdInsuranceLine.Value).Description;
+                            string insuranceSubline = _unitOfWork.InsuranceSubline.GetById(policy.Policy.IdInsuranceSubline.Value).Description;
                             string text = string.Empty;
                             string subject = string.Empty;
                             if (string.IsNullOrEmpty(policy.Policy.License))

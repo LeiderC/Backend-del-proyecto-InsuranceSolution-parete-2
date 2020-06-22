@@ -330,5 +330,29 @@ namespace InsuranceBackend.DataAccess
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }
+
+        public IEnumerable<PolicyList> PolicyHeader()
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PolicyList>("dbo.PolicyListHeader", null,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public Policy PolicyHeader(int idInsurance, int idInsuranceLine, int idInsuranceSubline, string number)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idInsurance", idInsurance);
+            parameters.Add("@idInsuranceLine", idInsuranceLine);
+            parameters.Add("@idInsuranceSubline", idInsuranceSubline);
+            parameters.Add("@number", number);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.QueryFirst<Policy>("dbo.PolicyHeader", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
     }
 }

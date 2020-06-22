@@ -6,14 +6,14 @@ namespace InsuranceBackend.Models
     {
         public int Id { get; set; }
         public string Number { get; set; }
-        public int IdInsurance { get; set; }
-        public int IdInsuranceLine { get; set; }
-        public int IdInsuranceSubline { get; set; }
+        public int? IdInsurance { get; set; }
+        public int? IdInsuranceLine { get; set; }
+        public int? IdInsuranceSubline { get; set; }
         public DateTime ExpiditionDate { get; set; }
         public DateTime? ReceptionDate { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
-        public int IdPolicyHolder { get; set; }
+        public int? IdPolicyHolder { get; set; }
         public string IdPolicyType { get; set; }
         public string IdPolicyState { get; set; }
         public string IdPaymentMethod { get; set; }
@@ -23,7 +23,7 @@ namespace InsuranceBackend.Models
         public int Payday { get; set; }
         public double InitialFee { get; set; }
         public string IdFinancialOption { get; set; }
-        public int IdSalesMan { get; set; }
+        public int? IdSalesMan { get; set; }
         public int? IdExternalSalesMan { get; set; }
         public double PremiumValue { get; set; }
         public double Iva { get; set; }
@@ -43,5 +43,10 @@ namespace InsuranceBackend.Models
         public double OwnProducts { get; set; }
         public double TotalInitialFee { get; set; }
         public bool RevokePromisoryNote { get; set; }
+        public bool IsHeader { get; set; }
+        public string Certificate { get; set; }
+        public string OwnerIdentification { get; set; }
+        public string OwnerName { get; set; }
+        public bool IsAttached { get; set; }
     }
 }

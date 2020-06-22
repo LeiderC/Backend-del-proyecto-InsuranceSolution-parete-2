@@ -101,5 +101,6 @@ namespace InsuranceBackend.UnitOfWork
         IPaymentMethodThirdRepository PaymentMethodThird { get; }
         IPaymentThirdAccountRepository PaymentThirdAccount { get; }
         IPolicyPaymentThirdRepository PolicyPaymentThird { get; }
+        IInsuranceLineGroupRepository InsuranceLineGroup { get; }
     }
 }

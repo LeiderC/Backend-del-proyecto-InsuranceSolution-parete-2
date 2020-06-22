@@ -7,11 +7,13 @@ namespace InsuranceBackend.Models
     public class SalesmanParam
     {
         public int Id { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
         public int IdSalesman { get; set; }
         public string IdMovementType { get; set; }
         public int IdInsurance { get; set; }
         public int IdInsuranceLine { get; set; }
-        public int IdInsuranceSubline { get; set; }
+        public int IdInsuranceLineGroup { get; set; }
         public float Budget { get; set; }
         public float CompliancePercentage { get; set; }
         public float BonusPercentage { get; set; }

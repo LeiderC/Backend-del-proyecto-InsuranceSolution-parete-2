@@ -20,5 +20,8 @@ namespace InsuranceBackend.Models
         public string Chassis { get; set; }
         public int PassengersNumber { get; set; }
         public int CommercialValue { get; set; }
+        public string Class { get; set; }
+        public string Brand { get; set; }
+        public string Engine { get; set; }
     }
 }
