@@ -8,5 +8,6 @@ namespace InsuranceBackend.Models
     {
         public Payment Payment { get; set; }
         public List<PaymentDetailList> PaymentDetails { get; set; }
+        public List<int> Digitals { get; set; }
     }
 }

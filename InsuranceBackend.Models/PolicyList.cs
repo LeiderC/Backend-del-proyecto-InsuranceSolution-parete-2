@@ -4,7 +4,7 @@ using System.Text;
 
 namespace InsuranceBackend.Models
 {
-    public class PolicyList: Policy
+    public class PolicyList : Policy
     {
         public string Name { get; set; }
         public string InsuranceDesc { get; set; }
@@ -47,5 +47,8 @@ namespace InsuranceBackend.Models
         public DateTime DatePaymentThird { get; set; }
         public string PaymentMethodThird { get; set; }
         public string Account { get; set; }
+        public string Tecnico { get; set; }
+        public DateTime? OrderCreationDate { get; set; }
+        public DateTime? OrderClosingDate { get; set; }
     }
 }

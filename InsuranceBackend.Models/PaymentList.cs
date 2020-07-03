@@ -20,5 +20,9 @@ namespace InsuranceBackend.Models
         public string CustomerIdentification { get; set; }
         public string SalesmanName { get; set; }
         public float Diference { get; set; }
+        public string Insurance { get; set; }
+        public string InsuranceLine { get; set; }
+        public string InsuranceSubline { get; set; }
+        public string License { get; set; }
     }
 }

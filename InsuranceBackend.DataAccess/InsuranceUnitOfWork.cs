@@ -99,6 +99,7 @@ namespace InsuranceBackend.DataAccess
             TechnicalAsign = new TechnicalAssignRepository(connectionString);
             DeleteDocumentPermission = new DeleteDocumentPermissionRepository(connectionString);
             PolicyAuthorization = new PolicyAuthorizationRepository(connectionString);
+            PolicyAuthorizationDisc = new PolicyAuthorizationDiscRepository(connectionString);
             Fasecolda = new FasecoldaRepository(connectionString);
             WaytoPay = new WaytoPayRepository(connectionString);
             PaymentMethodThird = new PaymentMethodThirdRepository(connectionString);
@@ -198,6 +199,7 @@ namespace InsuranceBackend.DataAccess
         public ITechnicalAsignRepository TechnicalAsign { get; private set; }
         public IDeleteDocumentPermissionRepository DeleteDocumentPermission { get; private set; }
         public IPolicyAuthorizationRepository PolicyAuthorization { get; private set; }
+        public IPolicyAuthorizationDiscRepository PolicyAuthorizationDisc { get; private set; }
         public IFasecoldaRepository Fasecolda { get; private set; }
         public IWaytoPayRepository WaytoPay { get; private set; }
         public IPaymentMethodThirdRepository PaymentMethodThird { get; private set; }

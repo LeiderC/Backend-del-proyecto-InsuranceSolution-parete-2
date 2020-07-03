@@ -53,6 +53,20 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("GetPolicyAttached/{idPolicy:int}")]
+        public IActionResult GetAllPolicyAttached(int idPolicy)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Policy.PolicyAttached(idPolicy));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
         [HttpPost]
         [Route("GetPolicyHeader")]
         public IActionResult GetPolicyHeader([FromBody] GetPolicyHeader request)
@@ -530,7 +544,7 @@ namespace InsuranceBackend.WebApi.Controllers
                         }
                     }
                     //Cuotas
-                    if (policy.PolicyFees != null && policy.PolicyFees.Count > 0 && policy.Policy.IdPaymentMethod != "4")
+                    if (policy.PolicyFees != null && policy.PolicyFees.Count > 0 && policy.Policy.IdPaymentMethod != "4" && policy.Policy.IdPaymentMethod != "2")
                     {
                         //Primero se debe eliminar las existentes
                         _unitOfWork.PolicyFee.DeleteFeeByPolicy(idPolicy);
@@ -814,6 +828,98 @@ namespace InsuranceBackend.WebApi.Controllers
                             _unitOfWork.Management.Insert(management);
                         }
                     }
+                    if (policy.Policy.IsAttached)
+                    {
+                        _unitOfWork.PolicyOrderDetail.Insert(new PolicyOrderDetail { IdPolicyOrder = policy.PolicyOrderId, IdPolicy = idPolicy, CreationDate = DateTime.Now, State = "A" });
+                        //Debemos generar una tarea a un usuario para sistematizar (técnico)
+                        //Primero la gestión
+                        string policyHolder = policy.Policy.OwnerName;
+                        string identification = policy.Policy.OwnerIdentification;
+                        string movto = _unitOfWork.MovementType.GetList().Where(m => m.Id.Equals(policy.Policy.IdMovementType)).FirstOrDefault().Alias;
+                        string text = string.Empty;
+                        string subject = string.Empty;
+                        if (string.IsNullOrEmpty(policy.Policy.License))
+                        {
+                            text = "Creación Orden de Póliza Colectiva #{0} {1} , Propietario: {2} - {3} , Observación: {4} ";
+                            subject = string.Format(text, policy.PolicyOrderId, movto, identification, policyHolder, policy.Policy.Observation);
+                        }
+                        else
+                        {
+                            text = "Creación Orden de Póliza Colectiva #{0} {1} , Propietario: {2} - {3} , Placa: {4} Marca: {5} Clase: {6} , Observación: {7} ";
+                            subject = string.Format(text, policy.PolicyOrderId, movto, identification, policyHolder, policy.Policy.License, policy.Vehicle.Brand, policy.Vehicle.Class, policy.Policy.Observation);
+                        }
+                        Management management = new Management
+                        {
+                            ManagementType = "G",
+                            IdPolicyOrder = policy.PolicyOrderId,
+                            CreationUser = int.Parse(idUser),
+                            StartDate = DateTime.Now,
+                            EndDate = DateTime.Now,
+                            State = "R",
+                            Subject = subject,
+                            ManagementPartner = "O",
+                            IdCustomer = policy.Policy.IdPolicyHolder,
+                            IsExtra = false,
+                        };
+                        int idManagement = _unitOfWork.Management.Insert(management);
+                        int delegatedTechnical = 0;
+                        //Creamos la tarea para sistematizar
+                        Settings s = _unitOfWork.Settings.GetList().FirstOrDefault();
+                        //Traemos el listado de tecnicos para asignar la tarea
+                        List<TechnicalAsign> lst = _unitOfWork.TechnicalAsign.GetList().ToList();
+                        if (lst.Count > 0)
+                        {
+                            if (s.LastTechnicalUserId > 0)
+                            {
+                                TechnicalAsign lastTechnical = lst.Where(t => t.IdUser.Equals(s.LastTechnicalUserId)).FirstOrDefault();
+                                TechnicalAsign nextTechnicalAsign = lst.Where(t => t.OrderAssign.Equals(lastTechnical.OrderAssign + 1)).FirstOrDefault();
+                                if (nextTechnicalAsign == null)
+                                {
+                                    TechnicalAsign technicalAsign = lst.Where(t => t.OrderAssign.Equals(1)).FirstOrDefault();
+                                    delegatedTechnical = technicalAsign.IdUser;
+                                }
+                                else
+                                {
+                                    delegatedTechnical = nextTechnicalAsign.IdUser;
+                                }
+                            }
+                            else
+                            {
+                                TechnicalAsign technicalAsign = lst.Where(t => t.OrderAssign.Equals(1)).FirstOrDefault();
+                                delegatedTechnical = technicalAsign.IdUser;
+                            }
+                        }
+                        string textTask = string.Empty;
+                        string subjectTask = string.Empty;
+                        if (string.IsNullOrEmpty(policy.Policy.License))
+                        {
+                            textTask = "Sistematizar Orden de Póliza Colectiva #{0} {1} , Propietario: {2} - {3} , Observación: {4}";
+                            subjectTask = string.Format(textTask, policy.PolicyOrderId, movto, identification, policyHolder, policy.Policy.Observation);
+                        }
+                        else
+                        {
+                            textTask = "Sistematizar Orden de Póliza Colectiva #{0} {1} , Propietario: {2} - {3} , Placa: {4} Marca: {5} Clase: {6} , Observación: {7} ";
+                            subjectTask = string.Format(textTask, policy.PolicyOrderId, movto, identification, policyHolder, policy.Policy.License, policy.Vehicle.Brand, policy.Vehicle.Class, policy.Policy.Observation);
+                        }
+                        Management task = new Management
+                        {
+                            ManagementType = "T",
+                            IdPolicyOrder = policy.PolicyOrderId,
+                            CreationUser = int.Parse(idUser),
+                            DelegatedUser = delegatedTechnical,
+                            StartDate = DateTime.Now,
+                            State = "P",
+                            Subject = subjectTask,
+                            ManagementPartner = "O",
+                            IdCustomer = policy.Policy.IdPolicyHolder,
+                            IsExtra = true,
+                            Assignable = true
+                        };
+                        int idTask = _unitOfWork.Management.Insert(task);
+                        _unitOfWork.ManagementExtra.Insert(new ManagementExtra { IdManagement = idManagement, IdManagementExtra = idTask });
+                        s.LastTechnicalUserId = delegatedTechnical;
+                        _unitOfWork.Settings.Update(s);
+                    }
                     transaction.Complete();
                 }
                 catch (Exception ex)
@@ -938,7 +1044,7 @@ namespace InsuranceBackend.WebApi.Controllers
                             }
                         }
                         //Cuotas
-                        if (policy.PolicyFees != null && policy.PolicyFees.Count > 0 && policy.Policy.IdPaymentMethod != "4")
+                        if (policy.PolicyFees != null && policy.PolicyFees.Count > 0 && policy.Policy.IdPaymentMethod != "4" && policy.Policy.IdPaymentMethod != "2")
                         {
                             //Primero se debe eliminar las existentes
                             _unitOfWork.PolicyFee.DeleteFeeByPolicy(idPolicy);
@@ -960,6 +1066,7 @@ namespace InsuranceBackend.WebApi.Controllers
                         {
                             if (policy.Policy.IdPaymentMethod != "3") // Si no es financiado debemos crear por lo menos una cuota para poder hacer los pagos
                             {
+                                _unitOfWork.PolicyFee.DeleteFeeByPolicy(idPolicy);
                                 if (policy.Policy.StartDate.HasValue)
                                 {
                                     PolicyFee policyFee = new PolicyFee
@@ -985,7 +1092,7 @@ namespace InsuranceBackend.WebApi.Controllers
                                     _unitOfWork.PolicyFee.Insert(policyFee);
                                 }
                             }
-                            if (policy.Policy.IdPaymentMethod == "4")
+                            if (policy.Policy.IdPaymentMethod == "4" || policy.Policy.IdPaymentMethod == "2")
                             {
                                 //Primero se debe eliminar las existentes
                                 _unitOfWork.PolicyFeeFinancial.DeleteFeeByPolicy(idPolicy);
@@ -1004,25 +1111,25 @@ namespace InsuranceBackend.WebApi.Controllers
                                 }
                             }
                         }
-                        if (policy.Policy.IdPaymentMethod == "2" && policy.Policy.StartDate.HasValue)
-                        {
-                            //Primero se debe eliminar las existentes
-                            _unitOfWork.PolicyFeeFinancial.DeleteFeeByPolicy(idPolicy);
-                            DateTime start = new DateTime(policy.Policy.StartDate.Value.Year, policy.Policy.StartDate.Value.Month, policy.Policy.Payday);
-                            for (int i = 1; i <= policy.Policy.FeeNumbers; i++)
-                            {
-                                PolicyFeeFinancial policyFeeFinancial = new PolicyFeeFinancial
-                                {
-                                    Number = i,
-                                    IdPolicy = idPolicy,
-                                    Date = policy.Policy.StartDate.Value.AddMonths(i - 1),
-                                    Value = policy.Policy.FeeValue,
-                                    DateInsurance = start.AddMonths(i - 1),
-                                    DatePayment = start.AddMonths(i - 1)
-                                };
-                                _unitOfWork.PolicyFeeFinancial.Insert(policyFeeFinancial);
-                            }
-                        }
+                        //if (policy.Policy.IdPaymentMethod == "2" && policy.Policy.StartDate.HasValue)
+                        //{
+                        //    //Primero se debe eliminar las existentes
+                        //    _unitOfWork.PolicyFeeFinancial.DeleteFeeByPolicy(idPolicy);
+                        //    DateTime start = new DateTime(policy.Policy.StartDate.Value.Year, policy.Policy.StartDate.Value.Month, policy.Policy.Payday);
+                        //    for (int i = 1; i <= policy.Policy.FeeNumbers; i++)
+                        //    {
+                        //        PolicyFeeFinancial policyFeeFinancial = new PolicyFeeFinancial
+                        //        {
+                        //            Number = i,
+                        //            IdPolicy = idPolicy,
+                        //            Date = policy.Policy.StartDate.Value.AddMonths(i - 1),
+                        //            Value = policy.Policy.FeeValue,
+                        //            DateInsurance = start.AddMonths(i - 1),
+                        //            DatePayment = start.AddMonths(i - 1)
+                        //        };
+                        //        _unitOfWork.PolicyFeeFinancial.Insert(policyFeeFinancial);
+                        //    }
+                        //}
                         //Cuota incial
                         if (policy.Policy.TotalInitialFee > 0)
                         {
@@ -1193,11 +1300,28 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpPost]
+        [Route("GetPolicyPendingAuthorizationDisc")]
+        public IActionResult GetPolicyPendingAuthorizationDisc()
+        {
+            try
+            {
+                return Ok(_unitOfWork.Policy.PolicyPendingAuthorizationDiscList());
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
         [Route("GetPolicyReportProduction")]
         public IActionResult GetPolicyReportProduction([FromBody] GetPolicyReportProduction request)
         {
             try
             {
+                string idUser = User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value;
+                if (request.CurrentUser)
+                    request.IdUser = int.Parse(idUser);
                 var result = _unitOfWork.Policy.PolicyReportProduction(request.IdUser, request.StartDate, request.EndDate);
                 return Ok(result);
             }

@@ -19,5 +19,6 @@ namespace InsuranceBackend.Models
         public DateTime DatePayment { get; set; }
         public string IdPaymentType { get; set; }
         public double ValueTotal { get; set; }
+        public string PaidDestination { get; set; }
     }
 }

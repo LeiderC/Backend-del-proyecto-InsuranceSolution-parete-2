@@ -6,22 +6,23 @@ using System.Data.SqlClient;
 
 namespace InsuranceBackend.DataAccess
 {
-    public class RenewalRepository : Repository<Renewal>, IRenewalRepository
+    public class InsuranceLineGroupRepository : Repository<InsuranceLineGroup>, IInsuranceLineGroupRepository
     {
-        public RenewalRepository(string connectionString) : base(connectionString)
+        public InsuranceLineGroupRepository(string connectionString) : base(connectionString)
         {
         }
 
-        public DashboardRenewal DashboardRenewal(int idRenewal)
+        public IEnumerable<InsuranceLineGroup> InsuranceLineGroupList(int idInsuranceLine)
         {
             var parameters = new DynamicParameters();
-            parameters.Add("@idRenewal", idRenewal);
+            parameters.Add("@idInsuranceLine", idInsuranceLine);
 
             using (var connection = new SqlConnection(_connectionString))
             {
-                return connection.QueryFirstOrDefault<DashboardRenewal>("dbo.DashboardRenewal", parameters,
+                return connection.Query<InsuranceLineGroup>("dbo.InsuranceLineGroupList", parameters,
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }
+
     }
 }

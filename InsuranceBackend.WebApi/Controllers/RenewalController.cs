@@ -119,5 +119,19 @@ namespace InsuranceBackend.WebApi.Controllers
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
+
+        [HttpGet]
+        [Route("GetDashboardRenewal/{idRenewal:int}")]
+        public IActionResult GetDashboardRenewal(int idRenewal)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Renewal.DashboardRenewal(idRenewal));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
     }
 }

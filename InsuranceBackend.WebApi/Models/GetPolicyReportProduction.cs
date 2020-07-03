@@ -10,5 +10,6 @@ namespace InsuranceBackend.WebApi.Models
         public int IdUser { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public bool CurrentUser { get; set; }
     }
 }

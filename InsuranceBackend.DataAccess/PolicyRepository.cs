@@ -350,7 +350,28 @@ namespace InsuranceBackend.DataAccess
 
             using (var connection = new SqlConnection(_connectionString))
             {
-                return connection.QueryFirst<Policy>("dbo.PolicyHeader", parameters,
+                return connection.QueryFirstOrDefault<Policy>("dbo.PolicyHeader", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public IEnumerable<PolicyList> PolicyPendingAuthorizationDiscList()
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PolicyList>("dbo.PolicyPendingAuthorizationDiscList", null,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public IEnumerable<PolicyList> PolicyAttached(int idPolicyHeader)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idPolicyHeader", idPolicyHeader);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PolicyList>("dbo.PolicyListAttached", parameters,
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }

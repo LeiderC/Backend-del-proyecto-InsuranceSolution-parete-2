@@ -48,5 +48,10 @@ namespace InsuranceBackend.Models
         public string OwnerIdentification { get; set; }
         public string OwnerName { get; set; }
         public bool IsAttached { get; set; }
+        public double Runt { get; set; }
+        public double Contribution { get; set; }
+        public bool ReqAuthorizationDisc { get; set; }
+        public double DiscountValue { get; set; }
+        public int IdPolicyHeader { get; set; }
     }
 }

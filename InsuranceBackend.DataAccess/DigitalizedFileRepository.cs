@@ -12,7 +12,7 @@ namespace InsuranceBackend.DataAccess
         {
         }
 
-        public IEnumerable<DigitalizedFileList> DigitalizedFilePagedList(int idCustomer, int page, int rows, int idPolicyOrder, int idPolicy)
+        public IEnumerable<DigitalizedFileList> DigitalizedFilePagedList(int idCustomer, int page, int rows, int idPolicyOrder, int idPolicy, int idPayment)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@idCustomer", idCustomer);
@@ -20,6 +20,7 @@ namespace InsuranceBackend.DataAccess
             parameters.Add("@rows", rows);
             parameters.Add("@idPolicyOrder", idPolicyOrder);
             parameters.Add("@idPolicy", idPolicy);
+            parameters.Add("@idPayment", idPayment);
 
             using (var connection = new SqlConnection(_connectionString))
             {

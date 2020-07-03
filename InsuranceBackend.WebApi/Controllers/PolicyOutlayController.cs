@@ -37,7 +37,7 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody]PolicyOutlay PolicyOutlay)
+        public IActionResult Post([FromBody] PolicyOutlaySave policyOutlaySave)
         {
             int idPolicyOutlay = 0;
             if (!ModelState.IsValid)
@@ -47,38 +47,68 @@ namespace InsuranceBackend.WebApi.Controllers
                 try
                 {
                     string idUser = User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value;
-                    PolicyOutlay.IdUser = int.Parse(idUser);
-                    PolicyOutlay.CreationDate = DateTime.Now;
-                    idPolicyOutlay = _unitOfWork.PolicyOutlay.Insert(PolicyOutlay);
+                    policyOutlaySave.PolicyOutlay.IdUser = int.Parse(idUser);
+                    policyOutlaySave.PolicyOutlay.CreationDate = DateTime.Now;
+                    idPolicyOutlay = _unitOfWork.PolicyOutlay.Insert(policyOutlaySave.PolicyOutlay);
 
-                    // Debemos volver a crear las cuotas actualizando el día del pago
-                    IEnumerable<PolicyFeeList> policyFees = _unitOfWork.PolicyFee.PolicyFeeListByPolicy(PolicyOutlay.IdPolicy, false);
-                    // Eliminamos la cuotas existentes
-                    _unitOfWork.PolicyFee.DeleteFeeByPolicy(PolicyOutlay.IdPolicy);
-                    foreach (PolicyFeeList item in policyFees)
+                    // Actualizamos las cuotas financiadas con el día de pago real
+                    IEnumerable<PolicyFeeFinancialList> policyFees = _unitOfWork.PolicyFeeFinancial.PolicyFeeFinancialListByPolicy(policyOutlaySave.PolicyOutlay.IdPolicy, false);
+                    foreach (PolicyFeeFinancialList item in policyFees)
                     {
-                        int day = PolicyOutlay.PayDay;
-                        if (day.Equals(30) && item.DatePayment.Value.Month.Equals(2))
+                        if (item.DatePayment.HasValue)
                         {
-                            // Si el mes es febrero se debe tomar el último día del mes
-                            day = DateTime.DaysInMonth(item.DatePayment.Value.Year, item.DatePayment.Value.Month);
+                            int day = policyOutlaySave.PolicyOutlay.PayDay;
+                            if (day.Equals(30) && item.DatePayment.Value.Month.Equals(2))
+                            {
+                                day = DateTime.DaysInMonth(item.DatePayment.Value.Year, item.DatePayment.Value.Month);
+                            }
+                            DateTime datePayment = new DateTime(item.DatePayment.Value.Year, item.DatePayment.Value.Month, day);
+                            item.DatePayment = datePayment;
+                            _unitOfWork.PolicyFeeFinancial.Update(item);
                         }
-
-                        DateTime datePayment = new DateTime(item.DatePayment.Value.Year, item.DatePayment.Value.Month, day);
-                        item.DatePayment = datePayment;
-
-                        // Insertamos las cuotas recalculadas
-                        PolicyFee policyFee = new PolicyFee
-                        {
-                            Number = item.Number,
-                            IdPolicy = item.IdPolicy,
-                            Date = item.Date,
-                            Value = item.Value,
-                            DateInsurance = item.DateInsurance,
-                            DatePayment = item.DatePayment
-                        };
-                        _unitOfWork.PolicyFee.Insert(policyFee);
                     }
+                    Policy policy = _unitOfWork.Policy.GetById(policyOutlaySave.PolicyOutlay.IdPolicy);
+                    Customer customer = _unitOfWork.Customer.InsuredListByPolicy(policyOutlaySave.PolicyOutlay.IdPolicy).FirstOrDefault();
+
+                    //Debemos generar el recaudo L3 aplicando el desembolso 
+                    PaymentType paymentType = _unitOfWork.PaymentType.GetList().Where(p => p.Id.Equals("L3")).FirstOrDefault();
+                    paymentType.Number = paymentType.Number + 1;
+                    _unitOfWork.PaymentType.Update(paymentType);
+                    Payment payment = new Payment();
+                    payment.DateCreated = DateTime.Now;
+                    payment.DatePayment = DateTime.Now;
+                    payment.IdPaymentType = "L3";
+                    payment.IdUser = int.Parse(idUser);
+                    payment.IdCustomer = customer.Id;
+                    payment.Number = paymentType.Number;
+                    //payment.PaidDestination = "A";
+                    payment.State = "A";
+                    payment.Observation = "DESEMBOLSO";
+                    payment.Total = (float)policy.TotalValue;
+                    payment.TotalReceived = (float)policy.TotalValue;
+                    payment.TotalValue = (float)policy.TotalValue;
+                    int idPayment = _unitOfWork.Payment.Insert(payment);
+                    PaymentDetail paymentDetail = new PaymentDetail();
+                    paymentDetail.DatePayFinancial = DateTime.Now;
+                    paymentDetail.DueInterestValue = 0;
+                    paymentDetail.FeeNumber = 1;
+                    paymentDetail.IdPayment = idPayment;
+                    paymentDetail.IdPolicy = policy.Id;
+                    paymentDetail.InitialFee = false;
+                    paymentDetail.Value = (float)policy.TotalValue;
+                    paymentDetail.ValueOwnProduct = 0;
+                    _unitOfWork.PaymentDetail.Insert(paymentDetail);
+
+                    //Debemos guardar el documento digital y asociarlo al recaudo
+                    DigitalizedFile digitalizedFile = policyOutlaySave.DigitalizedFile;
+                    if (digitalizedFile != null)
+                    {
+                        digitalizedFile.IdPayment = idPayment;
+                        digitalizedFile.Date = DateTime.Now;
+                        digitalizedFile.Description = "DESEMBOLSO CREDITO #: " + policyOutlaySave.PolicyOutlay.CreditNumber + ", RECAUDO: L3-" + payment.Number.ToString();
+                        _unitOfWork.DigitalizedFile.Insert(digitalizedFile);
+                    }
+
                     transaction.Complete();
                 }
                 catch (Exception ex)

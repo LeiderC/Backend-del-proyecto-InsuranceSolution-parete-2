@@ -113,7 +113,7 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                return Ok(_unitOfWork.DigitalizedFile.DigitalizedFilePagedList(request.IdCustomer, request.Page, request.Rows, request.IdPolicyOrder, request.IdPolicy));
+                return Ok(_unitOfWork.DigitalizedFile.DigitalizedFilePagedList(request.IdCustomer, request.Page, request.Rows, request.IdPolicyOrder, request.IdPolicy, request.IdPayment));
             }
             catch (Exception ex)
             {

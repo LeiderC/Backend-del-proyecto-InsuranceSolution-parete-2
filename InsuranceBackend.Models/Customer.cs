@@ -38,11 +38,12 @@ namespace InsuranceBackend.Models
         public int? IdResidenceCountry { get; set; }
         public int? IdResidenceState { get; set; }
         public int? IdResidenceCity { get; set; }
-        public int IdSalesman { get; set; }
+        public int? IdSalesman { get; set; }
         public int ChildNumber { get; set; }
         public string WebSite { get; set; }
         public int EmployeeNumber { get; set; }
         public bool Leaflet { get; set; }
         public DateTime? ExpeditionDate { get; set; }
+        public bool ShowAll { get; set; }
     }
 }

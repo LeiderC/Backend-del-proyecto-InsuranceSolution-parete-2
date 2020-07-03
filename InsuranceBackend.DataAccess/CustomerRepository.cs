@@ -51,5 +51,17 @@ namespace InsuranceBackend.DataAccess
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }
+
+        public Customer CustomerByIdentificationNumber(string identificationNumber)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@identificationNumber", identificationNumber);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.QueryFirstOrDefault<Customer>("dbo.CustomerAnyByIdentificationNumber", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
     }
 }

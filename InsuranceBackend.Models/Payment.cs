@@ -17,7 +17,7 @@ namespace InsuranceBackend.Models
         public string IdWaytoPay { get; set; }
         public float AdditionalCharge { get; set; }
         public float Total { get; set; }
-        public string PaidDestination { get; set; }
+        //public string PaidDestination { get; set; }
         public string Observation { get; set; }
         public string ObservationRevoke { get; set; }
         public DateTime DateCreated { get; set; }

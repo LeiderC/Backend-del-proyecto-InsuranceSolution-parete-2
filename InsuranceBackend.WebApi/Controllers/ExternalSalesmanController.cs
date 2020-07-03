@@ -38,43 +38,80 @@ namespace InsuranceBackend.WebApi.Controllers
         [Route("{id:int}")]
         public IActionResult GetById(int id)
         {
-            return Ok(_unitOfWork.ExternalSalesman.GetById(id));
+            try
+            {
+                    return Ok(_unitOfWork.ExternalSalesman.GetById(id));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
         [HttpGet]
         [Route("GetPaginatedExternalSalesman/{page:int}/{rows:int}")]
         public IActionResult GetPaginatedExternalSalesman(int page, int rows)
         {
-            return Ok(_unitOfWork.ExternalSalesman.ExternalSalesmanPagedList(page, rows));
+            try
+            {
+                return Ok(_unitOfWork.ExternalSalesman.ExternalSalesmanPagedList(page, rows));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
         [HttpPost]
         public IActionResult Post([FromBody]ExternalSalesman externalSalesman)
         {
+            try
+            {
+                return Ok(_unitOfWork.ExternalSalesman.Insert(externalSalesman));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
             if (!ModelState.IsValid)
                 return BadRequest();
-            return Ok(_unitOfWork.ExternalSalesman.Insert(externalSalesman));
         }
 
         [HttpPut]
         public IActionResult Put([FromBody]ExternalSalesman externalSalesman)
         {
-            if (ModelState.IsValid && _unitOfWork.ExternalSalesman.Update(externalSalesman))
+            try
             {
-                return Ok(new { Message = "El vendedor externo se ha actualizado" });
+                if (ModelState.IsValid && _unitOfWork.ExternalSalesman.Update(externalSalesman))
+                {
+                    return Ok(new { Message = "El vendedor externo se ha actualizado" });
+                }
+                else
+                    return BadRequest();
             }
-            else
-                return BadRequest();
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
-        [HttpDelete]
-        public IActionResult Delete([FromBody]ExternalSalesman externalSalesman)
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
         {
-            if (externalSalesman.Id > 0)
-                return Ok(_unitOfWork.ExternalSalesman.Delete(externalSalesman
-                    ));
-            else
-                return BadRequest();
+            try
+            {
+                var salesman = _unitOfWork.ExternalSalesman.GetById(id);
+                if (salesman == null)
+                    return NotFound();
+                if (_unitOfWork.ExternalSalesman.Delete(salesman))
+                    return Ok(new { Message = "El comercial externo se ha eliminado" });
+                else
+                    return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
     }
 }
