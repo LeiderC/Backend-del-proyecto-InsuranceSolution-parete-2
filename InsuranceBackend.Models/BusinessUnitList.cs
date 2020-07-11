@@ -4,9 +4,8 @@ using System.Text;
 
 namespace InsuranceBackend.Models
 {
-    public class AllowedDomains
+    public class BusinessUnitList: BusinessUnit
     {
-        public int Id { get; set; }
-        public string Domain { get; set; }
+        public int TotalRecords { get; set; }
     }
 }

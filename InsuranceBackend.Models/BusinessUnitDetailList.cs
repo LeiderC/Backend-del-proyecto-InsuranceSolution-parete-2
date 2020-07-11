@@ -4,8 +4,10 @@ using System.Text;
 
 namespace InsuranceBackend.Models
 {
-    public class EPSList : EPS
+    public class BusinessUnitDetailList: BusinessUnitDetail
     {
         public int TotalRecords { get; set; }
+        public string BusinessUnit { get; set; }
+        public string Salesman { get; set; }
     }
 }
