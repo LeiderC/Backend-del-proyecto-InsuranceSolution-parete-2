@@ -24,11 +24,13 @@ namespace InsuranceBackend.Repositories
         IEnumerable<PolicyList> PolicyCommissionSalesmanList(int idSalesman, DateTime? startDate, DateTime? endDate);
         IEnumerable<PolicyList> PolicyCommissionExternalSalesmanList(int idExternalSalesman, DateTime? startDate, DateTime? endDate);
         IEnumerable<PolicyList> PolicyPendingAuthorizationList();
+        IEnumerable<PolicyList> PolicyPendingAuthorizationDiscList();
         IEnumerable<dynamic> PolicyReportProduction(int idUser, DateTime startDate, DateTime endDate);
         IEnumerable<PolicyList> PolicyReportProductionConsolidated(int idUser, DateTime startDate, DateTime endDate);
         IEnumerable<PolicyList> PolicyOrderReport(int page, int rows, int idUser, DateTime? startDate, DateTime? endDate, bool all);
         IEnumerable<PolicyOrderListConsolidated> PolicyOrderReportConsolidated(DateTime startDate, DateTime endDate);
         IEnumerable<PolicyList> PolicyHeader();
         Policy PolicyHeader(int idInsurance, int idInsuranceLine, int idInsuranceSubline, string number);
+        IEnumerable<PolicyList> PolicyAttached(int idPolicyHeader);
     }
 }

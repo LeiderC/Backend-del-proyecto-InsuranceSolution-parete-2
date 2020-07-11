@@ -6,5 +6,6 @@ namespace InsuranceBackend.Repositories
 {
     public interface IRenewalRepository : IRepository<Renewal>
     {
+        DashboardRenewal DashboardRenewal(int idRenewal);
     }
 }
