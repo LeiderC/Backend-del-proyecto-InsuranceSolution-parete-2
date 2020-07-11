@@ -106,6 +106,9 @@ namespace InsuranceBackend.DataAccess
             PaymentThirdAccount = new PaymentThirdAccountRepository(connectionString);
             PolicyPaymentThird = new PolicyPaymentThirdRepository(connectionString);
             InsuranceLineGroup = new InsuranceLineGroupRepository(connectionString);
+            BusinessUnit = new BusinessUnitRepository(connectionString);
+            BusinessUnitDetail = new BusinessUnitDetailRepository(connectionString);
+            CustomerBusinessUnit = new CustomerBusinessUnitRepository(connectionString);
         }
         public ICityRepository City { get; private set; }
         public ICountryRepository Country { get; private set; }
@@ -206,5 +209,8 @@ namespace InsuranceBackend.DataAccess
         public IPaymentThirdAccountRepository PaymentThirdAccount { get; private set; }
         public IPolicyPaymentThirdRepository PolicyPaymentThird { get; private set; }
         public IInsuranceLineGroupRepository InsuranceLineGroup { get; private set; }
+        public IBusinessUnitRepository BusinessUnit { get; private set; }
+        public IBusinessUnitDetailRepository BusinessUnitDetail { get; private set; }
+        public ICustomerBusinessUnitRepository CustomerBusinessUnit { get; private set; }
     }
 }

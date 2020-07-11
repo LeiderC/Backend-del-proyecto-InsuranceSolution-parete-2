@@ -1,27 +1,28 @@
 ﻿using Dapper;
-using System.Collections.Generic;
 using InsuranceBackend.Models;
 using InsuranceBackend.Repositories;
+using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Text;
 
 namespace InsuranceBackend.DataAccess
 {
-    public class PetitionTraceRepository : Repository<PetitionTrace>, IPetitionTraceRepository
+    public class BusinessUnitRepository : Repository<BusinessUnit>, IBusinessUnitRepository
     {
-        public PetitionTraceRepository(string connectionString) : base(connectionString)
+        public BusinessUnitRepository(string connectionString) : base(connectionString)
         {
         }
 
-        public IEnumerable<PetitionTraceList> PetitionTracePagedList(int page, int rows, int idPetition)
+        public IEnumerable<BusinessUnitList> BusinessUnitPagedList(int page, int rows)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@page", page);
             parameters.Add("@rows", rows);
-            parameters.Add("@idPetition", idPetition);
 
             using (var connection = new SqlConnection(_connectionString))
             {
-                return connection.Query<PetitionTraceList>("dbo.PetitionTracePagedList", parameters,
+                return connection.Query<BusinessUnitList>("dbo.BusinessUnitPagedList", parameters,
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }
