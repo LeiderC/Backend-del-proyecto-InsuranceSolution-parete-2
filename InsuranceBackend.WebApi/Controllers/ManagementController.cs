@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -137,7 +138,7 @@ namespace InsuranceBackend.WebApi.Controllers
 
         [HttpPost]
         [Route("GetPaginatedManagementByCustomer")]
-        public IActionResult GetPaginatedManagementByCustomer([FromBody]GetPaginatedManagementByCustomer request)
+        public IActionResult GetPaginatedManagementByCustomer([FromBody] GetPaginatedManagementByCustomer request)
         {
             try
             {
@@ -180,7 +181,7 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody]Management Management)
+        public IActionResult Post([FromBody] Management Management)
         {
             try
             {
@@ -189,6 +190,11 @@ namespace InsuranceBackend.WebApi.Controllers
                 int idManagement = _unitOfWork.Management.Insert(Management);
                 if (idManagement > 0)
                 {
+                    if (Management.Hour != null)
+                    {
+                        DateTime localDate = Management.Hour.Value.ToLocalTime();
+                        Management.Hour = localDate;
+                    }
                     //Debemos validar si se está guardando una tarea o gestión que tiene una gestión padre
                     if (Management.IsExtra)
                     {
@@ -198,14 +204,14 @@ namespace InsuranceBackend.WebApi.Controllers
                         if (managementReason != null)
                         {
                             Management parent = _unitOfWork.Management.GetById(Management.IdManagementParent);
-                            if(parent!=null)
+                            if (parent != null)
                             {
                                 parent.State = "R";
                                 _unitOfWork.Management.Update(parent);
                             }
                         }
                         return Ok(idManagementExtra);
-                        
+
                     }
                     else
                         return Ok(idManagement);
@@ -220,7 +226,7 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpPut]
-        public IActionResult Put([FromBody]Management Management)
+        public IActionResult Put([FromBody] Management Management)
         {
             try
             {

@@ -10,12 +10,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace InsuranceBackend.WebApi.Controllers
 {
     [Produces("application/json")]
-    [Route("api/identificationType")]
+    [Route("api/customerBusinessUnit")]
     [Authorize]
-    public class IdentificationTypeController : Controller
+    public class CustomerBusinessUnitController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-        public IdentificationTypeController(IUnitOfWork unitOfWork)
+        public CustomerBusinessUnitController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
@@ -25,7 +25,7 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                return Ok(_unitOfWork.IdentificationType.GetList());
+                return Ok(_unitOfWork.CustomerBusinessUnit.GetList());
             }
             catch (Exception ex)
             {
@@ -34,80 +34,43 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("{id:int}")]
-        public IActionResult GetById(int id)
+        [Route("GetPaginatedCustomerBusinessUnit/{page:int}/{rows:int}/{idCustomer:int}")]
+        public IActionResult GetPaginatedCustomerBusinessUnit(int page, int rows, int idCustomer)
         {
             try
             {
-                return Ok(_unitOfWork.IdentificationType.GetById(id));
+                return Ok(_unitOfWork.CustomerBusinessUnit.CustomerBusinessUnitPagedList(page, rows, idCustomer));
             }
             catch (Exception ex)
             {
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
-
-
-        [HttpGet]
-        [Route("GetPaginatedIdentificationType/{page:int}/{rows:int}")]
-        public IActionResult GetPaginatedIdentificationType(int page, int rows)
-        {
-            try
-            {
-                return Ok(_unitOfWork.IdentificationType.IdentificationTypePagedList(page, rows));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Internal server error: " + ex.Message);
-            }
-        }
-
 
         [HttpPost]
-        public IActionResult Post([FromBody]IdentificationType identificationType)
+        public IActionResult Post([FromBody]CustomerBusinessUnit customerBusinessUnit)
         {
             try
             {
                 if (!ModelState.IsValid)
-                return BadRequest();
-            return Ok(_unitOfWork.IdentificationType.Insert(identificationType));
+                    return BadRequest();
+                return Ok(_unitOfWork.CustomerBusinessUnit.Insert(customerBusinessUnit));
             }
             catch (Exception ex)
             {
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
-
 
         [HttpPut]
-        public IActionResult Put([FromBody]IdentificationType identificationType)
+        public IActionResult Put([FromBody] CustomerBusinessUnit customerBusinessUnit)
         {
             try
             {
-                if (ModelState.IsValid && _unitOfWork.IdentificationType.Update(identificationType))
-            {
-                return Ok(new { Message = "Tipo de identificacion se ha actualizado" });
-            }
-            else
-                return BadRequest();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Internal server error: " + ex.Message);
-            }
-        }
-
-
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
-        {
-            try
-            {
-                var identificationType = _unitOfWork.IdentificationType.GetById(id);
-                if (identificationType == null)
-                    return NotFound();
-                if (_unitOfWork.IdentificationType.Delete(identificationType))
-                    return Ok(new { Message = "Tipo de identificacion se ha eliminado" });
+                if (ModelState.IsValid && _unitOfWork.CustomerBusinessUnit.Update(customerBusinessUnit))
+                {
+                    return Ok(new { Message = "Línea de negocio se ha actualizado" });
+                }
                 else
                     return BadRequest();
             }
@@ -116,5 +79,25 @@ namespace InsuranceBackend.WebApi.Controllers
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            try
+            {
+                var domain = _unitOfWork.CustomerBusinessUnit.GetById(id);
+                if (domain == null)
+                    return NotFound();
+                if (_unitOfWork.CustomerBusinessUnit.Delete(domain))
+                    return Ok(new { Message = "La línea de negocio se ha eliminado" });
+                else
+                    return BadRequest();
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
     }
 }
+ 

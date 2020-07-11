@@ -58,10 +58,9 @@ namespace InsuranceBackend.WebApi.Controllers
                         if (item.DatePayment.HasValue)
                         {
                             int day = policyOutlaySave.PolicyOutlay.PayDay;
-                            if (day.Equals(30) && item.DatePayment.Value.Month.Equals(2))
-                            {
-                                day = DateTime.DaysInMonth(item.DatePayment.Value.Year, item.DatePayment.Value.Month);
-                            }
+                            int lastDay = DateTime.DaysInMonth(item.DatePayment.Value.Year, item.DatePayment.Value.Month);
+                            if (day >= lastDay)
+                                day = lastDay;
                             DateTime datePayment = new DateTime(item.DatePayment.Value.Year, item.DatePayment.Value.Month, day);
                             item.DatePayment = datePayment;
                             _unitOfWork.PolicyFeeFinancial.Update(item);
@@ -76,7 +75,7 @@ namespace InsuranceBackend.WebApi.Controllers
                     _unitOfWork.PaymentType.Update(paymentType);
                     Payment payment = new Payment();
                     payment.DateCreated = DateTime.Now;
-                    payment.DatePayment = DateTime.Now;
+                    payment.DatePayment = policyOutlaySave.DatePayment;
                     payment.IdPaymentType = "L3";
                     payment.IdUser = int.Parse(idUser);
                     payment.IdCustomer = customer.Id;
@@ -122,7 +121,7 @@ namespace InsuranceBackend.WebApi.Controllers
 
 
         [HttpPut]
-        public IActionResult Put([FromBody]PolicyOutlay PolicyOutlay)
+        public IActionResult Put([FromBody] PolicyOutlay PolicyOutlay)
         {
             try
             {

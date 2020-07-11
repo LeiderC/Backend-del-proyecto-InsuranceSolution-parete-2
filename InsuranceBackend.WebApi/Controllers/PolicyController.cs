@@ -419,7 +419,7 @@ namespace InsuranceBackend.WebApi.Controllers
                 Policy policy = _unitOfWork.Policy.GetById(request.Id);
                 if (policy == null)
                     return BadRequest("No se encuentra la póliza enviada");
-                if (policy.RevokePromisoryNote)
+                if (request.RevokePromisoryNote)
                     policy.RevokePromisoryNote = true;
                 else
                     policy.RevokePromisoryNote = false;
