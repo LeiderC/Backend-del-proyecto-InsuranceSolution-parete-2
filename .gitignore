@@ -358,3 +358,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+InsuranceBackend.WebApi/Resources/DigitalizedFiles/
+InsuranceBackend.DataAccess/bin/Debug/
+InsuranceBackend.DataAccess/obj/
