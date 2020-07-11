@@ -8,5 +8,6 @@ namespace InsuranceBackend.Models
     {
         public PolicyOutlay PolicyOutlay { get; set; }
         public DigitalizedFile DigitalizedFile { get; set; }
+        public DateTime DatePayment {get;set;}
     }
 }
