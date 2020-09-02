@@ -17,5 +17,6 @@ namespace InsuranceBackend.Models
         public string FileName { get; set; }
         public bool IsGeneric { get; set; }
         public int? IdPayment { get; set; }
+        public string IdDigitalizedFileType { get; set; }
     }
 }

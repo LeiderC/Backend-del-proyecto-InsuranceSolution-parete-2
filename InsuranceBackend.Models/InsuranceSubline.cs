@@ -14,5 +14,7 @@ namespace InsuranceBackend.Models
         public float Commission { get; set; }
         public float IVA { get; set; }
         public int? IdInsuranceLineGroup { get; set; }
+        public bool ReqBeneficiary { get; set; }
+        public bool Runt { get; set; }
     }
 }

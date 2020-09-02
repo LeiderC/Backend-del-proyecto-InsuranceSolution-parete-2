@@ -32,7 +32,7 @@ namespace InsuranceBackend.Models
         public double TotalValue { get; set; }
         public string IdMovementType { get; set; }
         public int? IdVehicle { get; set; }
-        public int IdUser { get; set; }
+        public int? IdUser { get; set; }
         public string License { get; set; }
         public bool IsOrder { get; set; }
         public int? IdOnerous { get; set; }
@@ -53,5 +53,10 @@ namespace InsuranceBackend.Models
         public bool ReqAuthorizationDisc { get; set; }
         public double DiscountValue { get; set; }
         public int IdPolicyHeader { get; set; }
+        public bool ReqAuthorizationFinancOwnProduct { get; set; }
+        public string InvoiceNumber { get; set; }
+        public int? IdExternalUser { get; set; }
+        public bool IsAttachedOrder { get; set; }
+        // public int IdPolicyParent { get; set; }
     }
 }

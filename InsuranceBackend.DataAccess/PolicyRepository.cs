@@ -13,10 +13,11 @@ namespace InsuranceBackend.DataAccess
         {
         }
 
-        public Policy PolicyByIdPolicyOrder(int idPolicyOrder)
+        public Policy PolicyByIdPolicyOrder(int idPolicyOrder, bool isOrder)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@idPolicyOrder", idPolicyOrder);
+            parameters.Add("@isOrder", isOrder);
 
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -38,7 +39,7 @@ namespace InsuranceBackend.DataAccess
             }
         }
 
-        public IEnumerable<PolicyList> PolicyPagedListSearchTerms(string identification, string name, string number, int idcustomer, int iduserpolicyorder, bool isOrder, int page, int rows)
+        public IEnumerable<PolicyList> PolicyPagedListSearchTerms(string identification, string name, string number, int idcustomer, int iduserpolicyorder, bool isOrder, int page, int rows, string stateOrder)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@page", page);
@@ -49,6 +50,7 @@ namespace InsuranceBackend.DataAccess
             parameters.Add("@idCustomer", idcustomer);
             parameters.Add("@idUserPolicyOrder", iduserpolicyorder);
             parameters.Add("@isOrder", isOrder);
+            parameters.Add("@stateOrder", stateOrder);
 
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -64,6 +66,18 @@ namespace InsuranceBackend.DataAccess
             using (var connection = new SqlConnection(_connectionString))
             {
                 return connection.QueryFirst<PolicyList>("dbo.PolicyListByIdPolicy", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public PolicyList PolicyAttColListById(int idPolicy)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idPolicy", idPolicy);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.QueryFirst<PolicyList>("dbo.PolicyAttColListByIdPolicy", parameters,
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }
@@ -372,6 +386,74 @@ namespace InsuranceBackend.DataAccess
             using (var connection = new SqlConnection(_connectionString))
             {
                 return connection.Query<PolicyList>("dbo.PolicyListAttached", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public bool PolicyDuplicate(int idPolicy, int idInsuranceLine, string license, bool isOrder){
+            var parameters = new DynamicParameters();
+            parameters.Add("@idPolicy", idPolicy);
+            parameters.Add("@idInsuranceLine", idInsuranceLine);
+            parameters.Add("@license", license);
+            parameters.Add("@isOrder", isOrder);
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                //Exist
+                var result = connection.QuerySingle("dbo.PolicyDuplicate", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+                if (result.Exist == 0)
+                    return false;
+                else
+                    return true;
+            }
+        }
+
+        public IEnumerable<PolicyList> PolicyHeaderByIdCustomer(int idCustomer)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idCustomer", idCustomer);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PolicyList>("dbo.PolicyListHeaderByCustomer", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public IEnumerable<PolicyList> PolicyExternalUserByCustomer(int idCustomer)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idCustomer", idCustomer);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PolicyList>("dbo.PolicyExternalUserByCustomer", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public PolicyList PolicyAttColListByIdPolicyOrder(int idPolicyOrder)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idPolicyOrder", idPolicyOrder);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.QueryFirst<PolicyList>("dbo.PolicyAttColListByIdPolicyOrder", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public IEnumerable<PolicyList> PolicyColReportProduction(DateTime startDate, DateTime endDate, int IdPolicyHolder)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@startDate", startDate);
+            parameters.Add("@endDate", endDate);
+            parameters.Add("@idPolicyHolder", IdPolicyHolder);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PolicyList>("dbo.PolicyColProductionReport", parameters,
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }

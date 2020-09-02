@@ -11,5 +11,6 @@ namespace InsuranceBackend.Models
         public DateTime CreationDate { get; set; }
         public string State { get; set; }
         public string StateOrder { get; set; }
+        public int IdExternalUser { get; set; }
     }
 }

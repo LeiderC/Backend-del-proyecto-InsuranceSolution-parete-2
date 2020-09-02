@@ -50,5 +50,6 @@ namespace InsuranceBackend.Models
         public string Tecnico { get; set; }
         public DateTime? OrderCreationDate { get; set; }
         public DateTime? OrderClosingDate { get; set; }
+        public DateTime? DateCreatedPayment { get; set; }
     }
 }

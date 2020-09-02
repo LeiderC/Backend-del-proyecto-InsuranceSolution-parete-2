@@ -29,7 +29,22 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                return Ok(_unitOfWork.User.GetAllUsers());
+                return Ok(_unitOfWork.User.GetAllUsers(false));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("GetUserSalesman")]
+        public IActionResult GetSalesman()
+        {
+            try
+            {
+                IEnumerable<SystemUser> lst = _unitOfWork.User.GetAllUsers(true);
+                return Ok(lst);
             }
             catch (Exception ex)
             {

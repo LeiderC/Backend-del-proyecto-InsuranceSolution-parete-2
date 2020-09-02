@@ -100,6 +100,7 @@ namespace InsuranceBackend.DataAccess
             DeleteDocumentPermission = new DeleteDocumentPermissionRepository(connectionString);
             PolicyAuthorization = new PolicyAuthorizationRepository(connectionString);
             PolicyAuthorizationDisc = new PolicyAuthorizationDiscRepository(connectionString);
+            PolicyAuthorizationFinanOwnProduct = new PolicyAuthorizationFinanOwnProductRepository(connectionString);
             Fasecolda = new FasecoldaRepository(connectionString);
             WaytoPay = new WaytoPayRepository(connectionString);
             PaymentMethodThird = new PaymentMethodThirdRepository(connectionString);
@@ -109,6 +110,12 @@ namespace InsuranceBackend.DataAccess
             BusinessUnit = new BusinessUnitRepository(connectionString);
             BusinessUnitDetail = new BusinessUnitDetailRepository(connectionString);
             CustomerBusinessUnit = new CustomerBusinessUnitRepository(connectionString);
+            PolicyFeeProduct = new PolicyFeeProductRepository(connectionString);
+            PaymentDetailProduct = new PaymentDetailProductRepository(connectionString);
+            PolicyInvoice = new PolicyInvoiceRepository(connectionString);
+            ExternalUser = new ExternalUserRepository(connectionString);
+            PolicyExternalUser = new PolicyExternalUserRepository(connectionString);
+            DigitalizedFileType = new DigitalizedFileTypeRepository(connectionString);
         }
         public ICityRepository City { get; private set; }
         public ICountryRepository Country { get; private set; }
@@ -203,6 +210,7 @@ namespace InsuranceBackend.DataAccess
         public IDeleteDocumentPermissionRepository DeleteDocumentPermission { get; private set; }
         public IPolicyAuthorizationRepository PolicyAuthorization { get; private set; }
         public IPolicyAuthorizationDiscRepository PolicyAuthorizationDisc { get; private set; }
+        public IPolicyAuthorizationFinanOwnProductRepository PolicyAuthorizationFinanOwnProduct { get; private set; }
         public IFasecoldaRepository Fasecolda { get; private set; }
         public IWaytoPayRepository WaytoPay { get; private set; }
         public IPaymentMethodThirdRepository PaymentMethodThird { get; private set; }
@@ -212,5 +220,11 @@ namespace InsuranceBackend.DataAccess
         public IBusinessUnitRepository BusinessUnit { get; private set; }
         public IBusinessUnitDetailRepository BusinessUnitDetail { get; private set; }
         public ICustomerBusinessUnitRepository CustomerBusinessUnit { get; private set; }
+        public IPolicyFeeProductRepository PolicyFeeProduct { get; private set; }
+        public IPaymentDetailProductRepository PaymentDetailProduct { get; private set; }
+        public IPolicyInvoiceRepository PolicyInvoice { get; private set; }
+        public IExternalUserRepository ExternalUser { get; private set; }
+        public IPolicyExternalUserRepository PolicyExternalUser { get; private set; }
+        public IDigitalizedFileTypeRepository DigitalizedFileType { get; private set; }
     }
 }

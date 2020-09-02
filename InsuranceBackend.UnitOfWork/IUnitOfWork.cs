@@ -97,6 +97,7 @@ namespace InsuranceBackend.UnitOfWork
         IDeleteDocumentPermissionRepository DeleteDocumentPermission { get; }
         IPolicyAuthorizationRepository PolicyAuthorization { get; }
         IPolicyAuthorizationDiscRepository PolicyAuthorizationDisc { get; }
+        IPolicyAuthorizationFinanOwnProductRepository PolicyAuthorizationFinanOwnProduct { get; }
         IFasecoldaRepository Fasecolda { get; }
         IWaytoPayRepository WaytoPay { get; }
         IPaymentMethodThirdRepository PaymentMethodThird { get; }
@@ -106,5 +107,11 @@ namespace InsuranceBackend.UnitOfWork
         IBusinessUnitRepository BusinessUnit { get; }
         IBusinessUnitDetailRepository BusinessUnitDetail { get; }
         ICustomerBusinessUnitRepository CustomerBusinessUnit { get; }
+        IPolicyFeeProductRepository PolicyFeeProduct { get; }
+        IPaymentDetailProductRepository PaymentDetailProduct { get; }
+        IPolicyInvoiceRepository PolicyInvoice { get; }
+        IExternalUserRepository ExternalUser { get; }
+        IPolicyExternalUserRepository PolicyExternalUser { get; }
+        IDigitalizedFileTypeRepository DigitalizedFileType { get; }
     }
 }

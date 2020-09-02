@@ -48,9 +48,12 @@ namespace InsuranceBackend.WebApi.Controllers
                 if (paymentList != null)
                 {
                     List<PaymentDetailList> paymentDetailLists = _unitOfWork.Payment.PaymentDetailListByPayment(id).ToList();
+                    paymentList.ValueDiscount = paymentDetailLists.Sum(p => p.ValueDiscount);
                     List<PaymentDetailFinancialList> paymentDetailFinancialLists = _unitOfWork.Payment.PaymentDetailFinancialListByPayment(id).ToList();
+                    List<PaymentDetailProductList> paymentDetailProducts = _unitOfWork.Payment.PaymentDetailProductListByPayment(id).ToList();
                     paymentList.PaymentDetailLists = paymentDetailLists;
                     paymentList.PaymentDetailFinancialLists = paymentDetailFinancialLists;
+                    paymentList.PaymentDetailProductList = paymentDetailProducts;
                 }
                 return Ok(paymentList);
             }
@@ -62,11 +65,11 @@ namespace InsuranceBackend.WebApi.Controllers
 
         [HttpPost]
         [Route("GetPaymentPagedBySearchTerms")]
-        public IActionResult GetPolicyCustomerBySearchTerms([FromBody]GetPaginatedPaymentSearchTerm request)
+        public IActionResult GetPolicyCustomerBySearchTerms([FromBody] GetPaginatedPaymentSearchTerm request)
         {
             try
             {
-                return Ok(_unitOfWork.Payment.PaymentPagedListSearchTerms(request.PaymentType, request.PaymentNumber, request.IdCustomer, request.IdPolicy, request.Page, request.Rows));
+                return Ok(_unitOfWork.Payment.PaymentPagedListSearchTerms(request.PaymentType, request.PaymentNumber.HasValue ? request.PaymentNumber.Value : 0, request.IdCustomer, request.IdPolicy, request.Page, request.Rows));
             }
             catch (Exception ex)
             {
@@ -76,7 +79,7 @@ namespace InsuranceBackend.WebApi.Controllers
 
         [HttpPost]
         [Route("GetPaymentDetailListByPayment")]
-        public IActionResult GetPaymentDetailListByPayment([FromBody]GetSearchTerm request)
+        public IActionResult GetPaymentDetailListByPayment([FromBody] GetSearchTerm request)
         {
             try
             {
@@ -90,11 +93,25 @@ namespace InsuranceBackend.WebApi.Controllers
 
         [HttpPost]
         [Route("GetPaymentDetailListByPolicy")]
-        public IActionResult GetPaymentDetailListByPolicy([FromBody]GetSearchTerm request)
+        public IActionResult GetPaymentDetailListByPolicy([FromBody] GetSearchTerm request)
         {
             try
             {
                 return Ok(_unitOfWork.Payment.PaymentDetailListByPolicy(int.Parse(request.SearchTerm)));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("GetPaymentDetailProductListByPolicy")]
+        public IActionResult GetPaymentDetailProductListByPolicy([FromBody] GetSearchTerm request)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Payment.PaymentDetailProductListByPolicy(int.Parse(request.SearchTerm)));
             }
             catch (Exception ex)
             {
@@ -136,6 +153,7 @@ namespace InsuranceBackend.WebApi.Controllers
                     _unitOfWork.Payment.Update(_payment);
                     _unitOfWork.PaymentDetail.DeletePaymentDetailByPayment(idPayment);
                     _unitOfWork.PaymentDetailFinancial.DeletePaymentDetailFinancialByPayment(idPayment);
+                    _unitOfWork.PaymentDetailProduct.DeletePaymentDetailProductByPayment(idPayment);
                     transaction.Complete();
                 }
                 catch (Exception ex)
@@ -148,7 +166,7 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody]PaymentSave Payment)
+        public IActionResult Post([FromBody] PaymentSave Payment)
         {
             int idPayment = 0;
             if (!ModelState.IsValid)
@@ -166,25 +184,41 @@ namespace InsuranceBackend.WebApi.Controllers
                     {
                         foreach (var item in Payment.PaymentDetails)
                         {
-                            if (item.PaidDestination.Equals("A"))
+                            switch (item.PaidDestination)
                             {
-                                string text = "Póliza #{0} {1} {2} {3} {4}, Cuota: {5}, Valor {6}, Valor Int. Mora {7}";
-                                if (policyList.Length > 0)
-                                    policyList.Append(" | " + string.Format(text, item.Number, item.MovementShort, item.InsuranceDesc, item.InsuranceLineDesc, item.InsuranceSublineDesc, item.FeeNumber, String.Format("{0:0,0.0}", item.Value), String.Format("{0:0,0.0}", item.DueInterestValue)));
-                                else
-                                    policyList.Append(string.Format(text, item.Number, item.MovementShort, item.InsuranceDesc, item.InsuranceLineDesc, item.InsuranceSublineDesc, item.FeeNumber, String.Format("{0:0,0.0}", item.Value), String.Format("{0:0,0.0}", item.DueInterestValue)));
-                                PaymentDetail paymentDetail = new PaymentDetail { FeeNumber = item.FeeNumber, IdPayment = idPayment, IdPolicy = item.IdPolicy, Value = item.Value, ValueOwnProduct = item.ValueOwnProduct, DueInterestValue = item.DueInterestValue };
-                                _unitOfWork.PaymentDetail.Insert(paymentDetail);
-                            }
-                            else
-                            {
-                                string text = "Póliza #{0} {1} {2} {3} {4}, Cuota: {5}, Valor {6}, Valor Int. Mora {7}";
-                                if (policyList.Length > 0)
-                                    policyList.Append(" | " + string.Format(text, item.Number, item.MovementShort, item.InsuranceDesc, item.InsuranceLineDesc, item.InsuranceSublineDesc, item.FeeNumber, String.Format("{0:0,0.0}", item.Value), String.Format("{0:0,0.0}", item.DueInterestValue)));
-                                else
-                                    policyList.Append(string.Format(text, item.Number, item.MovementShort, item.InsuranceDesc, item.InsuranceLineDesc, item.InsuranceSublineDesc, item.FeeNumber, String.Format("{0:0,0.0}", item.Value), String.Format("{0:0,0.0}", item.DueInterestValue)));
-                                PaymentDetailFinancial paymentDetail = new PaymentDetailFinancial { FeeNumber = item.FeeNumber, IdPayment = idPayment, IdPolicy = item.IdPolicy, Value = item.Value, DueInterestValue = item.DueInterestValue };
-                                _unitOfWork.PaymentDetailFinancial.Insert(paymentDetail);
+                                case "A":
+                                    string text = "Póliza #{0} {1} {2} {3} {4}, Cuota: {5}, Valor {6}, Valor Int. Mora {7}";
+                                    if (policyList.Length > 0)
+                                        policyList.Append(" | " + string.Format(text, item.Number, item.MovementShort, item.InsuranceDesc, item.InsuranceLineDesc, item.InsuranceSublineDesc, item.FeeNumber, String.Format("{0:0,0.0}", item.Value), String.Format("{0:0,0.0}", item.DueInterestValue)));
+                                    else
+                                        policyList.Append(string.Format(text, item.Number, item.MovementShort, item.InsuranceDesc, item.InsuranceLineDesc, item.InsuranceSublineDesc, item.FeeNumber, String.Format("{0:0,0.0}", item.Value), String.Format("{0:0,0.0}", item.DueInterestValue)));
+                                    PaymentDetail paymentDetail = new PaymentDetail { FeeNumber = item.FeeNumber, IdPayment = idPayment, IdPolicy = item.IdPolicy, Value = item.Value, ValueOwnProduct = item.ValueOwnProduct, DueInterestValue = item.DueInterestValue, ValueDiscount = item.ValueDiscount };
+                                    _unitOfWork.PaymentDetail.Insert(paymentDetail);
+                                    break;
+                                case "F":
+                                    string textF = "Póliza #{0} {1} {2} {3} {4}, Cuota: {5}, Valor {6}, Valor Int. Mora {7}";
+                                    if (policyList.Length > 0)
+                                        policyList.Append(" | " + string.Format(textF, item.Number, item.MovementShort, item.InsuranceDesc, item.InsuranceLineDesc, item.InsuranceSublineDesc, item.FeeNumber, String.Format("{0:0,0.0}", item.Value), String.Format("{0:0,0.0}", item.DueInterestValue)));
+                                    else
+                                        policyList.Append(string.Format(textF, item.Number, item.MovementShort, item.InsuranceDesc, item.InsuranceLineDesc, item.InsuranceSublineDesc, item.FeeNumber, String.Format("{0:0,0.0}", item.Value), String.Format("{0:0,0.0}", item.DueInterestValue)));
+                                    PaymentDetailFinancial paymentDetailF = new PaymentDetailFinancial { FeeNumber = item.FeeNumber, IdPayment = idPayment, IdPolicy = item.IdPolicy, Value = item.Value, DueInterestValue = item.DueInterestValue };
+                                    _unitOfWork.PaymentDetailFinancial.Insert(paymentDetailF);
+                                    break;
+                                case "P":
+                                    string textP = "Póliza #{0} {1} {2} {3} {4}, Cuota: {5}, Valor {6}";
+                                    if (policyList.Length > 0)
+                                        policyList.Append(" | " + string.Format(textP, item.Number, item.MovementShort, item.InsuranceDesc, item.InsuranceLineDesc, item.InsuranceSublineDesc, item.FeeNumber, String.Format("{0:0,0.0}", item.Value)));
+                                    else
+                                        policyList.Append(string.Format(textP, item.Number, item.MovementShort, item.InsuranceDesc, item.InsuranceLineDesc, item.InsuranceSublineDesc, item.FeeNumber, String.Format("{0:0,0.0}", item.Value)));
+                                    PaymentDetailProduct paymentDetailP = new PaymentDetailProduct
+                                    {
+                                        FeeNumber = item.FeeNumber,
+                                        IdPayment = idPayment,
+                                        IdPolicy = item.IdPolicy,
+                                        Value = item.Value
+                                    };
+                                    _unitOfWork.PaymentDetailProduct.Insert(paymentDetailP);
+                                    break;
                             }
                         }
                         //if (Payment.Payment.PaidDestination.Equals("A"))
@@ -257,7 +291,7 @@ namespace InsuranceBackend.WebApi.Controllers
 
 
         [HttpPut]
-        public IActionResult Put([FromBody]PaymentSave Payment)
+        public IActionResult Put([FromBody] PaymentSave Payment)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
@@ -341,6 +375,34 @@ namespace InsuranceBackend.WebApi.Controllers
             try
             {
                 return Ok(_unitOfWork.Payment.PaymentDetailReport(request.StartDate, request.EndDate, request.IdSalesman));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("GetPaymentCashFlow")]
+        public IActionResult GetPaymentCashFlow([FromBody] GetPolicyPaymentThirdParties request)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Payment.PaymentCashFlow(request.StartDate.Value, request.EndDate.Value));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("GetPaymentReportItemized")]
+        public IActionResult GetPaymentReportItemized([FromBody] GetPolicyPaymentThirdParties request)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Payment.PaymentItemized(request.StartDate.Value, request.EndDate.Value));
             }
             catch (Exception ex)
             {

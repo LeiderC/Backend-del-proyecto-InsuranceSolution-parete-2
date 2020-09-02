@@ -32,9 +32,11 @@ namespace InsuranceBackend.WebApi
         public void ConfigureServices(IServiceCollection services)
         {
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+            var notificationMetadata = Configuration.GetSection("NotificationMetadata").Get<NotificationMetadata>();
             services.AddSingleton<IUnitOfWork>(option => new InsuranceUnitOfWork(
                 Configuration.GetConnectionString("Insurance")
                 ));
+            services.AddSingleton<NotificationMetadata>(notificationMetadata);
 
             var tokenProvider = new JwtProvider("issuer", "audience", "developer_fal");
             services.AddSingleton<ITokenProvider>(tokenProvider);
@@ -60,7 +62,7 @@ namespace InsuranceBackend.WebApi
             }));
 
             // services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-            services.AddMvc(option=> option.EnableEndpointRouting=false).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            services.AddMvc(option => option.EnableEndpointRouting = false).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

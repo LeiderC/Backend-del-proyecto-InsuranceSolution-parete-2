@@ -23,5 +23,17 @@ namespace InsuranceBackend.DataAccess
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }
+
+        public IEnumerable<Renewal> RenewalByUser(int idUser)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idUser", idUser);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<Renewal>("dbo.RenewalByUser", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
     }
 }

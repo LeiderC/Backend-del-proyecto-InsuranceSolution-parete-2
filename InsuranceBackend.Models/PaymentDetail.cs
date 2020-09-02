@@ -16,5 +16,6 @@ namespace InsuranceBackend.Models
         public bool WithoutFee { get; set; }
         public DateTime? DatePayFinancial { get; set; }
         public double ValueOwnProduct { get; set; }
+        public double ValueDiscount { get; set; }
     }
 }

@@ -13,5 +13,7 @@ namespace InsuranceBackend.Models
         public float? ExtraValue { get; set; }
         public float IVA { get; set; }
         public float TotalValue { get; set; }
+        public float FeeValue { get; set; }
+        public int FeeNumber { get; set; }
     }
 }

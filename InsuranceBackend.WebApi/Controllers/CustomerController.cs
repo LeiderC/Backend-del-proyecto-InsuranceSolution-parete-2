@@ -39,7 +39,7 @@ namespace InsuranceBackend.WebApi.Controllers
 
         [HttpPost]
         [Route("GetCustomerByIdentification")]
-        public IActionResult GetCustomerByIdentification([FromBody]GetPaginatedSearchTerm request)
+        public IActionResult GetCustomerByIdentification([FromBody] GetPaginatedSearchTerm request)
         {
             try
             {
@@ -61,7 +61,7 @@ namespace InsuranceBackend.WebApi.Controllers
 
         [HttpPost]
         [Route("GetInsuredListByPolicy")]
-        public IActionResult GetInsuredListByPolicy([FromBody]GetSearchTerm request)
+        public IActionResult GetInsuredListByPolicy([FromBody] GetSearchTerm request)
         {
             try
             {
@@ -75,7 +75,7 @@ namespace InsuranceBackend.WebApi.Controllers
 
         [HttpPost]
         [Route("GetPaginatedCustomer")]
-        public IActionResult GetPaginatedCustomer([FromBody]GetPaginatedSearchTerm request)
+        public IActionResult GetPaginatedCustomer([FromBody] GetPaginatedSearchTerm request)
         {
             try
             {
@@ -89,7 +89,7 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody]Customer customer)
+        public IActionResult Post([FromBody] CustomerSave customerSave)
         {
             int idCustomer = 0;
             if (!ModelState.IsValid)
@@ -98,10 +98,22 @@ namespace InsuranceBackend.WebApi.Controllers
             {
                 try
                 {
-                    string fullName = customer.FirstName + (string.IsNullOrEmpty(customer.MiddleName) ? "" : " " + customer.MiddleName) + customer.LastName + (string.IsNullOrEmpty(customer.MiddleLastName) ? "" : " " + customer.MiddleLastName);
-                    idCustomer = _unitOfWork.Customer.Insert(customer);
-                    IdentificationType it = _unitOfWork.IdentificationType.GetById(customer.IdIdentificationType);
+                    string fullName = customerSave.Customer.FirstName + (string.IsNullOrEmpty(customerSave.Customer.MiddleName) ? "" : " " + customerSave.Customer.MiddleName) + customerSave.Customer.LastName + (string.IsNullOrEmpty(customerSave.Customer.MiddleLastName) ? "" : " " + customerSave.Customer.MiddleLastName);
+                    idCustomer = _unitOfWork.Customer.Insert(customerSave.Customer);
+                    IdentificationType it = _unitOfWork.IdentificationType.GetById(customerSave.Customer.IdIdentificationType);
                     string idUser = User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value;
+                    //Insertamos en customerbusinessunit
+                    if (customerSave.IdBusinessUnitDetail > 0)
+                    {
+                        CustomerBusinessUnit customerBusinessUnit = new CustomerBusinessUnit
+                        {
+                            IdBusinessUnitDetail = customerSave.IdBusinessUnitDetail,
+                            IdCustomer = idCustomer,
+                            State = "A",
+                            Year = DateTime.Now.Year.ToString()
+                        };
+                        _unitOfWork.CustomerBusinessUnit.Insert(customerBusinessUnit);
+                    }
                     //Insertamos la gestión realizada
                     Management management = new Management
                     {
@@ -110,7 +122,7 @@ namespace InsuranceBackend.WebApi.Controllers
                         StartDate = DateTime.Now,
                         EndDate = DateTime.Now,
                         State = "R",
-                        Subject = "SE CREA CLIENTE " + it.Alias + " # " + customer.IdentificationNumber + " " + fullName,
+                        Subject = "SE CREA CLIENTE " + it.Alias + " # " + customerSave.Customer.IdentificationNumber + " " + fullName,
                         ManagementPartner = "C",
                         IdCustomer = idCustomer,
                         IsExtra = false,
@@ -136,7 +148,7 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpPut]
-        public IActionResult Put([FromBody]Customer customer)
+        public IActionResult Put([FromBody] Customer customer)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
@@ -181,7 +193,7 @@ namespace InsuranceBackend.WebApi.Controllers
                 var customer = _unitOfWork.Customer.GetById(id);
                 if (customer == null)
                     return NotFound();
-                if(_unitOfWork.Customer.Delete(customer))
+                if (_unitOfWork.Customer.Delete(customer))
                     return Ok(new { Message = "Cliente eliminado" });
                 else
                     return BadRequest();

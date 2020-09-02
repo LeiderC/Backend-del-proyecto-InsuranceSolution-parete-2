@@ -17,5 +17,6 @@ namespace InsuranceBackend.Models
         public int PetitionsNumber { get; set; }
         public int LastTechnicalUserId { get; set; }
         public string PaymentDisclaimer { get; set; }
+        public int RenewalNumber { get; set; }
     }
 }

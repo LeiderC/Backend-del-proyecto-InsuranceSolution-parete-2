@@ -36,7 +36,7 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody]PolicyOrder policyOrder)
+        public IActionResult Post([FromBody] PolicyOrder policyOrder)
         {
             try
             {
@@ -44,6 +44,8 @@ namespace InsuranceBackend.WebApi.Controllers
                     return BadRequest();
                 string idUser = User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value;
                 policyOrder.IdUser = int.Parse(idUser);
+                if (policyOrder.IdExternalUser > 0)
+                    policyOrder.IdUser = 1;
                 policyOrder.CreationDate = DateTime.Now;
                 return Ok(_unitOfWork.PolicyOrder.Insert(policyOrder));
             }
@@ -55,7 +57,7 @@ namespace InsuranceBackend.WebApi.Controllers
 
 
         [HttpPut]
-        public IActionResult Put([FromBody]PolicyOrder policyOrder)
+        public IActionResult Put([FromBody] PolicyOrder policyOrder)
         {
             try
             {

@@ -14,6 +14,6 @@ namespace InsuranceBackend.Repositories
         Management ManagementByPolicyOrder(int idPolicyOrder, string managementType);
         IEnumerable<ManagementList> ManagementByCustomerList(int page, int rows, int idCustomer, string state);
         DashboardManagement DashboardManagementByUser(int idUser);
-        IEnumerable<ManagementList> ManagementCreatedByUserList(int idUser);
+        IEnumerable<ManagementList> ManagementCreatedByUserList(int idUser, string state);
     }
 }

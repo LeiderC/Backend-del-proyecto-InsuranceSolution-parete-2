@@ -23,5 +23,7 @@ namespace InsuranceBackend.Models
         public bool Authorizing { get; set; }
         public int IdSalesman { get; set; }
         public bool CancelOrders { get; set; }
+        [Write(false)]
+        public bool External { get; set; }
     }
 }

@@ -108,10 +108,11 @@ namespace InsuranceBackend.DataAccess
             }
         }
 
-        public IEnumerable<ManagementList> ManagementCreatedByUserList(int idUser)
+        public IEnumerable<ManagementList> ManagementCreatedByUserList(int idUser, string state)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@idUser", idUser);
+            parameters.Add("@state", state);
 
             using (var connection = new SqlConnection(_connectionString))
             {

@@ -64,22 +64,30 @@ namespace InsuranceBackend.WebApi.Controllers
 
         [HttpPost]
         [Route("download")]
-        public async Task<IActionResult> Download([FromBody]DigitalizedFile digitalizedFile)
+        public async Task<IActionResult> Download([FromBody] DigitalizedFile digitalizedFile)
         {
-            var folderName = Path.Combine("Resources", "DigitalizedFiles");
-            var uploads = Path.Combine(Directory.GetCurrentDirectory(), folderName);
-            var filePath = Path.Combine(uploads, digitalizedFile.FileRoute);
-            if (!System.IO.File.Exists(filePath))
-                return NotFound();
-
-            var memory = new MemoryStream();
-            using (var stream = new FileStream(filePath, FileMode.Open))
+            try
             {
-                await stream.CopyToAsync(memory);
-            }
-            memory.Position = 0;
+                var folderName = Path.Combine("Resources", "DigitalizedFiles");
+                var uploads = Path.Combine(Directory.GetCurrentDirectory(), folderName);
+                var filePath = Path.Combine(uploads, digitalizedFile.FileRoute);
+                if (!System.IO.File.Exists(filePath))
+                    return NotFound();
 
-            return File(memory, GetContentType(filePath), digitalizedFile.FileName);
+                var memory = new MemoryStream();
+                using (var stream = new FileStream(filePath, FileMode.Open))
+                {
+                    await stream.CopyToAsync(memory);
+                }
+                memory.Position = 0;
+
+                return File(memory, GetContentType(filePath), digitalizedFile.FileName);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+
         }
 
         private string GetContentType(string path)
@@ -109,7 +117,7 @@ namespace InsuranceBackend.WebApi.Controllers
 
         [HttpPost]
         [Route("GetPaginatedDigitalizedFile")]
-        public IActionResult GetPaginatedDigitalizedFile([FromBody]GetPaginatedDigitalizedFile request)
+        public IActionResult GetPaginatedDigitalizedFile([FromBody] GetPaginatedDigitalizedFile request)
         {
             try
             {
@@ -122,7 +130,7 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody]DigitalizedFile digitalizedFile)
+        public IActionResult Post([FromBody] DigitalizedFile digitalizedFile)
         {
             try
             {
@@ -137,7 +145,7 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpPut]
-        public IActionResult Put([FromBody]DigitalizedFile digitalizedFile)
+        public IActionResult Put([FromBody] DigitalizedFile digitalizedFile)
         {
             try
             {
@@ -160,7 +168,7 @@ namespace InsuranceBackend.WebApi.Controllers
             var df = _unitOfWork.DigitalizedFile.GetById(id);
             if (df == null)
                 return NotFound();
-            if(_unitOfWork.DigitalizedFile.Delete(df))
+            if (_unitOfWork.DigitalizedFile.Delete(df))
                 return Ok(new { Message = "El documento se ha eliminado" });
             else
                 return BadRequest();
@@ -168,5 +176,4 @@ namespace InsuranceBackend.WebApi.Controllers
 
     }
 }
- 
- 
+

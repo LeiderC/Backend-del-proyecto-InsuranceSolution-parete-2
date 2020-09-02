@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net.Http.Headers;
+using System.Text;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -72,6 +72,11 @@ namespace InsuranceBackend.WebApi.Controllers
                                                 {
                                                     if (row > 0)
                                                     {
+                                                        int cantColumnas = reader.FieldCount;
+                                                        if (cantColumnas != 47)
+                                                        {
+                                                            return BadRequest("La cantidad de columnas no concuerda con la definición de la plantilla");
+                                                        }
                                                         string formulario = reader.GetValue(0) != null ? reader.GetValue(0).ToString() : "";
                                                         string fecEmision = reader.GetValue(2) != null ? reader.GetValue(2).ToString() : "";
                                                         DateTime.TryParse(fecEmision, out DateTime dFecEmision);
@@ -99,6 +104,7 @@ namespace InsuranceBackend.WebApi.Controllers
                                                         string servicio = reader.GetValue(39) != null ? reader.GetValue(39).ToString() : "";
                                                         int.TryParse(reader.GetValue(40) != null ? reader.GetValue(40).ToString() : "", out int pasajeros);
                                                         string tipoPago = reader.GetValue(45) != null ? reader.GetValue(45).ToString() : "";
+                                                        string tipoRecArchivo = reader.GetValue(46) != null ? reader.GetValue(46).ToString() : "";
 
                                                         //Primero validamos si existe el cliente
                                                         Customer customer = _unitOfWork.Customer.CustomerByIdentificationNumber(documento);
@@ -241,16 +247,18 @@ namespace InsuranceBackend.WebApi.Controllers
                                                         };
                                                         _unitOfWork.PolicyFee.Insert(policyFee);
                                                         //Recaudos
-                                                        string tipoRec = "";
-                                                        if (cuenta.Equals("cuenta 7370"))
-                                                            tipoRec = "BC";
-                                                        if (cuenta.Equals("cuenta 8165"))
-                                                            tipoRec = "B7";
-                                                        PaymentType paymentType = _unitOfWork.PaymentType.GetList().Where(p => p.Id.Equals("D3")).FirstOrDefault();                                                        //Recaudo
+                                                        // string tipoRec = "";
+                                                        // if (cuenta.Equals("cuenta 7370"))
+                                                        //     tipoRec = "BC";
+                                                        // if (cuenta.Equals("cuenta 8165"))
+                                                        //     tipoRec = "B7";
+                                                        //PaymentType paymentType = _unitOfWork.PaymentType.GetList().Where(p => p.Id.Equals("D3")).FirstOrDefault();
+                                                        PaymentType paymentType = _unitOfWork.PaymentType.GetList().Where(p => p.Id.Equals(tipoRecArchivo)).FirstOrDefault();
+                                                        //Recaudo
                                                         paymentType.Number += 1;
                                                         _unitOfWork.PaymentType.Update(paymentType);
-                                                        String idWayToPay = "";
-                                                        List<WaytoPay> waytoPays = _unitOfWork.WaytoPay.GetWaytoPaysByPaymentType(tipoRec).ToList();
+                                                        String idWayToPay = null;
+                                                        List<WaytoPay> waytoPays = _unitOfWork.WaytoPay.GetWaytoPaysByPaymentType(tipoRecArchivo).ToList();
                                                         if (waytoPays.Count == 1)
                                                         {
                                                             idWayToPay = waytoPays[0].Id;
@@ -265,7 +273,7 @@ namespace InsuranceBackend.WebApi.Controllers
                                                             DateCreated = DateTime.Now,
                                                             DatePayment = dFecEmision,
                                                             IdUser = int.Parse(idUser),
-                                                            IdPaymentType = tipoRec,
+                                                            IdPaymentType = tipoRecArchivo,
                                                             Number = paymentType.Number,
                                                             //PaidDestination = "A",
                                                             State = "A",
@@ -326,7 +334,18 @@ namespace InsuranceBackend.WebApi.Controllers
                     {
                         var file = Request.Form.Files[0];
                         string idPol = Request.Form["idPolicy"];
+                        string idPaymentMethod = Request.Form["idPaymentMethod"];
+                        string idExternalSalesman = Request.Form["idExternalSalesman"];
+                        string invoiceNumber = Request.Form["invoiceNumber"];
+                        string idMovementType = Request.Form["idMovementType"];
                         int idPolicyHeader = idPol != null ? int.Parse(idPol) : 0;
+                        int? extSalesman = null;
+                        if (idExternalSalesman != "0")
+                            extSalesman = int.Parse(idExternalSalesman);
+                        //Poliza
+                        Policy policyHeader = _unitOfWork.Policy.GetById(idPolicyHeader);
+                        List<PolicyProductList> productLists = _unitOfWork.PolicyProduct.PolicyProductListByPolicy(policyHeader.Id).ToList();
+                        double totalVrPremium = 0, totalIva = 0, totalNetValue = 0, totalValue = 0;
                         if (file.Length > 0)
                         {
                             BinaryReader b = new BinaryReader(file.OpenReadStream());
@@ -348,186 +367,222 @@ namespace InsuranceBackend.WebApi.Controllers
                                                 {
                                                     //Asegurado
                                                     string cedula = reader.GetValue(3) != null ? reader.GetValue(3).ToString() : "";
-                                                    string tipoCliente = reader.GetValue(4) != null ? reader.GetValue(4).ToString() : "";
-                                                    string nombre = reader.GetValue(5) != null ? reader.GetValue(5).ToString() : "";
-                                                    string segundoNombre = reader.GetValue(6) != null ? reader.GetValue(6).ToString() : "";
-                                                    string apellido = reader.GetValue(7) != null ? reader.GetValue(7).ToString() : "";
-                                                    string segundoApellido = reader.GetValue(8) != null ? reader.GetValue(8).ToString() : "";
-                                                    string sexo = reader.GetValue(9) != null ? reader.GetValue(9).ToString() : "";
-                                                    string direc = reader.GetValue(10) != null ? reader.GetValue(10).ToString() : "";
-                                                    string telef = reader.GetValue(11) != null ? reader.GetValue(11).ToString() : "";
-                                                    string email = reader.GetValue(12) != null ? reader.GetValue(12).ToString() : "";
-                                                    string celular = reader.GetValue(13) != null ? reader.GetValue(13).ToString() : "";
-                                                    string fecNacimiento = reader.GetValue(17) != null ? reader.GetValue(17).ToString() : "";
-                                                    bool fecNac = DateTime.TryParse(fecNacimiento, out DateTime dFecNacimiento);
-                                                    Customer customer = _unitOfWork.Customer.CustomerByIdentificationNumber(cedula);
-                                                    int idCustomer = 0;
-                                                    if (customer == null)
+                                                    if (!string.IsNullOrEmpty(cedula))
                                                     {
-                                                        customer = new Customer
+                                                        string tipoCliente = reader.GetValue(4) != null ? reader.GetValue(4).ToString() : "";
+                                                        if (tipoCliente == "2")
                                                         {
-                                                            BirthDate = fecNac ? (DateTime?)dFecNacimiento : null,
-                                                            Email = email,
-                                                            FirstName = nombre,
-                                                            IdCustomerType = int.Parse(tipoCliente),
-                                                            IdentificationNumber = cedula,
-                                                            IdGender = int.Parse(sexo),
-                                                            IdIdentificationType = 1,
-                                                            LastName = apellido,
-                                                            MiddleLastName = segundoApellido,
-                                                            MiddleName = segundoNombre,
-                                                            Leaflet = false,
-                                                            Movil = celular,
-                                                            Phone = telef,
-                                                            ResidenceAddress = direc
-                                                        };
-                                                        idCustomer = _unitOfWork.Customer.Insert(customer);
-                                                    }
-                                                    else
-                                                    {
-                                                        //Si existe y es prospecto se debe modificar
-                                                        if (customer.Leaflet)
-                                                        {
-                                                            customer.Leaflet = false;
-                                                            _unitOfWork.Customer.Update(customer);
+                                                            if (cedula.Length > 9)
+                                                                cedula = cedula.Substring(0, 9);
                                                         }
-                                                        idCustomer = customer.Id;
-                                                    }
-                                                    //Vehiculo
-                                                    string placa = reader.GetValue(45) != null ? reader.GetValue(45).ToString() : "";
-                                                    string motor = reader.GetValue(46) != null ? reader.GetValue(46).ToString() : "";
-                                                    string chasis = reader.GetValue(47) != null ? reader.GetValue(47).ToString() : "";
-                                                    string serv = reader.GetValue(48) != null ? reader.GetValue(48).ToString() : "";
-                                                    int.TryParse(reader.GetValue(49) != null ? reader.GetValue(49).ToString() : "", out int modelo);
-                                                    int.TryParse(reader.GetValue(50) != null ? reader.GetValue(50).ToString() : "", out int vrccial);
-                                                    string color = reader.GetValue(51) != null ? reader.GetValue(51).ToString() : "";
-                                                    int.TryParse(reader.GetValue(52) != null ? reader.GetValue(52).ToString() : "", out int nroPasajeros);
-                                                    int.TryParse(reader.GetValue(53) != null ? reader.GetValue(53).ToString() : "", out int cilindraje);
-                                                    Vehicle vehicle = _unitOfWork.Vehicle.VehicleByLicense(placa);
-                                                    int idVehicle = 0;
-                                                    if (vehicle == null)
-                                                    {
-                                                        vehicle = new Vehicle
+                                                        string nombre = reader.GetValue(5) != null ? reader.GetValue(5).ToString() : "";
+                                                        string segundoNombre = reader.GetValue(6) != null ? reader.GetValue(6).ToString() : "";
+                                                        string apellido = reader.GetValue(7) != null ? reader.GetValue(7).ToString() : "";
+                                                        string segundoApellido = reader.GetValue(8) != null ? reader.GetValue(8).ToString() : "";
+                                                        string sexo = reader.GetValue(9) != null ? reader.GetValue(9).ToString() : "";
+                                                        int? sex = null;
+                                                        int s = 0;
+                                                        if (int.TryParse(sexo, out s))
+                                                            sex = s;
+                                                        if (sexo != "1" && sexo != "2")
                                                         {
-                                                            Chassis = chasis,
-                                                            CommercialValue = vrccial,
-                                                            Cylinder = cilindraje,
-                                                            Engine = motor,
-                                                            IdVehicleService = serv,
-                                                            License = placa,
-                                                            Model = modelo,
-                                                            PassengersNumber = nroPasajeros
-                                                        };
-                                                        idVehicle = _unitOfWork.Vehicle.Insert(vehicle);
-                                                    }
-                                                    else
-                                                        idVehicle = vehicle.Id;
+                                                            sexo = null;
+                                                            sex = null;
+                                                        }
+                                                        string direc = reader.GetValue(10) != null ? reader.GetValue(10).ToString() : "";
+                                                        string telef = reader.GetValue(11) != null ? reader.GetValue(11).ToString() : "";
+                                                        string email = reader.GetValue(12) != null ? reader.GetValue(12).ToString() : "";
+                                                        string celular = reader.GetValue(13) != null ? reader.GetValue(13).ToString() : "";
+                                                        string fecNacimiento = reader.GetValue(17) != null ? reader.GetValue(17).ToString() : "";
+                                                        bool fecNac = DateTime.TryParse(fecNacimiento, out DateTime dFecNacimiento);
+                                                        Customer customer = _unitOfWork.Customer.CustomerByIdentificationNumber(cedula);
+                                                        int idCustomer = 0;
+                                                        if (customer == null)
+                                                        {
+                                                            customer = new Customer
+                                                            {
+                                                                BirthDate = fecNac ? (DateTime?)dFecNacimiento : null,
+                                                                Email = email,
+                                                                FirstName = nombre,
+                                                                IdCustomerType = int.Parse(tipoCliente),
+                                                                IdentificationNumber = cedula,
+                                                                IdGender = sex,
+                                                                IdIdentificationType = 1,
+                                                                LastName = apellido,
+                                                                MiddleLastName = segundoApellido,
+                                                                MiddleName = segundoNombre,
+                                                                Leaflet = false,
+                                                                Movil = celular,
+                                                                Phone = telef,
+                                                                ResidenceAddress = direc,
+                                                                IdSalesman = policyHeader.IdSalesMan
+                                                            };
+                                                            idCustomer = _unitOfWork.Customer.Insert(customer);
+                                                        }
+                                                        else
+                                                        {
+                                                            //Si existe y es prospecto se debe modificar
+                                                            if (customer.Leaflet)
+                                                            {
+                                                                customer.Leaflet = false;
+                                                                _unitOfWork.Customer.Update(customer);
+                                                            }
+                                                            idCustomer = customer.Id;
+                                                        }
+                                                        //Vehiculo
+                                                        string placa = reader.GetValue(45) != null ? reader.GetValue(45).ToString() : "";
+                                                        string motor = reader.GetValue(46) != null ? reader.GetValue(46).ToString() : "";
+                                                        string chasis = reader.GetValue(47) != null ? reader.GetValue(47).ToString() : "";
+                                                        string serv = reader.GetValue(48) != null ? reader.GetValue(48).ToString() : "";
+                                                        int.TryParse(reader.GetValue(49) != null ? reader.GetValue(49).ToString() : "", out int modelo);
+                                                        int.TryParse(reader.GetValue(50) != null ? reader.GetValue(50).ToString() : "", out int vrccial);
+                                                        string color = reader.GetValue(51) != null ? reader.GetValue(51).ToString() : "";
+                                                        int.TryParse(reader.GetValue(52) != null ? reader.GetValue(52).ToString() : "", out int nroPasajeros);
+                                                        int.TryParse(reader.GetValue(53) != null ? reader.GetValue(53).ToString() : "", out int cilindraje);
+                                                        Vehicle vehicle = _unitOfWork.Vehicle.VehicleByLicense(placa);
+                                                        int idVehicle = 0;
+                                                        if (vehicle == null)
+                                                        {
+                                                            vehicle = new Vehicle
+                                                            {
+                                                                Chassis = chasis,
+                                                                CommercialValue = vrccial,
+                                                                Cylinder = cilindraje,
+                                                                Engine = motor,
+                                                                IdVehicleService = serv,
+                                                                License = placa,
+                                                                Model = modelo,
+                                                                PassengersNumber = nroPasajeros
+                                                            };
+                                                            idVehicle = _unitOfWork.Vehicle.Insert(vehicle);
+                                                        }
+                                                        else
+                                                            idVehicle = vehicle.Id;
 
-                                                    //Poliza
-                                                    Policy policyHeader = _unitOfWork.Policy.GetById(idPolicyHeader);
-                                                    int.TryParse(reader.GetValue(33) != null ? reader.GetValue(33).ToString() : "", out int cuotas);
-                                                    double.TryParse(reader.GetValue(34) != null ? reader.GetValue(34).ToString() : "", out double prima);
-                                                    double.TryParse(reader.GetValue(37) != null ? reader.GetValue(37).ToString() : "", out double iva);
-                                                    double.TryParse(reader.GetValue(39) != null ? reader.GetValue(39).ToString() : "", out double total);
-                                                    double.TryParse(reader.GetValue(40) != null ? reader.GetValue(40).ToString() : "", out double cuomescte);
-                                                    double.TryParse(reader.GetValue(42) != null ? reader.GetValue(42).ToString() : "", out double otrosEx);
-                                                    string certificado = reader.GetValue(69) != null ? reader.GetValue(69).ToString() : "";
-                                                    PolicyOrder policyOrder = new PolicyOrder
-                                                    {
-                                                        CreationDate = DateTime.Now,
-                                                        IdUser = int.Parse(idUser),
-                                                        State = "A",
-                                                        StateOrder = "A"
-                                                    };
-                                                    int idPolicyOrder = _unitOfWork.PolicyOrder.Insert(policyOrder);
-                                                    //Creamos la póliza
-                                                    Policy policyNew = new Policy
-                                                    {
-                                                        Contribution = 0,
-                                                        DiscountValue = 0,
-                                                        EndDate = policyHeader.EndDate,
-                                                        ExpiditionDate = policyHeader.ExpiditionDate,
-                                                        FeeNumbers = cuotas,
-                                                        //IdInsurance = policyHeader.IdInsurance,
-                                                        //IdInsuranceLine = policyHeader.IdInsuranceLine,
-                                                        //IdInsuranceSubline = policyHeader.IdInsuranceSubline,
-                                                        IdMovementType = "I",
-                                                        IdPaymentMethod = "1", //Preguntar
-                                                        //IdPolicyHolder = policyHeader.IdPolicyHolder,
-                                                        IdPolicyState = "1",
-                                                        IdPolicyType = policyHeader.IdPolicyType,
-                                                        IdUser = int.Parse(idUser),
-                                                        IdVehicle = idVehicle,
-                                                        InitialFee = 0,
-                                                        Inspected = "I",
-                                                        IsAttached = true,
-                                                        IsHeader = false,
-                                                        IsOrder = false,
-                                                        Iva = iva,
-                                                        License = placa,
-                                                        NetValue = prima,
-                                                        //Number = policyHeader.Number,
-                                                        PendingRegistration = "N",
-                                                        PremiumExtra = 0,
-                                                        PremiumValue = prima,
-                                                        ReqAuthorization = false,
-                                                        ReqAuthorizationDisc = false,
-                                                        Runt = 0,
-                                                        StartDate = policyHeader.StartDate,
-                                                        TotalValue = total,
-                                                        IdSalesMan = 64, //Preguntar
-                                                        Certificate = certificado,
-                                                        IdPolicyHeader = policyHeader.Id
-                                                    };
-                                                    int idPolicy = _unitOfWork.Policy.Insert(policyNew);
-                                                    PolicyOrderDetail policyOrderDetail = new PolicyOrderDetail
-                                                    {
-                                                        CreationDate = DateTime.Now,
-                                                        IdPolicy = idPolicy,
-                                                        IdPolicyOrder = idPolicyOrder,
-                                                        State = "A"
-                                                    };
-                                                    _unitOfWork.PolicyOrderDetail.Insert(policyOrderDetail);
-                                                    //Asegurados
-                                                    PolicyInsured policyInsured = new PolicyInsured
-                                                    {
-                                                        IdInsured = idCustomer,
-                                                        IdPolicy = idPolicy
-                                                    };
-                                                    _unitOfWork.PolicyInsured.Insert(policyInsured);
-                                                    //Beneficiarios
-                                                    PolicyBeneficiary policyBeneficiary = new PolicyBeneficiary();
-                                                    int idBeneficiary = 0;
-                                                    Beneficiary ben = _unitOfWork.Beneficiary.BeneficiaryByIdentification(cedula, 1);
-                                                    if (ben != null)
-                                                        idBeneficiary = ben.Id;
-                                                    else
-                                                    {
-                                                        string nombreCompleto = nombre + (string.IsNullOrEmpty(segundoNombre) ? "" : " " + segundoNombre) + " " + apellido + (string.IsNullOrEmpty(segundoApellido) ? "" : " " + segundoApellido);
-                                                        ben = new Beneficiary
+                                                        int.TryParse(reader.GetValue(33) != null ? reader.GetValue(33).ToString() : "", out int cuotas);
+                                                        double.TryParse(reader.GetValue(34) != null ? reader.GetValue(34).ToString() : "", out double prima);
+                                                        totalVrPremium = totalVrPremium + prima;
+                                                        double.TryParse(reader.GetValue(37) != null ? reader.GetValue(37).ToString() : "", out double iva);
+                                                        totalIva = totalIva + iva;
+                                                        double.TryParse(reader.GetValue(39) != null ? reader.GetValue(39).ToString() : "", out double total);
+                                                        double.TryParse(reader.GetValue(40) != null ? reader.GetValue(40).ToString() : "", out double cuomescte);
+                                                        double.TryParse(reader.GetValue(42) != null ? reader.GetValue(42).ToString() : "", out double otrosEx);
+                                                        string certificado = reader.GetValue(69) != null ? reader.GetValue(69).ToString() : "";
+                                                        PolicyOrder policyOrder = new PolicyOrder
                                                         {
-                                                            FirstName = nombreCompleto,
-                                                            IdentificationNumber = cedula,
-                                                            IdIdentificationType = 1
+                                                            CreationDate = DateTime.Now,
+                                                            IdUser = int.Parse(idUser),
+                                                            State = "A",
+                                                            StateOrder = "A"
                                                         };
-                                                        idBeneficiary = _unitOfWork.Beneficiary.Insert(ben);
+                                                        int idPolicyOrder = _unitOfWork.PolicyOrder.Insert(policyOrder);
+                                                        //Creamos la póliza
+                                                        Policy policyNew = new Policy
+                                                        {
+                                                            Contribution = 0,
+                                                            DiscountValue = 0,
+                                                            EndDate = policyHeader.EndDate,
+                                                            ExpiditionDate = policyHeader.ExpiditionDate,
+                                                            FeeNumbers = cuotas,
+                                                            //IdInsurance = policyHeader.IdInsurance,
+                                                            //IdInsuranceLine = policyHeader.IdInsuranceLine,
+                                                            //IdInsuranceSubline = policyHeader.IdInsuranceSubline,
+                                                            IdMovementType = "I",
+                                                            IdPaymentMethod = idPaymentMethod,
+                                                            IdPolicyState = "1",
+                                                            IdPolicyType = policyHeader.IdPolicyType,
+                                                            IdUser = int.Parse(idUser),
+                                                            IdVehicle = idVehicle,
+                                                            InitialFee = policyHeader.InitialFee,
+                                                            OwnProducts = policyHeader.OwnProducts,
+                                                            Inspected = "I",
+                                                            IsAttached = true,
+                                                            IsHeader = false,
+                                                            IsOrder = false,
+                                                            Iva = iva,
+                                                            License = placa,
+                                                            NetValue = prima,
+                                                            PendingRegistration = "N",
+                                                            PremiumExtra = 0,
+                                                            PremiumValue = prima,
+                                                            ReqAuthorization = false,
+                                                            ReqAuthorizationDisc = false,
+                                                            Runt = 0,
+                                                            StartDate = policyHeader.StartDate,
+                                                            TotalValue = total,
+                                                            IdSalesMan = policyHeader.IdSalesMan,
+                                                            Certificate = certificado,
+                                                            IdPolicyHeader = policyHeader.Id,
+                                                            IdExternalSalesMan = extSalesman
+                                                        };
+                                                        int idPolicy = _unitOfWork.Policy.Insert(policyNew);
+                                                        PolicyOrderDetail policyOrderDetail = new PolicyOrderDetail
+                                                        {
+                                                            CreationDate = DateTime.Now,
+                                                            IdPolicy = idPolicy,
+                                                            IdPolicyOrder = idPolicyOrder,
+                                                            State = "A"
+                                                        };
+                                                        _unitOfWork.PolicyOrderDetail.Insert(policyOrderDetail);
+                                                        //Asegurados
+                                                        PolicyInsured policyInsured = new PolicyInsured
+                                                        {
+                                                            IdInsured = idCustomer,
+                                                            IdPolicy = idPolicy
+                                                        };
+                                                        _unitOfWork.PolicyInsured.Insert(policyInsured);
+                                                        //Beneficiarios
+                                                        PolicyBeneficiary policyBeneficiary = new PolicyBeneficiary();
+                                                        int idBeneficiary = 0;
+                                                        Beneficiary ben = _unitOfWork.Beneficiary.BeneficiaryByIdentification(cedula, 1);
+                                                        if (ben != null)
+                                                            idBeneficiary = ben.Id;
+                                                        else
+                                                        {
+                                                            string nombreCompleto = nombre + (string.IsNullOrEmpty(segundoNombre) ? "" : " " + segundoNombre) + " " + apellido + (string.IsNullOrEmpty(segundoApellido) ? "" : " " + segundoApellido);
+                                                            ben = new Beneficiary
+                                                            {
+                                                                FirstName = nombreCompleto,
+                                                                IdentificationNumber = cedula,
+                                                                IdIdentificationType = 1
+                                                            };
+                                                            idBeneficiary = _unitOfWork.Beneficiary.Insert(ben);
+                                                        }
+                                                        PolicyBeneficiary beneficiary = new PolicyBeneficiary
+                                                        {
+                                                            IdBeneficiary = idBeneficiary,
+                                                            IdPolicy = idPolicy,
+                                                            Percentage = 100
+                                                        };
+                                                        _unitOfWork.PolicyBeneficiary.Insert(beneficiary);
+                                                        //Cuotas
+                                                        PolicyFee policyFee = new PolicyFee
+                                                        {
+                                                            Date = policyHeader.StartDate.Value,
+                                                            DatePayment = policyHeader.StartDate.Value,
+                                                            IdPolicy = idPolicy,
+                                                            Number = 1,
+                                                            Value = total
+                                                        };
+                                                        _unitOfWork.PolicyFee.Insert(policyFee);
+                                                        //Productos Propios
+                                                        foreach (var pp in productLists)
+                                                        {
+                                                            PolicyProduct policyProduct = new PolicyProduct
+                                                            {
+                                                                IdPolicy = idPolicy,
+                                                                Authorization = pp.Authorization,
+                                                                ExtraValue = pp.ExtraValue,
+                                                                FeeNumber = pp.FeeNumber,
+                                                                FeeValue = pp.FeeValue,
+                                                                IdProduct = pp.IdProduct,
+                                                                IVA = pp.IVA,
+                                                                TotalValue = pp.TotalValue,
+                                                                Value = pp.Value
+                                                            };
+                                                            _unitOfWork.PolicyProduct.Insert(policyProduct);
+                                                        }
                                                     }
-                                                    PolicyBeneficiary beneficiary = new PolicyBeneficiary
-                                                    {
-                                                        IdBeneficiary = idBeneficiary,
-                                                        IdPolicy = idPolicy,
-                                                        Percentage = 100
-                                                    };
-                                                    _unitOfWork.PolicyBeneficiary.Insert(beneficiary);
-                                                    //Cuotas
-                                                    PolicyFee policyFee = new PolicyFee
-                                                    {
-                                                        Date = policyHeader.StartDate.Value,
-                                                        DatePayment = policyHeader.StartDate.Value,
-                                                        IdPolicy = idPolicy,
-                                                        Number = 1,
-                                                        Value = total
-                                                    };
                                                 }
                                                 row += 1;
                                             }
@@ -535,6 +590,20 @@ namespace InsuranceBackend.WebApi.Controllers
                                     } while (reader.NextResult()); //Move to NEXT SHEET
                                 }
                             }
+                            totalNetValue = totalVrPremium + totalIva;
+                            totalValue = totalNetValue;
+                            //Invoice Number
+                            PolicyInvoice policyInvoice = new PolicyInvoice
+                            {
+                                IdPolicy = policyHeader.Id,
+                                IdPaymentMethod = idPaymentMethod,
+                                InvoiceNumber = invoiceNumber,
+                                PremiumValue = totalVrPremium,
+                                Iva = totalIva,
+                                NetValue = totalNetValue,
+                                TotalValue = totalValue
+                            };
+                            _unitOfWork.PolicyInvoice.Insert(policyInvoice);
                             transaction.Complete();
                         }
                         else
@@ -551,8 +620,289 @@ namespace InsuranceBackend.WebApi.Controllers
             }
             return Ok();
         }
+
+        [HttpPost, DisableRequestSizeLimit]
+        [Route("uploadProspect")]
+        public async Task<IActionResult> UploadProspect()
+        {
+            using (var transaction = new TransactionScope())
+            {
+                string cedula = "";
+                try
+                {
+                    if (Request.Form != null)
+                    {
+                        var file = Request.Form.Files[0];
+                        if (file.Length > 0)
+                        {
+                            List<Salesman> salesmanList = _unitOfWork.Salesman.GetList().ToList();
+                            List<IdentificationType> identificationTypes = _unitOfWork.IdentificationType.GetList().ToList();
+                            BinaryReader b = new BinaryReader(file.OpenReadStream());
+                            int count = (int)file.Length;
+                            byte[] binData = b.ReadBytes(count);
+                            using (MemoryStream stream = new MemoryStream(binData))
+                            {
+                                int row = 0;
+                                using (var reader = ExcelReaderFactory.CreateReader(stream))
+                                {
+                                    do
+                                    {
+                                        while (reader.Read()) //Each ROW
+                                        {
+                                            if (reader.FieldCount > 0)
+                                            {
+                                                if (row > 0)
+                                                {
+                                                    cedula = reader.GetValue(0) != null ? reader.GetValue(0).ToString() : "";
+                                                    string tipoCliente = reader.GetValue(1) != null ? reader.GetValue(1).ToString() : "";
+                                                    if (tipoCliente == "2")
+                                                    {
+                                                        if (cedula.Length > 9)
+                                                            cedula = cedula.Substring(0, 9);
+                                                    }
+                                                    string tipoDoc = reader.GetValue(2) != null ? reader.GetValue(2).ToString() : "";
+                                                    string nombres = reader.GetValue(3) != null ? reader.GetValue(3).ToString() : "";
+                                                    string apellidos = reader.GetValue(4) != null ? reader.GetValue(4).ToString() : "";
+                                                    string email = reader.GetValue(5) != null ? reader.GetValue(5).ToString() : "";
+                                                    string telefono = reader.GetValue(6) != null ? reader.GetValue(6).ToString() : "";
+                                                    string celular = reader.GetValue(7) != null ? reader.GetValue(7).ToString() : "";
+                                                    string direc = reader.GetValue(8) != null ? reader.GetValue(8).ToString() : "";
+                                                    string fecNacimiento = reader.GetValue(9) != null ? reader.GetValue(9).ToString() : "";
+                                                    bool fecNac = DateTime.TryParse(fecNacimiento, out DateTime dFecNacimiento);
+                                                    string comercial = reader.GetValue(10) != null ? reader.GetValue(10).ToString() : "";
+                                                    Salesman salesman = salesmanList.Where(s => s.Short.Equals(comercial)).FirstOrDefault();
+                                                    if (salesman == null)
+                                                    {
+                                                        return BadRequest("No existe comercial " + comercial);
+                                                    }
+                                                    List<BusinessUnitDetailList> bud = _unitOfWork.BusinessUnitDetail.BusinessUnitDetailListsBySalesman(salesman.Id).ToList();
+                                                    // Validamos si el cliente existe
+                                                    Customer customer = _unitOfWork.Customer.CustomerByIdentificationNumber(cedula);
+                                                    // Si el cliente existe validamos si el comercial ya esta asignado sino lo esta se debe asignar
+                                                    if (customer != null)
+                                                    {
+                                                        List<CustomerBusinessUnitList> lstcbus = _unitOfWork.CustomerBusinessUnit.CustomerBusinessUnitListByCustomer(customer.Id).ToList();
+                                                        CustomerBusinessUnitList customerBusinessUnit = lstcbus.Where(c => c.IdSalesman == salesman.Id).FirstOrDefault();
+                                                        if (customerBusinessUnit == null) // Si no esta asignado el comercial se debe asignar
+                                                        {
+                                                            CustomerBusinessUnit customerBusinessUnitNew = new CustomerBusinessUnit
+                                                            {
+                                                                IdBusinessUnitDetail = bud[0].Id,
+                                                                IdCustomer = customer.Id,
+                                                                State = "A",
+                                                                Year = "2020"
+                                                            };
+                                                            _unitOfWork.CustomerBusinessUnit.Insert(customerBusinessUnitNew);
+                                                        }
+                                                    }
+                                                    else // Debemos crear el cliente
+                                                    {
+                                                        IdentificationType it = identificationTypes.Where(i => i.Alias.Equals(tipoDoc)).FirstOrDefault();
+                                                        customer = new Customer
+                                                        {
+                                                            Email = email,
+                                                            FirstName = nombres,
+                                                            IdCustomerType = int.Parse(tipoCliente),
+                                                            IdentificationNumber = cedula,
+                                                            IdIdentificationType = it.Id,
+                                                            IdSalesman = salesman.Id,
+                                                            LastName = apellidos,
+                                                            Leaflet = true,
+                                                            Movil = celular,
+                                                            Phone = telefono,
+                                                            ResidenceAddress = direc,
+                                                            ShowAll = false
+                                                        };
+                                                        if (fecNac)
+                                                            customer.BirthDate = dFecNacimiento;
+                                                        int idCustomer = _unitOfWork.Customer.Insert(customer);
+                                                        // Debemos agregar la linea de negocio
+                                                        CustomerBusinessUnit customerBusinessUnitNew = new CustomerBusinessUnit
+                                                        {
+                                                            IdBusinessUnitDetail = bud[0].Id,
+                                                            IdCustomer = idCustomer,
+                                                            State = "A",
+                                                            Year = "2020"
+                                                        };
+                                                        _unitOfWork.CustomerBusinessUnit.Insert(customerBusinessUnitNew);
+                                                    }
+                                                }
+                                                row += 1;
+                                            }
+                                        }
+                                    } while (reader.NextResult());
+                                }
+                            }
+                            transaction.Complete();
+                        }
+                        else
+                            return BadRequest();
+                    }
+                    else
+                        return BadRequest();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Dispose();
+                    return StatusCode(500, "Internal server error, Error: " + ex.Message + ", Cedula: " + cedula);
+                }
+            }
+            return Ok();
+        }
+
+        [HttpPost, DisableRequestSizeLimit]
+        [Route("uploadRenovacion")]
+        public async Task<IActionResult> UploadRenovacion()
+        {
+            using (var transaction = new TransactionScope())
+            {
+                try
+                {
+                    string idUser = User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value;
+                    if (Request.Form != null)
+                    {
+                        var file = Request.Form.Files[0];
+                        string salesman = Request.Form["idUser"];
+                        string date = Request.Form["date"];
+                        int idSalesman = salesman != null ? int.Parse(salesman) : 0;
+                        DateTime dateRenewal = DateTime.ParseExact(date, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None);
+                        int days = DateTime.DaysInMonth(dateRenewal.Year, dateRenewal.Month);
+                        DateTime dateRenewalEnd = new DateTime(dateRenewal.Year, dateRenewal.Month, days);
+                        List<Renewal> lstRenewal = _unitOfWork.Renewal.RenewalByUser(idSalesman).ToList();
+                        SystemUser user = _unitOfWork.User.GetById(idSalesman);
+                        Settings settings = _unitOfWork.Settings.GetList().FirstOrDefault();
+                        int renewalNumber = settings.RenewalNumber + 1;
+                        if (file.Length > 0)
+                        {
+                            BinaryReader b = new BinaryReader(file.OpenReadStream());
+                            int count = (int)file.Length;
+                            byte[] binData = b.ReadBytes(count);
+                            using (MemoryStream stream = new MemoryStream(binData))
+                            //using (var stream = System.IO.File.Open(filePath, FileMode.Open, FileAccess.Read))
+                            {
+                                int row = 0;
+                                using (var reader = ExcelReaderFactory.CreateReader(stream))
+                                {
+                                    //Primero debemos crear o trar la renovación a procesar
+                                    Renewal renewal = lstRenewal.Where(r => r.RenewalDate.Year.Equals(dateRenewal.Year) && r.RenewalDate.Month.Equals(dateRenewal.Month)).FirstOrDefault();
+                                    int idRenewal = renewal == null ? 0 : renewal.Id;
+                                    double TotalPrima = 0;
+                                    if (renewal == null)
+                                    {
+                                        StringBuilder description = new StringBuilder("RENOVACIÓN ");
+                                        description.Append(dateRenewal.ToString("MMMM", CultureInfo.CreateSpecificCulture("es")).ToUpper());
+                                        description.Append(" " + user.FirstName + " " + user.LastName);
+                                        renewal = new Renewal
+                                        {
+                                            CreationDate = DateTime.Now,
+                                            Description = description.ToString(),
+                                            IdUser = idSalesman,
+                                            Number = renewalNumber,
+                                            RenewalDate = dateRenewal
+                                        };
+                                        idRenewal = _unitOfWork.Renewal.Insert(renewal);
+                                        settings.RenewalNumber = renewalNumber;
+                                        _unitOfWork.Settings.Update(settings);
+                                    }
+                                    do
+                                    {
+                                        while (reader.Read()) //Each ROW
+                                        {
+                                            if (reader.FieldCount > 0)
+                                            {
+                                                if (row > 0)
+                                                {
+                                                    string poliza = reader.GetValue(1) != null ? reader.GetValue(1).ToString() : "";
+                                                    string ordenRef = reader.GetValue(2) != null ? reader.GetValue(2).ToString() : "";
+                                                    string aseguradora = reader.GetValue(3) != null ? reader.GetValue(3).ToString() : "";
+                                                    string ramo = reader.GetValue(4) != null ? reader.GetValue(4).ToString() : "";
+                                                    string placa = reader.GetValue(5) != null ? reader.GetValue(5).ToString() : "";
+                                                    string vigDesde = reader.GetValue(7) != null ? reader.GetValue(7).ToString() : "";
+                                                    DateTime.TryParse(vigDesde, out DateTime dVigDesde);
+                                                    string vigHasta = reader.GetValue(8) != null ? reader.GetValue(8).ToString() : "";
+                                                    DateTime.TryParse(vigHasta, out DateTime dVigHasta);
+                                                    string nitToma = reader.GetValue(10) != null ? reader.GetValue(10).ToString() : "";
+                                                    string tomador = reader.GetValue(11) != null ? reader.GetValue(11).ToString() : "";
+                                                    string mov = reader.GetValue(15) != null ? reader.GetValue(15).ToString() : "";
+                                                    string cedula = reader.GetValue(16) != null ? reader.GetValue(16).ToString() : "";
+                                                    string benef = reader.GetValue(18) != null ? reader.GetValue(18).ToString() : "";
+                                                    double.TryParse(reader.GetValue(19) != null ? reader.GetValue(19).ToString() : "", out double vrCuoIni);
+                                                    double.TryParse(reader.GetValue(29) != null ? reader.GetValue(29).ToString() : "", out double vrNeto);
+                                                    TotalPrima = TotalPrima + vrNeto;
+                                                    double.TryParse(reader.GetValue(30) != null ? reader.GetValue(30).ToString() : "", out double vrAsegurado);
+                                                    int.TryParse(reader.GetValue(31) != null ? reader.GetValue(31).ToString() : "", out int plazoCte);
+                                                    double.TryParse(reader.GetValue(32) != null ? reader.GetValue(32).ToString() : "", out double cuoMesCte);
+                                                    StringBuilder subject = new StringBuilder("HACER RENOVACIÓN CON LA PLACA: ");
+                                                    subject.Append(placa);
+                                                    subject.Append(", TOMADOR: NIT: " + nitToma + " - " + tomador);
+                                                    subject.Append(", VIG DESDE: " + dVigDesde.ToString("dd/MM/yyyy"));
+                                                    subject.Append(", VIG HASTA: " + dVigHasta.ToString("dd/MM/yyyy"));
+                                                    subject.Append(", POLIZA: " + poliza);
+                                                    subject.Append(", ORDEN/REF: " + ordenRef);
+                                                    subject.Append(", ASEGURADORA: " + aseguradora);
+                                                    subject.Append(", RAMO: " + ramo);
+                                                    subject.Append(", VR CUOTA INI: " + vrCuoIni);
+                                                    subject.Append(", VR NETO: " + vrNeto);
+                                                    subject.Append(", VR ASEGURADO: " + vrAsegurado);
+                                                    subject.Append(", PLAZO CTE: " + plazoCte);
+                                                    subject.Append(", VR CUOTA: " + cuoMesCte);
+                                                    subject.Append(", BENEFICIARIO: " + benef);
+                                                    Customer customer = _unitOfWork.Customer.CustomerByIdentificationNumber(cedula);
+                                                    Management management = new Management
+                                                    {
+                                                        ManagementType = "T",
+                                                        IdCustomer = customer.Id,
+                                                        CreationUser = int.Parse(idUser),
+                                                        StartDate = dateRenewal,
+                                                        EndDate = dateRenewalEnd,
+                                                        State = "P",
+                                                        DelegatedUser = idSalesman,
+                                                        Subject = subject.ToString(),
+                                                        ManagementPartner = "C",
+                                                        IsExtra = false,
+                                                        IsRenewal = true,
+                                                        IdRenewal = idRenewal
+                                                    };
+                                                    _unitOfWork.Management.Insert(management);
+                                                }
+                                                row += 1;
+                                            }
+                                        }
+                                    } while (reader.NextResult());
+
+                                    renewal.Quantity = row;
+                                    renewal.VrPrima = TotalPrima;
+                                    _unitOfWork.Renewal.Update(renewal);
+                                }
+                            }
+                            transaction.Complete();
+                        }
+                        else
+                        {
+                            return BadRequest("EL archivo se encuentra vacío");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    transaction.Dispose();
+                    return StatusCode(500, "Internal server error, Error: " + ex.Message);
+                }
+            }
+            return Ok();
+        }
+
+        [HttpPost, DisableRequestSizeLimit]
+        [Route("uploadInclusion")]
+        public async Task<IActionResult> UploadInclusion()
+        {
+            using (var transaction = new TransactionScope())
+            {
+
+            }
+            return Ok();
+        }
+
+
     }
 }
- 
- 
- 

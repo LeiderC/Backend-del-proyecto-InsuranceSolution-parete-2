@@ -28,5 +28,6 @@ namespace InsuranceBackend.Models
         public string IdManagementReason { get; set; }
         public bool? Assignable { get; set; }
         public bool? IsRenewal { get; set; }
+        public int? IdRenewal { get; set; }
     }
 }

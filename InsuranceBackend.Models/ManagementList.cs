@@ -4,7 +4,7 @@ using System.Text;
 
 namespace InsuranceBackend.Models
 {
-    public class ManagementList: Management
+    public class ManagementList : Management
     {
         public string ManagementTypeDesc { get; set; }
         public string ManagementPartnerDesc { get; set; }
@@ -18,5 +18,8 @@ namespace InsuranceBackend.Models
         public int TotalExtras { get; set; }
         public bool ReqAuthorization { get; set; }
         public bool Authorized { get; set; }
+        public bool ReqAuthorizationFinancOwnProduct { get; set; }
+        public bool AuthorizedFinancOwnProduct { get; set; }
+        public bool IsOrderCol { get; set; }
     }
 }

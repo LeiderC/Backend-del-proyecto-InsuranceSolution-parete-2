@@ -74,14 +74,14 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("GetManagementCreatedByUser")]
-        public IActionResult GetManagementCreatedByUser()
+        public IActionResult GetManagementCreatedByUser([FromBody] GetPaginatedManagementByCustomer request)
         {
             try
             {
                 string idUser = User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value;
-                List<ManagementList> lst = _unitOfWork.Management.ManagementCreatedByUserList(int.Parse(idUser)).ToList();
+                List<ManagementList> lst = _unitOfWork.Management.ManagementCreatedByUserList(int.Parse(idUser), request.State).ToList();
                 return Ok(lst);
             }
             catch (Exception ex)
@@ -113,6 +113,10 @@ namespace InsuranceBackend.WebApi.Controllers
             try
             {
                 var result = _unitOfWork.Management.ManagementReportRenewalByUserList(idUser, idRenewal);
+                // foreach (var item in result)
+                // {
+                //     var data = (IDictionary<string, object>)item;
+                // }
                 return Ok(result);
             }
             catch (Exception ex)

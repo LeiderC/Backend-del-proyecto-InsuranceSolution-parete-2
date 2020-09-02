@@ -47,6 +47,20 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("GetCustomerBusinessUnitListByCustomer/{idCustomer:int}")]
+        public IActionResult GetCustomerBusinessUnitListByCustomer(int idCustomer)
+        {
+            try
+            {
+                return Ok(_unitOfWork.CustomerBusinessUnit.CustomerBusinessUnitListByCustomer(idCustomer));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
         [HttpPost]
         public IActionResult Post([FromBody]CustomerBusinessUnit customerBusinessUnit)
         {

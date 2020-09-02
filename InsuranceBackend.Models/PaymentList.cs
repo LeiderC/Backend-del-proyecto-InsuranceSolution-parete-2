@@ -14,6 +14,7 @@ namespace InsuranceBackend.Models
         public string WaytoPayDesc { get; set; }
         public List<PaymentDetailList> PaymentDetailLists { get; set; }
         public List<PaymentDetailFinancialList> PaymentDetailFinancialLists { get; set; }
+        public List<PaymentDetailProductList> PaymentDetailProductList { get; set; }
         public string CustomerAddress { get; set; }
         public string CustomerPhone { get; set; }
         public string CustomerCity { get; set; }
@@ -24,5 +25,6 @@ namespace InsuranceBackend.Models
         public string InsuranceLine { get; set; }
         public string InsuranceSubline { get; set; }
         public string License { get; set; }
+        public double ValueDiscount { get; set; }
     }
 }

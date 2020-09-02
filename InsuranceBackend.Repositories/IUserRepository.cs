@@ -8,7 +8,7 @@ namespace InsuranceBackend.Repositories
         SystemUser ValidateUser(string login, string password);
         SystemUser ValidateUserPassword(string login, string password);
         IEnumerable<UserList> UserPagedList(int page, int rows);
-        IEnumerable<SystemUser> GetAllUsers();
+        IEnumerable<SystemUser> GetAllUsers(bool salesman);
         bool CheckPermissions(int idUser, string menu, string subMenu, string action);
     }
 }

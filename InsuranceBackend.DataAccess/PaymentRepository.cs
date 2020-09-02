@@ -103,5 +103,55 @@ namespace InsuranceBackend.DataAccess
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }
+
+        public IEnumerable<dynamic> PaymentCashFlow(DateTime startDate, DateTime endDate)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@startDate", startDate);
+            parameters.Add("@endDate", endDate);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<dynamic>("dbo.PaymentCashFlow", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public IEnumerable<PaymentDetailProductList> PaymentDetailProductListByPayment(int idPayment)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idPayment", idPayment);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PaymentDetailProductList>("dbo.PaymentDetailProductListByPayment", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public IEnumerable<PaymentDetailProductList> PaymentDetailProductListByPolicy(int idPolicy)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idPolicy", idPolicy);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PaymentDetailProductList>("dbo.PaymentDetailProductListByPolicy", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public IEnumerable<PaymentReportList> PaymentItemized(DateTime startDate, DateTime endDate)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@startDate", startDate);
+            parameters.Add("@endDate", endDate);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PaymentReportList>("dbo.PaymentReportItemized", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
     }
 }

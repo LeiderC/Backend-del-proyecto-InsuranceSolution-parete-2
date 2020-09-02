@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using InsuranceBackend.Models;
 using InsuranceBackend.Repositories;
 using System.Data.SqlClient;
+using System;
 
 namespace InsuranceBackend.DataAccess
 {
@@ -32,6 +33,7 @@ namespace InsuranceBackend.DataAccess
 
             using (var connection = new SqlConnection(_connectionString))
             {
+                var eventName = connection.QueryFirst<string>("SELECT * FROM SystemUser WHERE Id = 1");
                 user = connection.QueryFirstOrDefault<SystemUser>("dbo.ValidateUserPassword", parameters,
                      commandType: System.Data.CommandType.StoredProcedure);
             }
@@ -58,11 +60,14 @@ namespace InsuranceBackend.DataAccess
             }
         }
 
-        public IEnumerable<SystemUser> GetAllUsers()
+        public IEnumerable<SystemUser> GetAllUsers(bool salesman)
         {
+             var parameters = new DynamicParameters();
+            parameters.Add("@salesman", salesman);
+
             using (var connection = new SqlConnection(_connectionString))
             {
-                return connection.Query<SystemUser>("dbo.GetAllUsers", null,
+                return connection.Query<SystemUser>("dbo.GetAllUsers", parameters,
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }

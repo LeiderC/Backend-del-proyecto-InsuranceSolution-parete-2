@@ -11,5 +11,7 @@ namespace InsuranceBackend.Models
         public string InsuranceLineDesc { get; set; }
         public string InsuranceLineShort { get; set; }
         public int TotalRecords { get; set; }
+        public string ReqBeneficiaryDesc { get; set; }
+        public string RuntDesc { get; set; }
     }
 }

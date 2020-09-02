@@ -19,6 +19,8 @@ namespace InsuranceBackend.Models
         public float MinimumValueRenewal { get; set; }
         public string Observation { get; set; }
         public float PercentageCalculate { get; set; }
-
+        public int IdInsuranceSubline { get; set; }
+        public bool Editable { get; set; }
+        public bool InfoFees { get; set; }
     }
 }

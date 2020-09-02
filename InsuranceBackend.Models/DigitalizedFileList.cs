@@ -7,5 +7,6 @@ namespace InsuranceBackend.Models
     public class DigitalizedFileList: DigitalizedFile
     {
         public int TotalRecords { get; set; }
+        public string DigitalizedFileTypeDesc { get; set; }
     }
 }
