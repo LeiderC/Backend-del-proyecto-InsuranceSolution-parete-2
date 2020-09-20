@@ -35,6 +35,20 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("GetPolicyAttProductListByPolicy")]
+        public IActionResult GetPolicyAttProductListByPolicy([FromBody]GetSearchTerm request)
+        {
+            try
+            {
+                return Ok(_unitOfWork.PolicyProduct.PolicyAttachedProductListByPolicy(int.Parse(request.SearchTerm)));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
     }
 }
  

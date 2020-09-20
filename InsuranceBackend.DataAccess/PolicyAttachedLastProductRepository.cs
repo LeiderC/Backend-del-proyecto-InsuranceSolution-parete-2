@@ -6,33 +6,21 @@ using System.Data.SqlClient;
 
 namespace InsuranceBackend.DataAccess
 {
-    public class PolicyProductRepository : Repository<PolicyProduct>, IPolicyProductRepository
+    public class PolicyAttachedLastProductRepository : Repository<PolicyAttachedLastProduct>, IPolicyAttachedLastProductRepository
     {
-        public PolicyProductRepository(string connectionString) : base(connectionString)
+        public PolicyAttachedLastProductRepository(string connectionString) : base(connectionString)
         {
         }
 
         public bool DeletePolicyProductByPolicy(int idPolicy)
         {
-            string sql = "DELETE PolicyProduct WHERE IdPolicy = @IdPolicy;";
+            string sql = "DELETE PolicyAttachedLastProduct WHERE IdPolicy = @IdPolicy;";
             using (var connection = new SqlConnection(_connectionString))
             {
                 int affectedRows = connection.Execute(sql, new { IdPolicy = idPolicy });
                 if (affectedRows > 0)
                     return true;
                 return false;
-            }
-        }
-
-        public IEnumerable<PolicyProductList> PolicyAttachedProductListByPolicy(int idPolicy)
-        {
-            var parameters = new DynamicParameters();
-            parameters.Add("@idPolicy", idPolicy);
-
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                return connection.Query<PolicyProductList>("dbo.PolicyAttachedProductListByPolicy", parameters,
-                    commandType: System.Data.CommandType.StoredProcedure);
             }
         }
 
@@ -43,7 +31,7 @@ namespace InsuranceBackend.DataAccess
 
             using (var connection = new SqlConnection(_connectionString))
             {
-                return connection.Query<PolicyProductList>("dbo.PolicyProductListByPolicy", parameters,
+                return connection.Query<PolicyProductList>("dbo.PolicyAttachedLastProductListByPolicy", parameters,
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }

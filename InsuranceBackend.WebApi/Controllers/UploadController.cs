@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.CodeAnalysis.Operations;
+using CsvHelper.Configuration;
 
 namespace InsuranceBackend.WebApi.Controllers
 {
@@ -29,6 +30,101 @@ namespace InsuranceBackend.WebApi.Controllers
         public UploadController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
+        }
+
+        [HttpPost, DisableRequestSizeLimit]
+        [Route("uploadFasecolda")]
+        public async Task<IActionResult> UploadFasecolda()
+        {
+            List<Fasecolda> fasecoldaList = _unitOfWork.Fasecolda.GetList().ToList();
+            int row = 0;
+            try
+            {
+                string idUser = User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value;
+                if (Request.Form != null)
+                {
+                    var file = Request.Form.Files[0];
+                    if (file.Length > 0)
+                    {
+                        BinaryReader b = new BinaryReader(file.OpenReadStream());
+                        int count = (int)file.Length;
+                        byte[] binData = b.ReadBytes(count);
+                        using (MemoryStream stream = new MemoryStream(binData))
+                        {
+                            using (var reader = new StreamReader(stream))
+                            {
+                                using (var csv = new CsvHelper.CsvReader(reader, CultureInfo.InvariantCulture))
+                                {
+                                    while (csv.Read())
+                                    {
+                                        if (row > 0)
+                                        {
+                                            string novedad = csv.GetField(0);
+                                            string marca = csv.GetField(1);
+                                            string clase = csv.GetField(2);
+                                            string codigo = csv.GetField(3);
+                                            string referencia1 = csv.GetField(5);
+                                            string referencia2 = csv.GetField(6);
+                                            string referencia3 = csv.GetField(7);
+                                            int.TryParse(csv.GetField(8), out int peso);
+                                            string idServicio = csv.GetField(9);
+                                            string servicio = csv.GetField(10);
+                                            string tipoCaja = csv.GetField(14);
+                                            int.TryParse(csv.GetField(15), out int cilindraje);
+                                            int.TryParse(csv.GetField(17), out int nroPasajeros);
+                                            int.TryParse(csv.GetField(18), out int capCarga);
+                                            int.TryParse(csv.GetField(19), out int puertas);
+                                            bool.TryParse(csv.GetField(20), out bool aire);
+                                            int.TryParse(csv.GetField(21), out int ejes);
+                                            string estado = csv.GetField(22);
+                                            string combustible = csv.GetField(23);
+                                            string transm = csv.GetField(24);
+                                            Fasecolda fasecolda = fasecoldaList.Where(f => f.Code.Equals(codigo)).FirstOrDefault();
+                                            if (fasecolda == null) //Insertamos el nuevo
+                                            {
+                                                fasecolda = new Fasecolda
+                                                {
+                                                    AirConditioning = aire,
+                                                    Axes = ejes,
+                                                    Brand = marca,
+                                                    Class = clase,
+                                                    Code = codigo,
+                                                    Cylinder = cilindraje,
+                                                    Doors = puertas,
+                                                    Fuel = combustible,
+                                                    GearboxType = tipoCaja,
+                                                    IdVehicleService = idServicio,
+                                                    LoadingCapacity = capCarga,
+                                                    PassengersNumber = nroPasajeros,
+                                                    Reference1 = referencia1,
+                                                    Reference2 = referencia2,
+                                                    Reference3 = referencia3,
+                                                    State = estado.Equals("ACTIVO") ? "A" : "I",
+                                                    Transmission = transm,
+                                                    Weight = peso
+                                                };
+                                                _unitOfWork.Fasecolda.Insert(fasecolda);
+                                            }
+                                        }
+                                        row += 1;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        return BadRequest();
+                    }
+                }
+                else
+                    return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error, Error: " + ex.Message + " Fila: " + row);
+            }
+            return Ok();
         }
 
         [HttpPost, DisableRequestSizeLimit]
@@ -854,7 +950,7 @@ namespace InsuranceBackend.WebApi.Controllers
                                                         IdCustomer = customer.Id,
                                                         CreationUser = int.Parse(idUser),
                                                         StartDate = dateRenewal,
-                                                        EndDate = dateRenewalEnd,
+                                                        EndDate = dVigHasta,
                                                         State = "P",
                                                         DelegatedUser = idSalesman,
                                                         Subject = subject.ToString(),

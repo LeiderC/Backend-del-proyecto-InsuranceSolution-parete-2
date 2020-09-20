@@ -74,6 +74,20 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpPost]
+        [Route("GetInsuredAttListByPolicy")]
+        public IActionResult GetInsuredAttListByPolicy([FromBody] GetSearchTerm request)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Customer.InsuredAttachedListByPolicy(int.Parse(request.SearchTerm)));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
         [Route("GetPaginatedCustomer")]
         public IActionResult GetPaginatedCustomer([FromBody] GetPaginatedSearchTerm request)
         {

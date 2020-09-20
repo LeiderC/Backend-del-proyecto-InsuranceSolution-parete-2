@@ -12,6 +12,18 @@ namespace InsuranceBackend.DataAccess
         {
         }
 
+        public IEnumerable<BeneficiaryList> BeneficiaryAttachedListByPolicy(int idPolicy)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idPolicy", idPolicy);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<BeneficiaryList>("dbo.BeneficiaryAttachedListByPolicy", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
         public Beneficiary BeneficiaryByIdentification(string identification, int idIdentificationType)
         {
             var parameters = new DynamicParameters();

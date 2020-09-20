@@ -116,6 +116,13 @@ namespace InsuranceBackend.DataAccess
             ExternalUser = new ExternalUserRepository(connectionString);
             PolicyExternalUser = new PolicyExternalUserRepository(connectionString);
             DigitalizedFileType = new DigitalizedFileTypeRepository(connectionString);
+            PolicyAttachedLast = new PolicyAttachedRepository(connectionString);
+            PolicyAttachedLastBeneficiary = new PolicyAttachedLastBeneficiaryRepository(connectionString);
+            PolicyAttachedLastInsured = new PolicyAttachedLastInsuredRepository(connectionString);
+            PolicyAttachedLastProduct = new PolicyAttachedLastProductRepository(connectionString);
+            PolicyAttachedLastReferences = new PolicyAttachedLastReferencesRepository(connectionString);
+            PolicyAttachedLastFee = new PolicyAttachedLastFeeRepository(connectionString);
+            PolicyAttachedLastFeeFinancial = new PolicyAttachedLastFeeFinancialRepository(connectionString);
         }
         public ICityRepository City { get; private set; }
         public ICountryRepository Country { get; private set; }
@@ -226,5 +233,12 @@ namespace InsuranceBackend.DataAccess
         public IExternalUserRepository ExternalUser { get; private set; }
         public IPolicyExternalUserRepository PolicyExternalUser { get; private set; }
         public IDigitalizedFileTypeRepository DigitalizedFileType { get; private set; }
+        public IPolicyAttachedLastRepository PolicyAttachedLast { get; private set; }
+        public IPolicyAttachedLastBeneficiaryRepository PolicyAttachedLastBeneficiary { get; private set; }
+        public IPolicyAttachedLastInsuredRepository PolicyAttachedLastInsured { get; private set; }
+        public IPolicyAttachedLastProductRepository PolicyAttachedLastProduct { get; private set; }
+        public IPolicyAttachedLastReferencesRepository PolicyAttachedLastReferences { get; private set; }
+        public IPolicyAttachedLastFeeRepository PolicyAttachedLastFee { get; private set; }
+        public IPolicyAttachedLastFeeFinancialRepository PolicyAttachedLastFeeFinancial { get; private set; }
     }
 }

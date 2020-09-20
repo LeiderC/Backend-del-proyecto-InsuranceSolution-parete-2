@@ -8,5 +8,6 @@ namespace InsuranceBackend.Repositories
     {
         Beneficiary BeneficiaryByIdentification(string identification, int idIdentificationType);
         IEnumerable<BeneficiaryList> BeneficiaryListByPolicy(int idPolicy);
+        IEnumerable<BeneficiaryList> BeneficiaryAttachedListByPolicy(int idPolicy);
     }
 }

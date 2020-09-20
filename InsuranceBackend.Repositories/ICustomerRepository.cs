@@ -9,5 +9,6 @@ namespace InsuranceBackend.Repositories
         IEnumerable<CustomerList> CustomerByIdentificationNumber(string identificationNumber, int idSalesman, string type);
         Customer CustomerByIdentificationNumber(string identificationNumber);
         IEnumerable<CustomerList> InsuredListByPolicy(int idPolicy);
+        IEnumerable<CustomerList> InsuredAttachedListByPolicy(int idPolicy);
     }
 }

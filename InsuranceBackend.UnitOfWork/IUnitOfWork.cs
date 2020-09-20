@@ -113,5 +113,12 @@ namespace InsuranceBackend.UnitOfWork
         IExternalUserRepository ExternalUser { get; }
         IPolicyExternalUserRepository PolicyExternalUser { get; }
         IDigitalizedFileTypeRepository DigitalizedFileType { get; }
+        IPolicyAttachedLastRepository PolicyAttachedLast { get; }
+        IPolicyAttachedLastBeneficiaryRepository PolicyAttachedLastBeneficiary { get; }
+        IPolicyAttachedLastInsuredRepository PolicyAttachedLastInsured { get; }
+        IPolicyAttachedLastProductRepository PolicyAttachedLastProduct { get; }
+        IPolicyAttachedLastReferencesRepository PolicyAttachedLastReferences { get; }
+        IPolicyAttachedLastFeeRepository PolicyAttachedLastFee { get; }
+        IPolicyAttachedLastFeeFinancialRepository PolicyAttachedLastFeeFinancial { get; }
     }
 }

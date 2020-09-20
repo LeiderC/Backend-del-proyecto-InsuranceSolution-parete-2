@@ -3,10 +3,9 @@ using InsuranceBackend.Models;
 
 namespace InsuranceBackend.Repositories
 {
-    public interface IPolicyProductRepository : IRepository<PolicyProduct>
+    public interface IPolicyAttachedLastProductRepository : IRepository<PolicyAttachedLastProduct>
     {
         bool DeletePolicyProductByPolicy(int idPolicy);
         IEnumerable<PolicyProductList> PolicyProductListByPolicy(int idPolicy);
-        IEnumerable<PolicyProductList> PolicyAttachedProductListByPolicy(int idPolicy);
     }
 }

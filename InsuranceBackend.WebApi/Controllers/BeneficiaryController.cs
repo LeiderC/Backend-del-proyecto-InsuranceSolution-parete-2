@@ -65,6 +65,20 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpPost]
+        [Route("GetBeneficiaryAttListByPolicy")]
+        public IActionResult GetBeneficiaryAttListByPolicy([FromBody]GetSearchTerm request)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Beneficiary.BeneficiaryAttachedListByPolicy(int.Parse(request.SearchTerm)));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
         public IActionResult Post([FromBody]Beneficiary beneficiary)
         {
             try
