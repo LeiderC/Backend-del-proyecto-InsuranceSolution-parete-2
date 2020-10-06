@@ -51,5 +51,6 @@ namespace InsuranceBackend.Models
         public DateTime? OrderCreationDate { get; set; }
         public DateTime? OrderClosingDate { get; set; }
         public DateTime? DateCreatedPayment { get; set; }
+        public int TotalCertificates { get; set; }
     }
 }

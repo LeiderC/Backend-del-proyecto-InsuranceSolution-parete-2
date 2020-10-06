@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Transactions;
 using InsuranceBackend.Models;
 using InsuranceBackend.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
@@ -54,6 +55,32 @@ namespace InsuranceBackend.WebApi.Controllers
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
+
+        [HttpPost]
+        [Route("ClosePolicyOrder")]
+        public IActionResult ClosePolicyOrder([FromBody] PolicyOrder policyOrder)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+            using (var transaction = new TransactionScope())
+            {
+                try
+                {
+                    Management management = _unitOfWork.Management.ManagementByPolicyOrder(policyOrder.Id,"T");
+                    management.State = "R";
+                    _unitOfWork.Management.Update(management);
+                    _unitOfWork.PolicyOrderDetail.UpdateState(policyOrder.Id, "I");
+                    transaction.Complete();
+                    return Ok();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Dispose();
+                    return StatusCode(500, "Internal server error: " + ex.Message);
+                }
+            }
+        }
+
 
 
         [HttpPut]

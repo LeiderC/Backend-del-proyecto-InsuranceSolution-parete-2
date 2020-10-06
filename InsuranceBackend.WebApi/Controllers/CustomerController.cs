@@ -103,6 +103,20 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpPost]
+        [Route("GetReportCustomer")]
+        public IActionResult GetReportCustomer([FromBody] Customer request)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Customer.CustomerReport(request));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
         public IActionResult Post([FromBody] CustomerSave customerSave)
         {
             int idCustomer = 0;

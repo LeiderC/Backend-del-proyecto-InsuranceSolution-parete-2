@@ -120,5 +120,6 @@ namespace InsuranceBackend.UnitOfWork
         IPolicyAttachedLastReferencesRepository PolicyAttachedLastReferences { get; }
         IPolicyAttachedLastFeeRepository PolicyAttachedLastFee { get; }
         IPolicyAttachedLastFeeFinancialRepository PolicyAttachedLastFeeFinancial { get; }
+        IPolicyBckRepository PolicyBck { get; }
     }
 }

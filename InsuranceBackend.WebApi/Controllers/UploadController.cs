@@ -862,6 +862,7 @@ namespace InsuranceBackend.WebApi.Controllers
                         string date = Request.Form["date"];
                         int idSalesman = salesman != null ? int.Parse(salesman) : 0;
                         DateTime dateRenewal = DateTime.ParseExact(date, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None);
+                        dateRenewal = new DateTime(dateRenewal.Year, dateRenewal.Month, 1);
                         int days = DateTime.DaysInMonth(dateRenewal.Year, dateRenewal.Month);
                         DateTime dateRenewalEnd = new DateTime(dateRenewal.Year, dateRenewal.Month, days);
                         List<Renewal> lstRenewal = _unitOfWork.Renewal.RenewalByUser(idSalesman).ToList();
@@ -906,60 +907,69 @@ namespace InsuranceBackend.WebApi.Controllers
                                         {
                                             if (reader.FieldCount > 0)
                                             {
-                                                if (row > 0)
+                                                object firstCell = reader.GetValue(0);
+                                                if (firstCell != null)
                                                 {
-                                                    string poliza = reader.GetValue(1) != null ? reader.GetValue(1).ToString() : "";
-                                                    string ordenRef = reader.GetValue(2) != null ? reader.GetValue(2).ToString() : "";
-                                                    string aseguradora = reader.GetValue(3) != null ? reader.GetValue(3).ToString() : "";
-                                                    string ramo = reader.GetValue(4) != null ? reader.GetValue(4).ToString() : "";
-                                                    string placa = reader.GetValue(5) != null ? reader.GetValue(5).ToString() : "";
-                                                    string vigDesde = reader.GetValue(7) != null ? reader.GetValue(7).ToString() : "";
-                                                    DateTime.TryParse(vigDesde, out DateTime dVigDesde);
-                                                    string vigHasta = reader.GetValue(8) != null ? reader.GetValue(8).ToString() : "";
-                                                    DateTime.TryParse(vigHasta, out DateTime dVigHasta);
-                                                    string nitToma = reader.GetValue(10) != null ? reader.GetValue(10).ToString() : "";
-                                                    string tomador = reader.GetValue(11) != null ? reader.GetValue(11).ToString() : "";
-                                                    string mov = reader.GetValue(15) != null ? reader.GetValue(15).ToString() : "";
-                                                    string cedula = reader.GetValue(16) != null ? reader.GetValue(16).ToString() : "";
-                                                    string benef = reader.GetValue(18) != null ? reader.GetValue(18).ToString() : "";
-                                                    double.TryParse(reader.GetValue(19) != null ? reader.GetValue(19).ToString() : "", out double vrCuoIni);
-                                                    double.TryParse(reader.GetValue(29) != null ? reader.GetValue(29).ToString() : "", out double vrNeto);
-                                                    TotalPrima = TotalPrima + vrNeto;
-                                                    double.TryParse(reader.GetValue(30) != null ? reader.GetValue(30).ToString() : "", out double vrAsegurado);
-                                                    int.TryParse(reader.GetValue(31) != null ? reader.GetValue(31).ToString() : "", out int plazoCte);
-                                                    double.TryParse(reader.GetValue(32) != null ? reader.GetValue(32).ToString() : "", out double cuoMesCte);
-                                                    StringBuilder subject = new StringBuilder("HACER RENOVACIÓN CON LA PLACA: ");
-                                                    subject.Append(placa);
-                                                    subject.Append(", TOMADOR: NIT: " + nitToma + " - " + tomador);
-                                                    subject.Append(", VIG DESDE: " + dVigDesde.ToString("dd/MM/yyyy"));
-                                                    subject.Append(", VIG HASTA: " + dVigHasta.ToString("dd/MM/yyyy"));
-                                                    subject.Append(", POLIZA: " + poliza);
-                                                    subject.Append(", ORDEN/REF: " + ordenRef);
-                                                    subject.Append(", ASEGURADORA: " + aseguradora);
-                                                    subject.Append(", RAMO: " + ramo);
-                                                    subject.Append(", VR CUOTA INI: " + vrCuoIni);
-                                                    subject.Append(", VR NETO: " + vrNeto);
-                                                    subject.Append(", VR ASEGURADO: " + vrAsegurado);
-                                                    subject.Append(", PLAZO CTE: " + plazoCte);
-                                                    subject.Append(", VR CUOTA: " + cuoMesCte);
-                                                    subject.Append(", BENEFICIARIO: " + benef);
-                                                    Customer customer = _unitOfWork.Customer.CustomerByIdentificationNumber(cedula);
-                                                    Management management = new Management
+                                                    if (row > 0)
                                                     {
-                                                        ManagementType = "T",
-                                                        IdCustomer = customer.Id,
-                                                        CreationUser = int.Parse(idUser),
-                                                        StartDate = dateRenewal,
-                                                        EndDate = dVigHasta,
-                                                        State = "P",
-                                                        DelegatedUser = idSalesman,
-                                                        Subject = subject.ToString(),
-                                                        ManagementPartner = "C",
-                                                        IsExtra = false,
-                                                        IsRenewal = true,
-                                                        IdRenewal = idRenewal
-                                                    };
-                                                    _unitOfWork.Management.Insert(management);
+                                                        string poliza = reader.GetValue(1) != null ? reader.GetValue(1).ToString() : "";
+                                                        string ordenRef = reader.GetValue(2) != null ? reader.GetValue(2).ToString() : "";
+                                                        string aseguradora = reader.GetValue(3) != null ? reader.GetValue(3).ToString() : "";
+                                                        string ramo = reader.GetValue(4) != null ? reader.GetValue(4).ToString() : "";
+                                                        string placa = reader.GetValue(5) != null ? reader.GetValue(5).ToString() : "";
+                                                        string vigDesde = reader.GetValue(7) != null ? reader.GetValue(7).ToString() : "";
+                                                        DateTime.TryParse(vigDesde, out DateTime dVigDesde);
+                                                        string vigHasta = reader.GetValue(8) != null ? reader.GetValue(8).ToString() : "";
+                                                        DateTime.TryParse(vigHasta, out DateTime dVigHasta);
+                                                        string nitToma = reader.GetValue(10) != null ? reader.GetValue(10).ToString() : "";
+                                                        string tomador = reader.GetValue(11) != null ? reader.GetValue(11).ToString() : "";
+                                                        string mov = reader.GetValue(15) != null ? reader.GetValue(15).ToString() : "";
+                                                        string cedula = reader.GetValue(16) != null ? reader.GetValue(16).ToString() : "";
+                                                        string benef = reader.GetValue(18) != null ? reader.GetValue(18).ToString() : "";
+                                                        double.TryParse(reader.GetValue(19) != null ? reader.GetValue(19).ToString() : "", out double vrCuoIni);
+                                                        double.TryParse(reader.GetValue(29) != null ? reader.GetValue(29).ToString() : "", out double vrNeto);
+                                                        TotalPrima = TotalPrima + vrNeto;
+                                                        double.TryParse(reader.GetValue(30) != null ? reader.GetValue(30).ToString() : "", out double vrAsegurado);
+                                                        int.TryParse(reader.GetValue(31) != null ? reader.GetValue(31).ToString() : "", out int plazoCte);
+                                                        double.TryParse(reader.GetValue(32) != null ? reader.GetValue(32).ToString() : "", out double cuoMesCte);
+                                                        StringBuilder subject = new StringBuilder("HACER RENOVACIÓN CON LA PLACA: ");
+                                                        subject.Append(placa);
+                                                        subject.Append(", TOMADOR: NIT: " + nitToma + " - " + tomador);
+                                                        subject.Append(", VIG DESDE: " + dVigDesde.ToString("dd/MM/yyyy"));
+                                                        subject.Append(", VIG HASTA: " + dVigHasta.ToString("dd/MM/yyyy"));
+                                                        subject.Append(", POLIZA: " + poliza);
+                                                        subject.Append(", ORDEN/REF: " + ordenRef);
+                                                        subject.Append(", ASEGURADORA: " + aseguradora);
+                                                        subject.Append(", RAMO: " + ramo);
+                                                        subject.Append(", VR CUOTA INI: " + vrCuoIni);
+                                                        subject.Append(", VR NETO: " + vrNeto);
+                                                        subject.Append(", VR ASEGURADO: " + vrAsegurado);
+                                                        subject.Append(", PLAZO CTE: " + plazoCte);
+                                                        subject.Append(", VR CUOTA: " + cuoMesCte);
+                                                        subject.Append(", BENEFICIARIO: " + benef);
+                                                        Customer customer = _unitOfWork.Customer.CustomerByIdentificationNumber(cedula);
+                                                        if (customer == null && cedula.Length > 9)
+                                                        {
+                                                            cedula = cedula.Substring(0, 9);
+                                                            customer = _unitOfWork.Customer.CustomerByIdentificationNumber(cedula);
+                                                        }
+                                                        Management management = new Management
+                                                        {
+                                                            ManagementType = "T",
+                                                            IdCustomer = customer.Id,
+                                                            CreationUser = int.Parse(idUser),
+                                                            StartDate = dateRenewal,
+                                                            EndDate = dVigHasta,
+                                                            State = "P",
+                                                            DelegatedUser = idSalesman,
+                                                            Subject = subject.ToString(),
+                                                            ManagementPartner = "C",
+                                                            IsExtra = false,
+                                                            IsRenewal = true,
+                                                            IdRenewal = idRenewal
+                                                        };
+                                                        _unitOfWork.Management.Insert(management);
+                                                    }
                                                 }
                                                 row += 1;
                                             }

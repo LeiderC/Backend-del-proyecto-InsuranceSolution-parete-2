@@ -123,6 +123,7 @@ namespace InsuranceBackend.DataAccess
             PolicyAttachedLastReferences = new PolicyAttachedLastReferencesRepository(connectionString);
             PolicyAttachedLastFee = new PolicyAttachedLastFeeRepository(connectionString);
             PolicyAttachedLastFeeFinancial = new PolicyAttachedLastFeeFinancialRepository(connectionString);
+            PolicyBck = new PolicyBckRepository(connectionString);
         }
         public ICityRepository City { get; private set; }
         public ICountryRepository Country { get; private set; }
@@ -240,5 +241,6 @@ namespace InsuranceBackend.DataAccess
         public IPolicyAttachedLastReferencesRepository PolicyAttachedLastReferences { get; private set; }
         public IPolicyAttachedLastFeeRepository PolicyAttachedLastFee { get; private set; }
         public IPolicyAttachedLastFeeFinancialRepository PolicyAttachedLastFeeFinancial { get; private set; }
+        public IPolicyBckRepository PolicyBck { get; private set; }
     }
 }

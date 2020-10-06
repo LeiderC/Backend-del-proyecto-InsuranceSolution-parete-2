@@ -75,5 +75,22 @@ namespace InsuranceBackend.DataAccess
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }
+
+        public IEnumerable<CustomerList> CustomerReport(Customer customer)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idCustomerType", customer.IdCustomerType);
+            parameters.Add("@identificationNumber", customer.IdentificationNumber);
+            parameters.Add("@name", '%'+customer.FirstName+'%');
+            parameters.Add("@email", customer.Email);
+            parameters.Add("@phone", customer.Phone);
+            parameters.Add("@mobile", customer.Movil);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<CustomerList>("dbo.CustomerReport", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
     }
 }

@@ -39,7 +39,7 @@ namespace InsuranceBackend.DataAccess
             }
         }
 
-        public IEnumerable<PolicyList> PolicyPagedListSearchTerms(string identification, string name, string number, int idcustomer, int iduserpolicyorder, bool isOrder, int page, int rows, string stateOrder)
+        public IEnumerable<PolicyList> PolicyPagedListSearchTerms(string identification, string name, string number, int idcustomer, int iduserpolicyorder, bool isOrder, int page, int rows, string stateOrder, string stateId)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@page", page);
@@ -51,6 +51,7 @@ namespace InsuranceBackend.DataAccess
             parameters.Add("@idUserPolicyOrder", iduserpolicyorder);
             parameters.Add("@isOrder", isOrder);
             parameters.Add("@stateOrder", stateOrder);
+            parameters.Add("@stateId", stateId);
 
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -454,6 +455,18 @@ namespace InsuranceBackend.DataAccess
             using (var connection = new SqlConnection(_connectionString))
             {
                 return connection.Query<PolicyList>("dbo.PolicyColProductionReport", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public IEnumerable<PolicyList> PolicyAttachedByPolicyAttLast(int idPolicyAttLast)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idPolicyAttachedLast", idPolicyAttLast);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PolicyList>("dbo.PolicyListAttachedByPolicyLast", parameters,
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }

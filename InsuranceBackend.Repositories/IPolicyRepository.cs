@@ -8,7 +8,7 @@ namespace InsuranceBackend.Repositories
     {
         Policy PolicyByIdPolicyOrder(int idPolicyOrder, bool isOrder);
         IEnumerable<PolicyList> PolicyPagedList(int page, int rows);
-        IEnumerable<PolicyList> PolicyPagedListSearchTerms(string identification, string name, string number, int idcustomer, int iduserpolicyorder, bool isOrder, int page, int rows, string stateOrder);
+        IEnumerable<PolicyList> PolicyPagedListSearchTerms(string identification, string name, string number, int idcustomer, int iduserpolicyorder, bool isOrder, int page, int rows, string stateOrder, string stateId);
         IEnumerable<PolicyList> PolicyCustomerPagedListSearchTerms(string type, string searchCriteria, int page, int rows, int idSalesman);
         IEnumerable<PolicyList> PolicyCustomerPagedListSearchTermsOnlyPolicy(string type, string searchCriteria, int page, int rows);
         IEnumerable<PolicyList> PolicyCustomerPagedListSearchTermsOnlyOrder(string type, string searchCriteria, int page, int rows);
@@ -37,6 +37,7 @@ namespace InsuranceBackend.Repositories
         IEnumerable<PolicyList> PolicyExternalUserByCustomer(int idCustomer);
         Policy PolicyHeader(int idInsurance, int idInsuranceLine, int idInsuranceSubline, string number);
         IEnumerable<PolicyList> PolicyAttached(int idPolicyHeader);
+        IEnumerable<PolicyList> PolicyAttachedByPolicyAttLast(int idPolicyAttLast);
         bool PolicyDuplicate(int idPolicy, int idInsuranceLine, string license, bool isOrder);
     }
 }

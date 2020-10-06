@@ -16,5 +16,6 @@ namespace InsuranceBackend.Models
         public List<PolicyReferences> PolicyReferences { get; set; }
         public List<PolicyFeeProduct> PolicyFeesProduct { get; set; }
         public List<DigitalizedFile> DigitalizedFiles { get; set; }
+        public bool IsCancel { get; set; }
     }
 }

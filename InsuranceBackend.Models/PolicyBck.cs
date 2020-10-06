@@ -1,9 +1,11 @@
 ﻿using System;
+using Dapper.Contrib.Extensions;
 
 namespace InsuranceBackend.Models
 {
-    public class Policy
+    public class PolicyBck
     {
+        [ExplicitKey]
         public int Id { get; set; }
         public string Number { get; set; }
         public int? IdInsurance { get; set; }
@@ -59,17 +61,5 @@ namespace InsuranceBackend.Models
         public bool IsAttachedOrder { get; set; }
         public int? IdPolicyParent { get; set; }
         public int? IdPolicyAttachedLast { get; set; }
-        public double? PremiumValueCan {get;set;}
-        public double? IvaCan {get;set;}
-        public double? NetValueCan {get;set;}
-        public double? PremiumExtraCan {get;set;}
-        public double? RuntCan {get;set;}
-        public double? TotalValueCan {get;set;}
-        public double? PremiumValueFin {get;set;}
-        public double? IvaFin {get;set;}
-        public double? NetValueFin {get;set;}
-        public double? PremiumExtraFin {get;set;}
-        public double? RuntFin {get;set;}
-        public double? TotalValueFin {get;set;}
     }
 }
