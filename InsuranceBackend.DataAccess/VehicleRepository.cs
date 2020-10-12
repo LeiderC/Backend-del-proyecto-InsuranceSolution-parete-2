@@ -24,7 +24,6 @@ namespace InsuranceBackend.DataAccess
                     commandType: System.Data.CommandType.StoredProcedure);
                 return result.AsList<Vehicle>().FirstOrDefault();
             }
-            return null;
         }
     }
 }
