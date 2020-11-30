@@ -121,5 +121,9 @@ namespace InsuranceBackend.UnitOfWork
         IPolicyAttachedLastFeeRepository PolicyAttachedLastFee { get; }
         IPolicyAttachedLastFeeFinancialRepository PolicyAttachedLastFeeFinancial { get; }
         IPolicyBckRepository PolicyBck { get; }
+        IPolicyInspectedRepository PolicyInspected { get; }
+        IPolicyPendingRegistrationRepository PolicyPendingRegistration { get; }
+        IVehicleInspectionRepository VehicleInspection { get; }
+        IVehicleTypeRepository VehicleType { get; }
     }
 }
