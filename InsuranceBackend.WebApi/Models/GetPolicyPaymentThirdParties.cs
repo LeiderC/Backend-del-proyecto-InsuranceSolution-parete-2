@@ -16,5 +16,7 @@ namespace InsuranceBackend.WebApi.Models
         public int IdSalesman { get; set; }
         public int IdPaymentMethodThird { get; set; }
         public int IdAccountThird { get; set; }
+        public bool Inspected { get; set; }
+        public bool Register { get; set; }
     }
 }

@@ -13,5 +13,6 @@ namespace InsuranceBackend.Models
         public string State { get; set; }
         public int PayDay { get; set; }
         public string CreditNumber { get; set; }
+        public int IdPayment { get; set; }
     }
 }

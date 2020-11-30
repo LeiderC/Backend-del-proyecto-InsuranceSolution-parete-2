@@ -34,7 +34,7 @@ namespace InsuranceBackend.WebApi.Controllers
 
         [HttpPost, DisableRequestSizeLimit]
         [Route("uploadFasecolda")]
-        public async Task<IActionResult> UploadFasecolda()
+        public async Task<IActionResult> UploadFasecolda() //GuiaCodigos_CSV
         {
             List<Fasecolda> fasecoldaList = _unitOfWork.Fasecolda.GetList().ToList();
             int row = 0;
@@ -434,6 +434,9 @@ namespace InsuranceBackend.WebApi.Controllers
                         string idExternalSalesman = Request.Form["idExternalSalesman"];
                         string invoiceNumber = Request.Form["invoiceNumber"];
                         string idMovementType = Request.Form["idMovementType"];
+                        bool isIndividual = false;
+                        if (!string.IsNullOrEmpty(Request.Form["individual"]) && Request.Form["individual"] == "1")
+                            isIndividual = true;
                         int idPolicyHeader = idPol != null ? int.Parse(idPol) : 0;
                         int? extSalesman = null;
                         if (idExternalSalesman != "0")
@@ -564,6 +567,52 @@ namespace InsuranceBackend.WebApi.Controllers
                                                         double.TryParse(reader.GetValue(40) != null ? reader.GetValue(40).ToString() : "", out double cuomescte);
                                                         double.TryParse(reader.GetValue(42) != null ? reader.GetValue(42).ToString() : "", out double otrosEx);
                                                         string certificado = reader.GetValue(69) != null ? reader.GetValue(69).ToString() : "";
+                                                        Policy polCert = _unitOfWork.Policy.PolicyAttachedLastCertificate(certificado);
+                                                        int lastCert = 1;
+                                                        if (polCert != null)
+                                                        {
+                                                            lastCert = polCert.LastCertificate != null ? polCert.LastCertificate.Value + 1 : 1;
+                                                            certificado = certificado + "-" + lastCert;
+                                                        }
+                                                        if (!certificado.Contains("-") && lastCert == 1)
+                                                            certificado = certificado + "-" + 1;
+                                                        string factura = "", observacion = "", movto = "";
+                                                        if (reader.FieldCount > 70)
+                                                        {
+                                                            factura = reader.GetValue(70) != null ? reader.GetValue(70).ToString() : "";
+                                                            observacion = reader.GetValue(71) != null ? reader.GetValue(71).ToString() : "";
+                                                            movto = reader.GetValue(72) != null ? reader.GetValue(72).ToString() : "";
+                                                        }
+                                                        PolicyList policyExist = null;
+                                                        if (isIndividual)
+                                                        {
+                                                            switch (movto)
+                                                            {
+                                                                case "I":
+                                                                    idMovementType = "1";
+                                                                    break;
+                                                                case "R":
+                                                                    idMovementType = "2";
+                                                                    break;
+                                                                case "E":
+                                                                    idMovementType = "4";
+                                                                    break;
+                                                                case "M":
+                                                                    idMovementType = "5";
+                                                                    break;
+                                                            }
+                                                            if (idMovementType.Equals("4") || idMovementType.Equals("5"))
+                                                            {
+                                                                List<PolicyList> list = _unitOfWork.Policy.PolicyCustomerPagedListSearchTerms("C", placa, 0, 0, 0).ToList();
+                                                                if (list.Count > 0)
+                                                                {
+                                                                    list = (from p in list
+                                                                            orderby p.ExpiditionDate descending
+                                                                            select p).ToList();
+                                                                    policyExist = list.FirstOrDefault();
+                                                                }
+                                                            }
+                                                        }
                                                         PolicyOrder policyOrder = new PolicyOrder
                                                         {
                                                             CreationDate = DateTime.Now,
@@ -583,7 +632,7 @@ namespace InsuranceBackend.WebApi.Controllers
                                                             //IdInsurance = policyHeader.IdInsurance,
                                                             //IdInsuranceLine = policyHeader.IdInsuranceLine,
                                                             //IdInsuranceSubline = policyHeader.IdInsuranceSubline,
-                                                            IdMovementType = "I",
+                                                            IdMovementType = idMovementType,
                                                             IdPaymentMethod = idPaymentMethod,
                                                             IdPolicyState = "1",
                                                             IdPolicyType = policyHeader.IdPolicyType,
@@ -609,7 +658,8 @@ namespace InsuranceBackend.WebApi.Controllers
                                                             IdSalesMan = policyHeader.IdSalesMan,
                                                             Certificate = certificado,
                                                             IdPolicyHeader = policyHeader.Id,
-                                                            IdExternalSalesMan = extSalesman
+                                                            IdExternalSalesMan = extSalesman,
+                                                            LastCertificate = lastCert
                                                         };
                                                         int idPolicy = _unitOfWork.Policy.Insert(policyNew);
                                                         PolicyOrderDetail policyOrderDetail = new PolicyOrderDetail
@@ -621,63 +671,109 @@ namespace InsuranceBackend.WebApi.Controllers
                                                         };
                                                         _unitOfWork.PolicyOrderDetail.Insert(policyOrderDetail);
                                                         //Asegurados
-                                                        PolicyInsured policyInsured = new PolicyInsured
-                                                        {
-                                                            IdInsured = idCustomer,
-                                                            IdPolicy = idPolicy
-                                                        };
-                                                        _unitOfWork.PolicyInsured.Insert(policyInsured);
+                                                        insured(idCustomer, idPolicy, false);
                                                         //Beneficiarios
-                                                        PolicyBeneficiary policyBeneficiary = new PolicyBeneficiary();
-                                                        int idBeneficiary = 0;
-                                                        Beneficiary ben = _unitOfWork.Beneficiary.BeneficiaryByIdentification(cedula, 1);
-                                                        if (ben != null)
-                                                            idBeneficiary = ben.Id;
-                                                        else
-                                                        {
-                                                            string nombreCompleto = nombre + (string.IsNullOrEmpty(segundoNombre) ? "" : " " + segundoNombre) + " " + apellido + (string.IsNullOrEmpty(segundoApellido) ? "" : " " + segundoApellido);
-                                                            ben = new Beneficiary
-                                                            {
-                                                                FirstName = nombreCompleto,
-                                                                IdentificationNumber = cedula,
-                                                                IdIdentificationType = 1
-                                                            };
-                                                            idBeneficiary = _unitOfWork.Beneficiary.Insert(ben);
-                                                        }
-                                                        PolicyBeneficiary beneficiary = new PolicyBeneficiary
-                                                        {
-                                                            IdBeneficiary = idBeneficiary,
-                                                            IdPolicy = idPolicy,
-                                                            Percentage = 100
-                                                        };
-                                                        _unitOfWork.PolicyBeneficiary.Insert(beneficiary);
+                                                        beneficiaries(cedula, nombre, segundoNombre, segundoApellido, apellido, idPolicy, false);
                                                         //Cuotas
-                                                        PolicyFee policyFee = new PolicyFee
-                                                        {
-                                                            Date = policyHeader.StartDate.Value,
-                                                            DatePayment = policyHeader.StartDate.Value,
-                                                            IdPolicy = idPolicy,
-                                                            Number = 1,
-                                                            Value = total
-                                                        };
-                                                        _unitOfWork.PolicyFee.Insert(policyFee);
+                                                        policyFees(policyHeader.StartDate.Value, total, idPolicy, false);
                                                         //Productos Propios
-                                                        foreach (var pp in productLists)
+                                                        policyProducts(productLists, idPolicy, false);
+                                                        //Debemos guardar la última transacción de certificado de póliza
+                                                        PolicyAttachedLast policyAttachedLast = null;
+                                                        if (isIndividual && policyExist != null)
+                                                            policyAttachedLast = _unitOfWork.PolicyAttachedLast.PolicyAttachedLastByPolicyParent(policyExist.Id);
+                                                        if (policyAttachedLast == null)
                                                         {
-                                                            PolicyProduct policyProduct = new PolicyProduct
-                                                            {
-                                                                IdPolicy = idPolicy,
-                                                                Authorization = pp.Authorization,
-                                                                ExtraValue = pp.ExtraValue,
-                                                                FeeNumber = pp.FeeNumber,
-                                                                FeeValue = pp.FeeValue,
-                                                                IdProduct = pp.IdProduct,
-                                                                IVA = pp.IVA,
-                                                                TotalValue = pp.TotalValue,
-                                                                Value = pp.Value
-                                                            };
-                                                            _unitOfWork.PolicyProduct.Insert(policyProduct);
+                                                            policyAttachedLast = new PolicyAttachedLast();
+                                                            policyAttachedLast.EndDate = policyNew.EndDate;
+                                                            policyAttachedLast.ExpiditionDate = policyNew.ExpiditionDate;
+                                                            policyAttachedLast.IdExternalSalesMan = policyNew.IdExternalSalesMan;
+                                                            policyAttachedLast.IdExternalUser = policyNew.IdExternalUser;
+                                                            policyAttachedLast.IdPolicyHeader = policyNew.IdPolicyHeader;
+                                                            policyAttachedLast.IdSalesMan = policyNew.IdSalesMan;
+                                                            policyAttachedLast.OwnerIdentification = policyNew.OwnerIdentification;
+                                                            policyAttachedLast.OwnerName = policyNew.OwnerName;
+                                                            policyAttachedLast.TotalInitialFee = policyNew.TotalInitialFee;
+                                                            policyAttachedLast.Id = 0;
                                                         }
+
+                                                        policyAttachedLast.IdPolicyParent = idPolicy;
+                                                        policyAttachedLast.Certificate = policyNew.Certificate;
+                                                        policyAttachedLast.Contribution = policyNew.Contribution;
+
+                                                        policyAttachedLast.FeeNumbers = policyNew.FeeNumbers;
+                                                        policyAttachedLast.FeeValue = policyNew.FeeValue;
+
+                                                        policyAttachedLast.IdFinancial = policyNew.IdFinancial;
+                                                        policyAttachedLast.IdFinancialOption = policyNew.IdFinancialOption;
+                                                        policyAttachedLast.IdMovementType = policyNew.IdMovementType;
+                                                        policyAttachedLast.IdOnerous = policyNew.IdOnerous;
+                                                        policyAttachedLast.IdPaymentMethod = policyNew.IdPaymentMethod;
+
+                                                        policyAttachedLast.IdPolicyState = policyNew.IdPolicyState;
+                                                        policyAttachedLast.IdUser = int.Parse(idUser);
+                                                        policyAttachedLast.IdVehicle = policyNew.IdVehicle;
+                                                        policyAttachedLast.InitialFee = policyNew.InitialFee;
+                                                        policyAttachedLast.Inspected = policyNew.Inspected;
+                                                        policyAttachedLast.InvoiceNumber = policyNew.InvoiceNumber;
+                                                        policyAttachedLast.License = policyNew.License;
+                                                        policyAttachedLast.Observation = policyNew.Observation;
+                                                        policyAttachedLast.OwnProducts = policyNew.OwnProducts;
+                                                        policyAttachedLast.Payday = policyNew.Payday;
+                                                        policyAttachedLast.PendingRegistration = policyNew.PendingRegistration;
+                                                        policyAttachedLast.ReqAuthorization = policyNew.ReqAuthorization;
+                                                        policyAttachedLast.ReqAuthorizationFinancOwnProduct = policyNew.ReqAuthorizationFinancOwnProduct;
+                                                        policyAttachedLast.StartDate = policyNew.StartDate;
+                                                        policyAttachedLast.UpdateDate = DateTime.Now;
+
+                                                        //Valores
+                                                        switch (idMovementType)
+                                                        {
+                                                            case "1":
+                                                            case "2":
+                                                                policyAttachedLast.Iva = policyNew.Iva;
+                                                                policyAttachedLast.NetValue = policyNew.NetValue;
+                                                                policyAttachedLast.PremiumExtra = policyNew.PremiumExtra;
+                                                                policyAttachedLast.PremiumValue = policyNew.PremiumValue;
+                                                                policyAttachedLast.Runt = policyNew.Runt;
+                                                                policyAttachedLast.TotalValue = policyNew.TotalValue;
+                                                                break;
+                                                            case "4":
+                                                                policyAttachedLast.Iva = policyAttachedLast.Iva - policyNew.Iva;
+                                                                policyAttachedLast.NetValue = policyAttachedLast.NetValue - policyNew.NetValue;
+                                                                policyAttachedLast.PremiumExtra = policyAttachedLast.PremiumExtra - policyNew.PremiumExtra;
+                                                                policyAttachedLast.PremiumValue = policyAttachedLast.PremiumValue - policyNew.PremiumValue;
+                                                                policyAttachedLast.Runt = policyAttachedLast.Runt - policyNew.Runt;
+                                                                policyAttachedLast.TotalValue = policyAttachedLast.TotalValue - policyNew.TotalValue;
+                                                                break;
+                                                            case "5":
+                                                                policyAttachedLast.Iva = policyAttachedLast.Iva + policyNew.Iva;
+                                                                policyAttachedLast.NetValue = policyAttachedLast.NetValue + policyNew.NetValue;
+                                                                policyAttachedLast.PremiumExtra = policyAttachedLast.PremiumExtra + policyNew.PremiumExtra;
+                                                                policyAttachedLast.PremiumValue = policyAttachedLast.PremiumValue + policyNew.PremiumValue;
+                                                                policyAttachedLast.Runt = policyAttachedLast.Runt + policyNew.Runt;
+                                                                policyAttachedLast.TotalValue = policyAttachedLast.TotalValue + policyNew.TotalValue;
+                                                                break;
+                                                        }
+
+                                                        int idPolicyAttachedLast = policyAttachedLast.Id;
+                                                        if (idPolicyAttachedLast > 0)
+                                                            _unitOfWork.PolicyAttachedLast.Update(policyAttachedLast);
+                                                        else
+                                                            idPolicyAttachedLast = _unitOfWork.PolicyAttachedLast.Insert(policyAttachedLast);
+
+                                                        policyNew.Id = idPolicy;
+                                                        policyNew.IdPolicyAttachedLast = idPolicyAttachedLast;
+                                                        _unitOfWork.Policy.Update(policyNew);
+
+                                                        //Asegurados
+                                                        insured(idCustomer, idPolicyAttachedLast, true);
+                                                        //Beneficiarios
+                                                        beneficiaries(cedula, nombre, segundoNombre, segundoApellido, apellido, idPolicyAttachedLast, true);
+                                                        //Cuotas
+                                                        policyFees(policyHeader.StartDate.Value, total, idPolicyAttachedLast, true);
+                                                        //Productos Propios
+                                                        policyProducts(productLists, idPolicyAttachedLast, true);
                                                     }
                                                 }
                                                 row += 1;
@@ -686,20 +782,23 @@ namespace InsuranceBackend.WebApi.Controllers
                                     } while (reader.NextResult()); //Move to NEXT SHEET
                                 }
                             }
-                            totalNetValue = totalVrPremium + totalIva;
-                            totalValue = totalNetValue;
-                            //Invoice Number
-                            PolicyInvoice policyInvoice = new PolicyInvoice
+                            if (!isIndividual)
                             {
-                                IdPolicy = policyHeader.Id,
-                                IdPaymentMethod = idPaymentMethod,
-                                InvoiceNumber = invoiceNumber,
-                                PremiumValue = totalVrPremium,
-                                Iva = totalIva,
-                                NetValue = totalNetValue,
-                                TotalValue = totalValue
-                            };
-                            _unitOfWork.PolicyInvoice.Insert(policyInvoice);
+                                totalNetValue = totalVrPremium + totalIva;
+                                totalValue = totalNetValue;
+                                //Invoice Number
+                                PolicyInvoice policyInvoice = new PolicyInvoice
+                                {
+                                    IdPolicy = policyHeader.Id,
+                                    IdPaymentMethod = idPaymentMethod,
+                                    InvoiceNumber = invoiceNumber,
+                                    PremiumValue = totalVrPremium,
+                                    Iva = totalIva,
+                                    NetValue = totalNetValue,
+                                    TotalValue = totalValue
+                                };
+                                _unitOfWork.PolicyInvoice.Insert(policyInvoice);
+                            }
                             transaction.Complete();
                         }
                         else
@@ -715,6 +814,162 @@ namespace InsuranceBackend.WebApi.Controllers
                 }
             }
             return Ok();
+        }
+
+        private void insured(int idCustomer, int idPolicy, bool isAttached)
+        {
+            if (isAttached)
+            {
+                _unitOfWork.PolicyAttachedLastInsured.DeletePolicyInsuredByPolicy(idPolicy);
+                PolicyAttachedLastInsured policyInsuredLast = new PolicyAttachedLastInsured
+                {
+                    IdInsured = idCustomer,
+                    IdPolicy = idPolicy
+                };
+                _unitOfWork.PolicyAttachedLastInsured.Insert(policyInsuredLast);
+            }
+            else
+            {
+                _unitOfWork.PolicyInsured.DeletePolicyInsuredByPolicy(idPolicy);
+                PolicyInsured policyInsured = new PolicyInsured
+                {
+                    IdInsured = idCustomer,
+                    IdPolicy = idPolicy
+                };
+                _unitOfWork.PolicyInsured.Insert(policyInsured);
+            }
+        }
+
+        private void beneficiaries(string cedula, string nombre, string segundoNombre, string apellido, string segundoApellido, int idPolicy, bool isAttached)
+        {
+            if (isAttached)
+            {
+                _unitOfWork.PolicyAttachedLastBeneficiary.DeletePolicyBeneficiaryByPolicy(idPolicy);
+                PolicyBeneficiary policyBeneficiary = new PolicyBeneficiary();
+                int idBeneficiary = 0;
+                Beneficiary ben = _unitOfWork.Beneficiary.BeneficiaryByIdentification(cedula, 1);
+                if (ben != null)
+                    idBeneficiary = ben.Id;
+                else
+                {
+                    string nombreCompleto = nombre + (string.IsNullOrEmpty(segundoNombre) ? "" : " " + segundoNombre) + " " + apellido + (string.IsNullOrEmpty(segundoApellido) ? "" : " " + segundoApellido);
+                    ben = new Beneficiary
+                    {
+                        FirstName = nombreCompleto,
+                        IdentificationNumber = cedula,
+                        IdIdentificationType = 1
+                    };
+                    idBeneficiary = _unitOfWork.Beneficiary.Insert(ben);
+                }
+                PolicyAttachedLastBeneficiary beneficiaryLast = new PolicyAttachedLastBeneficiary
+                {
+                    IdBeneficiary = idBeneficiary,
+                    IdPolicy = idPolicy,
+                    Percentage = 100
+                };
+                _unitOfWork.PolicyAttachedLastBeneficiary.Insert(beneficiaryLast);
+            }
+            else
+            {
+                _unitOfWork.PolicyBeneficiary.DeletePolicyBeneficiaryByPolicy(idPolicy);
+                PolicyBeneficiary policyBeneficiary = new PolicyBeneficiary();
+                int idBeneficiary = 0;
+                Beneficiary ben = _unitOfWork.Beneficiary.BeneficiaryByIdentification(cedula, 1);
+                if (ben != null)
+                    idBeneficiary = ben.Id;
+                else
+                {
+                    string nombreCompleto = nombre + (string.IsNullOrEmpty(segundoNombre) ? "" : " " + segundoNombre) + " " + apellido + (string.IsNullOrEmpty(segundoApellido) ? "" : " " + segundoApellido);
+                    ben = new Beneficiary
+                    {
+                        FirstName = nombreCompleto,
+                        IdentificationNumber = cedula,
+                        IdIdentificationType = 1
+                    };
+                    idBeneficiary = _unitOfWork.Beneficiary.Insert(ben);
+                }
+                PolicyBeneficiary beneficiary = new PolicyBeneficiary
+                {
+                    IdBeneficiary = idBeneficiary,
+                    IdPolicy = idPolicy,
+                    Percentage = 100
+                };
+                _unitOfWork.PolicyBeneficiary.Insert(beneficiary);
+            }
+        }
+
+        private void policyFees(DateTime startDate, double total, int idPolicy, bool isAttached)
+        {
+            if (isAttached)
+            {
+                _unitOfWork.PolicyAttachedLastFee.DeleteFeeByPolicy(idPolicy);
+                PolicyAttachedLastFee policyFeeLast = new PolicyAttachedLastFee
+                {
+                    Date = startDate,
+                    DatePayment = startDate,
+                    IdPolicy = idPolicy,
+                    Number = 1,
+                    Value = total
+                };
+                _unitOfWork.PolicyAttachedLastFee.Insert(policyFeeLast);
+            }
+            else
+            {
+                _unitOfWork.PolicyFee.DeleteFeeByPolicy(idPolicy);
+                PolicyFee policyFee = new PolicyFee
+                {
+                    Date = startDate,
+                    DatePayment = startDate,
+                    IdPolicy = idPolicy,
+                    Number = 1,
+                    Value = total
+                };
+                _unitOfWork.PolicyFee.Insert(policyFee);
+            }
+        }
+
+        private void policyProducts(List<PolicyProductList> productLists, int idPolicy, bool isAttached)
+        {
+            if (isAttached)
+            {
+                _unitOfWork.PolicyAttachedLastProduct.DeletePolicyProductByPolicy(idPolicy);
+                foreach (var pp in productLists)
+                {
+                    PolicyAttachedLastProduct policyProductLast = new PolicyAttachedLastProduct
+                    {
+                        IdPolicy = idPolicy,
+                        Authorization = pp.Authorization,
+                        ExtraValue = pp.ExtraValue,
+                        FeeNumber = pp.FeeNumber,
+                        FeeValue = pp.FeeValue,
+                        IdProduct = pp.IdProduct,
+                        IVA = pp.IVA,
+                        TotalValue = pp.TotalValue,
+                        Value = pp.Value
+                    };
+                    _unitOfWork.PolicyAttachedLastProduct.Insert(policyProductLast);
+                }
+            }
+            else
+            {
+                _unitOfWork.PolicyProduct.DeletePolicyProductByPolicy(idPolicy);
+                foreach (var pp in productLists)
+                {
+                    PolicyProduct policyProduct = new PolicyProduct
+                    {
+                        IdPolicy = idPolicy,
+                        Authorization = pp.Authorization,
+                        ExtraValue = pp.ExtraValue,
+                        FeeNumber = pp.FeeNumber,
+                        FeeValue = pp.FeeValue,
+                        IdProduct = pp.IdProduct,
+                        IVA = pp.IVA,
+                        TotalValue = pp.TotalValue,
+                        Value = pp.Value
+                    };
+                    _unitOfWork.PolicyProduct.Insert(policyProduct);
+                }
+            }
         }
 
         [HttpPost, DisableRequestSizeLimit]

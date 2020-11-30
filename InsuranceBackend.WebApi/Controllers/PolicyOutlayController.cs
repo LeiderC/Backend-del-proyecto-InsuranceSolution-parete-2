@@ -87,6 +87,9 @@ namespace InsuranceBackend.WebApi.Controllers
                     payment.TotalReceived = (float)policy.TotalValue;
                     payment.TotalValue = (float)policy.TotalValue;
                     int idPayment = _unitOfWork.Payment.Insert(payment);
+                    policyOutlaySave.PolicyOutlay.Id = idPolicyOutlay;
+                    policyOutlaySave.PolicyOutlay.IdPayment = idPayment;
+                    _unitOfWork.PolicyOutlay.Update(policyOutlaySave.PolicyOutlay);
                     PaymentDetail paymentDetail = new PaymentDetail();
                     paymentDetail.DatePayFinancial = DateTime.Now;
                     paymentDetail.DueInterestValue = 0;

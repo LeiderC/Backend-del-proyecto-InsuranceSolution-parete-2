@@ -149,11 +149,14 @@ namespace InsuranceBackend.WebApi.Controllers
                         return BadRequest("No existe el recaudo ingresado");
                     idPayment = _payment.Id;
                     _payment.State = "R";
+                    _payment.DateRevoke = DateTime.Now;
                     _payment.ObservationRevoke = payment.ObservationRevoke;
                     _unitOfWork.Payment.Update(_payment);
                     _unitOfWork.PaymentDetail.DeletePaymentDetailByPayment(idPayment);
                     _unitOfWork.PaymentDetailFinancial.DeletePaymentDetailFinancialByPayment(idPayment);
                     _unitOfWork.PaymentDetailProduct.DeletePaymentDetailProductByPayment(idPayment);
+                    if (_payment.IdPaymentType == "L3") //Debemos eliminar el desembolso
+                        _unitOfWork.PolicyOutlay.DeletePolicyOutlayByPayment(idPayment);
                     transaction.Complete();
                 }
                 catch (Exception ex)

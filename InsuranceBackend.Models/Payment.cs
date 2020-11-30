@@ -22,5 +22,6 @@ namespace InsuranceBackend.Models
         public string ObservationRevoke { get; set; }
         public DateTime DateCreated { get; set; }
         public float TotalReceived { get; set; }
+        public DateTime? DateRevoke { get; set; }
     }
 }

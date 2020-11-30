@@ -24,5 +24,17 @@ namespace InsuranceBackend.DataAccess
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }
+
+        public PolicyAttachedLast PolicyAttachedLastByPolicyParent(int idPolicy)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idPolicy", idPolicy);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.QueryFirstOrDefault<PolicyAttachedLast>("dbo.PolicyAttachedLastByIdPolicyParent", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
     }
 }

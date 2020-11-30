@@ -149,6 +149,20 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("GetPolicyCancelByPolicyParent/{idPolicy:int}")]
+        public IActionResult GetPolicyCancelByPolicyParent(int idPolicy)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Policy.PolicyCancelByPolicyParent(idPolicy));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
         [HttpPost]
         [Route("GetPolicyHeader")]
         public IActionResult GetPolicyHeader([FromBody] GetPolicyHeader request)
@@ -391,6 +405,37 @@ namespace InsuranceBackend.WebApi.Controllers
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
+
+        [HttpPost]
+        [Route("GetPolicyVehicleInspected")]
+        public IActionResult GetPolicyVehicleInspected([FromBody] GetPolicyPaymentThirdParties request)
+        {
+            try
+            {
+                List<PolicyList> lst = _unitOfWork.Policy.PolicyVehicleInspected(request.StartDate, request.EndDate, request.Inspected).ToList();
+                return Ok(lst);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("GetPolicyVehiclePendingRegistration")]
+        public IActionResult GetPolicyVehiclePendingRegistration([FromBody] GetPolicyPaymentThirdParties request)
+        {
+            try
+            {
+                List<PolicyList> lst = _unitOfWork.Policy.PolicyVehiclePendingRegistration(request.StartDate, request.EndDate, request.Register).ToList();
+                return Ok(lst);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
 
         [HttpPost]
         [Route("GetPolicyPaymentIncome")]
@@ -689,6 +734,7 @@ namespace InsuranceBackend.WebApi.Controllers
                         switch (policy.Policy.IdMovementType)
                         {
                             case "1":
+                            case "2":
                                 policyAttachedLast.Iva = policy.Policy.Iva;
                                 policyAttachedLast.NetValue = policy.Policy.NetValue;
                                 policyAttachedLast.PremiumExtra = policy.Policy.PremiumExtra;
@@ -732,6 +778,16 @@ namespace InsuranceBackend.WebApi.Controllers
                         references(policy.PolicyReferences, idPolicy, policy.Policy.IsAttached);
                         //Cuotas
                         feeAttached(policy.PolicyFees, policy.Policy.IdPaymentMethod, idPolicy, policy.Policy.StartDate.Value, policy.Policy.TotalValue);
+                        if (policy.Policy.IdMovementType.Equals("1") || policy.Policy.IdMovementType.Equals("2"))
+                        {
+                            _unitOfWork.PolicyOrderDetail.Insert(new PolicyOrderDetail
+                            {
+                                IdPolicyOrder = policy.PolicyOrderId,
+                                IdPolicy = idPolicyAttachedLast,
+                                CreationDate = DateTime.Now,
+                                State = "A"
+                            });
+                        }
                     }
 
                     transaction.Complete();
@@ -1031,7 +1087,6 @@ namespace InsuranceBackend.WebApi.Controllers
             }
         }
 
-
         private void feeAttached(List<PolicyFee> policyFees, string idPaymentMethod, int idPolicy, DateTime startDate, double totalValue)
         {
             if (policyFees != null && policyFees.Count > 0 && idPaymentMethod != "4" && idPaymentMethod != "2")
@@ -1157,13 +1212,16 @@ namespace InsuranceBackend.WebApi.Controllers
                         _unitOfWork.Management.Update(taskR);
                     }
                 }
-                _unitOfWork.PolicyOrderDetail.Insert(new PolicyOrderDetail
+                if (!policy.IsAttached)
                 {
-                    IdPolicyOrder = idPolicyOrder,
-                    IdPolicy = idPolicy,
-                    CreationDate = DateTime.Now,
-                    State = "A"
-                });
+                    _unitOfWork.PolicyOrderDetail.Insert(new PolicyOrderDetail
+                    {
+                        IdPolicyOrder = idPolicyOrder,
+                        IdPolicy = idPolicy,
+                        CreationDate = DateTime.Now,
+                        State = "A"
+                    });
+                }
             }
             //Debemos generar una tarea a un usuario para sistematizar (técnico)
             //Primero la gestión
@@ -1171,15 +1229,25 @@ namespace InsuranceBackend.WebApi.Controllers
             string identification = "";
             MovementType mt = movementTypes.Where(m => m.Id.Equals(policy.IdMovementType)).FirstOrDefault();
             string movto = mt != null ? mt.Alias : "";
-            Insurance ins = _unitOfWork.Insurance.GetById(policy.IdInsurance.Value);
+            Insurance ins = policy.IdInsurance != null ? _unitOfWork.Insurance.GetById(policy.IdInsurance.Value) : null;
             string insurance = ins != null ? ins.Description : "";
-            InsuranceLine insl = _unitOfWork.InsuranceLine.GetById(policy.IdInsuranceLine.Value);
+            InsuranceLine insl = policy.IdInsuranceLine != null ? _unitOfWork.InsuranceLine.GetById(policy.IdInsuranceLine.Value) : null;
             string insuranceLine = insl != null ? insl.Description : "";
-            InsuranceSubline inssl = _unitOfWork.InsuranceSubline.GetById(policy.IdInsuranceSubline.Value);
+            InsuranceSubline inssl = policy.IdInsuranceSubline != null ? _unitOfWork.InsuranceSubline.GetById(policy.IdInsuranceSubline.Value) : null;
             string insuranceSubline = inssl != null ? inssl.Description : "";
             string text = string.Empty;
             string subject = string.Empty;
-            if (idPolicyOrder > 0 && !policy.IsAttached && !policy.IsHeader || (policy.IsAttached && policy.IsAttachedOrder))
+            if (policy.IsAttached)
+            {
+                Policy polHeader = _unitOfWork.Policy.GetById(policy.IdPolicyHeader);
+                ins = _unitOfWork.Insurance.GetById(polHeader.IdInsurance.Value);
+                insurance = ins != null ? ins.Description : "";
+                insl = _unitOfWork.InsuranceLine.GetById(polHeader.IdInsuranceLine.Value);
+                insuranceLine = insl != null ? insl.Description : "";
+                inssl = _unitOfWork.InsuranceSubline.GetById(polHeader.IdInsuranceSubline.Value);
+                insuranceSubline = inssl != null ? inssl.Description : "";
+            }
+            if (idPolicyOrder > 0 && !policy.IsHeader)
             {
                 string initText = "Creación ";
                 if (isEdit)
@@ -1568,7 +1636,7 @@ namespace InsuranceBackend.WebApi.Controllers
                     string ccName = "Técnico";
                     string cc = "tecnico@wfe.com.co";
                     emailUtils.SendMail(_notificationMetadata, externalUser.Email, fullName,
-                    "Orden Colectivas", MimeKit.Text.TextFormat.Html, content, ccName, cc);
+                    "Orden Colectivas", MimeKit.Text.TextFormat.Html, content, ccName, cc, null);
                     transaction.Complete();
                 }
                 catch (Exception ex)
@@ -1689,6 +1757,7 @@ namespace InsuranceBackend.WebApi.Controllers
                     Policy policyOld = _unitOfWork.Policy.GetById(idPolicyParent);
                     policyOld.IdPolicyState = "2";
                     _unitOfWork.Policy.Update(policyOld);
+                    policy.Policy.IdPolicyParent = idPolicyParent;
                     policy.Policy.Id = 0;
                     policy.Policy.PremiumValue = policy.Policy.PremiumValueCan.Value;
                     policy.Policy.Iva = policy.Policy.IvaCan.Value;

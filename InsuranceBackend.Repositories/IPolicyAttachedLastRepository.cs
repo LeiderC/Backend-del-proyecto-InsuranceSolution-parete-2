@@ -8,5 +8,6 @@ namespace InsuranceBackend.Repositories
     public interface IPolicyAttachedLastRepository : IRepository<PolicyAttachedLast>
     {
         PolicyAttachedLast PolicyAttachedLastByPolicy(int idPolicy);
+        PolicyAttachedLast PolicyAttachedLastByPolicyParent(int idPolicy);
     }
 }

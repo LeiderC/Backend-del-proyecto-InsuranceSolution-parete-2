@@ -20,5 +20,8 @@ namespace InsuranceBackend.Models
         public int Day1 { get; set; }
         public int Day2 { get; set; }
         public bool SupportsDirect { get; set; }
+        public bool VehicleInspect { get; set; }
+        public string EmailVehicleInspect { get; set; }
+        public string InspectCenter { get; set; }
     }
 }

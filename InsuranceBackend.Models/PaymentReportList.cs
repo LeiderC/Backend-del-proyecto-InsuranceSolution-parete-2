@@ -16,7 +16,9 @@ namespace InsuranceBackend.Models
         public string InsuranceSublineDesc { get; set; }
         public string License { get; set; }
         public string Number { get; set; }
+        public string IdentificationOwner { get; set; }
         public string Name { get; set; }
+        public string IdentificationInsurance { get; set; }
         public string InsuranceList { get; set; }
         public string BeneficiariesList { get; set; }
         public string SalesmanName { get; set; }

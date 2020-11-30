@@ -15,5 +15,6 @@ namespace InsuranceBackend.Models
         public string Phone { get; set; }
         public string Email { get; set; }
         public string EmailRenewals { get; set; }
+        public string State { get; set; }
     }
 }

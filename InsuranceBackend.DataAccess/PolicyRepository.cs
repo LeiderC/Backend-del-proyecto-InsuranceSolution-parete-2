@@ -391,7 +391,8 @@ namespace InsuranceBackend.DataAccess
             }
         }
 
-        public bool PolicyDuplicate(int idPolicy, int idInsuranceLine, string license, bool isOrder){
+        public bool PolicyDuplicate(int idPolicy, int idInsuranceLine, string license, bool isOrder)
+        {
             var parameters = new DynamicParameters();
             parameters.Add("@idPolicy", idPolicy);
             parameters.Add("@idInsuranceLine", idInsuranceLine);
@@ -467,6 +468,58 @@ namespace InsuranceBackend.DataAccess
             using (var connection = new SqlConnection(_connectionString))
             {
                 return connection.Query<PolicyList>("dbo.PolicyListAttachedByPolicyLast", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public IEnumerable<PolicyList> PolicyCancelByPolicyParent(int idPolicyParent)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@idPolicyParent", idPolicyParent);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PolicyList>("dbo.PolicyListCanceByPolicyParent", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public IEnumerable<PolicyList> PolicyVehicleInspected(DateTime? startDate, DateTime? endDate, bool inspected)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@startDate", startDate);
+            parameters.Add("@endDate", endDate);
+            parameters.Add("@inspected", inspected);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PolicyList>("dbo.PolicyVehicleInspected", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public IEnumerable<PolicyList> PolicyVehiclePendingRegistration(DateTime? startDate, DateTime? endDate, bool register)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@startDate", startDate);
+            parameters.Add("@endDate", endDate);
+            parameters.Add("@register", register);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<PolicyList>("dbo.PolicyVehiclePendingRegistration", parameters,
+                    commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public Policy PolicyAttachedLastCertificate(string certificate)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@certificate", certificate);
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.QueryFirstOrDefault<Policy>("dbo.PolicyAttachedLastCertificate", parameters,
                     commandType: System.Data.CommandType.StoredProcedure);
             }
         }

@@ -124,6 +124,10 @@ namespace InsuranceBackend.DataAccess
             PolicyAttachedLastFee = new PolicyAttachedLastFeeRepository(connectionString);
             PolicyAttachedLastFeeFinancial = new PolicyAttachedLastFeeFinancialRepository(connectionString);
             PolicyBck = new PolicyBckRepository(connectionString);
+            PolicyInspected = new PolicyInpsectedRepository(connectionString);
+            PolicyPendingRegistration = new PolicyPendingRegistrationRepository(connectionString);
+            VehicleInspection = new VehicleInspectionRepository(connectionString);
+            VehicleType = new VehicleTypeRepository(connectionString);
         }
         public ICityRepository City { get; private set; }
         public ICountryRepository Country { get; private set; }
@@ -242,5 +246,9 @@ namespace InsuranceBackend.DataAccess
         public IPolicyAttachedLastFeeRepository PolicyAttachedLastFee { get; private set; }
         public IPolicyAttachedLastFeeFinancialRepository PolicyAttachedLastFeeFinancial { get; private set; }
         public IPolicyBckRepository PolicyBck { get; private set; }
+        public IPolicyInspectedRepository PolicyInspected { get; private set; }
+        public IPolicyPendingRegistrationRepository PolicyPendingRegistration { get; private set; }
+        public IVehicleInspectionRepository VehicleInspection { get; private set; }
+        public IVehicleTypeRepository VehicleType { get; private set; }
     }
 }

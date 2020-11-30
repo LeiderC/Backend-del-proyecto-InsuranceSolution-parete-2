@@ -3,8 +3,7 @@ using InsuranceBackend.Models;
 
 namespace InsuranceBackend.Repositories
 {
-    public interface IPolicyOutlayRepository : IRepository<PolicyOutlay>
+    public interface IVehicleInspectionRepository : IRepository<VehicleInspection>
     {
-        bool DeletePolicyOutlayByPayment(int idPayment);
     }
 }

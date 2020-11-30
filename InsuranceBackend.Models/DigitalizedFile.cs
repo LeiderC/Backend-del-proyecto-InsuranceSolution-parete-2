@@ -18,5 +18,6 @@ namespace InsuranceBackend.Models
         public bool IsGeneric { get; set; }
         public int? IdPayment { get; set; }
         public string IdDigitalizedFileType { get; set; }
+        public int? IdVehicleInspection { get; set; }
     }
 }

@@ -21,6 +21,8 @@ namespace InsuranceBackend.Repositories
         IEnumerable<PolicyList> PolicyCommissionList(int InsuranceId, DateTime startDate, DateTime endDate);
         IEnumerable<PolicyPortfolioList> PolicyPortfolioReportList(DateTime? startDate, DateTime? endDate, int idInsurance, int idCustomer, string license);
         IEnumerable<PolicyList> PolicyPaymentThirdParties(DateTime? startDate, DateTime? endDate, int idInsurance, int idFinancial, string type, bool paid, int idPaymentMethodThird, int idPaymentThirdAccount);
+        IEnumerable<PolicyList> PolicyVehicleInspected(DateTime? startDate, DateTime? endDate, bool inspected);
+        IEnumerable<PolicyList> PolicyVehiclePendingRegistration(DateTime? startDate, DateTime? endDate, bool register);
         IEnumerable<PolicyList> PolicyPaymentIncome(DateTime? startDate, DateTime? endDate);
         IEnumerable<PolicyList> PolicyPaymentAccountReceivable(DateTime? startDate, DateTime? endDate);
         IEnumerable<PolicyList> PolicyCommissionSalesmanList(int idSalesman, DateTime? startDate, DateTime? endDate);
@@ -38,6 +40,8 @@ namespace InsuranceBackend.Repositories
         Policy PolicyHeader(int idInsurance, int idInsuranceLine, int idInsuranceSubline, string number);
         IEnumerable<PolicyList> PolicyAttached(int idPolicyHeader);
         IEnumerable<PolicyList> PolicyAttachedByPolicyAttLast(int idPolicyAttLast);
+        IEnumerable<PolicyList> PolicyCancelByPolicyParent(int idPolicyParent);
         bool PolicyDuplicate(int idPolicy, int idInsuranceLine, string license, bool isOrder);
+        Policy PolicyAttachedLastCertificate(string certificate);
     }
 }

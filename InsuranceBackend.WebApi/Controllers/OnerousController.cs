@@ -24,5 +24,71 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             return Ok(_unitOfWork.Onerous.GetList());
         }
+
+        [HttpGet]
+        [Route("GetPaginatedOnerous/{page:int}/{rows:int}")]
+        public IActionResult GetPaginatedInsurance(int page, int rows)
+        {
+            try
+            {
+                return Ok(_unitOfWork.Onerous.OnerousPagedList(page, rows));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        public IActionResult Post([FromBody]Onerous onerous)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest();
+                return Ok(_unitOfWork.Onerous.Insert(onerous));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPut]
+        public IActionResult Put([FromBody]Onerous onerous)
+        {
+            try
+            {
+                if (ModelState.IsValid && _unitOfWork.Onerous.Update(onerous))
+                {
+                    return Ok(new { Message = "El oneroso se ha actualizado" });
+                }
+                else
+                    return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            try
+            {
+                var onerous = _unitOfWork.Onerous.GetById(id);
+                if(onerous==null)
+                    return NotFound();
+                if (_unitOfWork.Onerous.Delete(onerous))
+                    return Ok(new { Message = "El oneroso se ha eliminado" });
+                else
+                    return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
     }
 }

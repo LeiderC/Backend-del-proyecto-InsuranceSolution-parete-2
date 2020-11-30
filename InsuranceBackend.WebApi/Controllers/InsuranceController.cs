@@ -34,6 +34,21 @@ namespace InsuranceBackend.WebApi.Controllers
         }
 
         [HttpGet]
+        [Route("GetInsuranceForInspect")]
+        public ActionResult<IEnumerable<Insurance>> GetInsuranceForInspect()
+        {
+            try
+            {
+                IEnumerable<Insurance> insurances = _unitOfWork.Insurance.GetList().Where(i=> i.VehicleInspect).ToList();
+                return Ok(insurances);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpGet]
         [Route("GetInsuranceByCommission")]
         public ActionResult<IEnumerable<Insurance>> GetInsuranceByCommission()
         {

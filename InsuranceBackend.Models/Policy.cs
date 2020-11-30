@@ -1,4 +1,5 @@
 ﻿using System;
+using Dapper.Contrib.Extensions;
 
 namespace InsuranceBackend.Models
 {
@@ -59,17 +60,21 @@ namespace InsuranceBackend.Models
         public bool IsAttachedOrder { get; set; }
         public int? IdPolicyParent { get; set; }
         public int? IdPolicyAttachedLast { get; set; }
-        public double? PremiumValueCan {get;set;}
-        public double? IvaCan {get;set;}
-        public double? NetValueCan {get;set;}
-        public double? PremiumExtraCan {get;set;}
-        public double? RuntCan {get;set;}
-        public double? TotalValueCan {get;set;}
-        public double? PremiumValueFin {get;set;}
-        public double? IvaFin {get;set;}
-        public double? NetValueFin {get;set;}
-        public double? PremiumExtraFin {get;set;}
-        public double? RuntFin {get;set;}
-        public double? TotalValueFin {get;set;}
+        public double? PremiumValueCan { get; set; }
+        public double? IvaCan { get; set; }
+        public double? NetValueCan { get; set; }
+        public double? PremiumExtraCan { get; set; }
+        public double? RuntCan { get; set; }
+        public double? TotalValueCan { get; set; }
+        public double? PremiumValueFin { get; set; }
+        public double? IvaFin { get; set; }
+        public double? NetValueFin { get; set; }
+        public double? PremiumExtraFin { get; set; }
+        public double? RuntFin { get; set; }
+        public double? TotalValueFin { get; set; }
+        [Write(false)]
+        public int IdPolicyOrder { get; set; }
+        public int? IdCancellationReason { get; set; }
+        public int? LastCertificate { get; set; }
     }
 }

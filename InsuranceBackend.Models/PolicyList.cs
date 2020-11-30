@@ -21,7 +21,6 @@ namespace InsuranceBackend.Models
         public string FinancialDesc { get; set; }
         public string SalesmanName { get; set; }
         public string ExternalSalesmanName { get; set; }
-        public int IdPolicyOrder { get; set; }
         public int TotalRecords { get; set; }
         public string Phone { get; set; }
         public string Movil { get; set; }
@@ -52,5 +51,12 @@ namespace InsuranceBackend.Models
         public DateTime? OrderClosingDate { get; set; }
         public DateTime? DateCreatedPayment { get; set; }
         public int TotalCertificates { get; set; }
+        public string CancellationReasonDesc { get; set; }
+        public DateTime? DateInspected { get; set; }
+        public string ObservationInspected { get; set; }
+        public string UserInspected { get; set; }
+        public DateTime? DateRegistred { get; set; }
+        public string ObservationRegistred { get; set; }
+        public string UserRegistred { get; set; }
     }
 }
