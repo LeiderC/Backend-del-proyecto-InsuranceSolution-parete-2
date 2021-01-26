@@ -589,7 +589,7 @@ namespace InsuranceBackend.WebApi.Controllers
                         if (policy.Policy.IdInsuranceLine != null && !policy.Policy.IsHeader)
                         {
                             bool exist = _unitOfWork.Policy.PolicyDuplicate(0, policy.Policy.IdInsuranceLine.Value, policy.Policy.License, policy.Policy.IsOrder);
-                            if (exist)
+                            if(exist)
                             {
                                 transaction.Dispose();
                                 return StatusCode(400, "No se puede asegurar la misma placa más de una vez");

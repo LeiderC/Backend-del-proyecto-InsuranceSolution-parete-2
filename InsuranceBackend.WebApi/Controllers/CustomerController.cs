@@ -126,10 +126,11 @@ namespace InsuranceBackend.WebApi.Controllers
             {
                 try
                 {
+                    string idUser = User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value;
                     string fullName = customerSave.Customer.FirstName + (string.IsNullOrEmpty(customerSave.Customer.MiddleName) ? "" : " " + customerSave.Customer.MiddleName) + customerSave.Customer.LastName + (string.IsNullOrEmpty(customerSave.Customer.MiddleLastName) ? "" : " " + customerSave.Customer.MiddleLastName);
+                    customerSave.Customer.IdUser = int.Parse(idUser);
                     idCustomer = _unitOfWork.Customer.Insert(customerSave.Customer);
                     IdentificationType it = _unitOfWork.IdentificationType.GetById(customerSave.Customer.IdIdentificationType);
-                    string idUser = User.Claims.Where(c => c.Type.Equals(ClaimTypes.PrimarySid)).FirstOrDefault().Value;
                     //Insertamos en customerbusinessunit
                     if (customerSave.IdBusinessUnitDetail > 0)
                     {

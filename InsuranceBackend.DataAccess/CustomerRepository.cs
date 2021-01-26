@@ -85,6 +85,7 @@ namespace InsuranceBackend.DataAccess
             parameters.Add("@email", customer.Email);
             parameters.Add("@phone", customer.Phone);
             parameters.Add("@mobile", customer.Movil);
+            parameters.Add("@leaflet", customer.Leaflet);
 
             using (var connection = new SqlConnection(_connectionString))
             {

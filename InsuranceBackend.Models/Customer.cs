@@ -45,5 +45,7 @@ namespace InsuranceBackend.Models
         public bool Leaflet { get; set; }
         public DateTime? ExpeditionDate { get; set; }
         public bool ShowAll { get; set; }
+        public DateTime? CreateDate { get; set; }
+        public int? IdUser { get; set; }
     }
 }

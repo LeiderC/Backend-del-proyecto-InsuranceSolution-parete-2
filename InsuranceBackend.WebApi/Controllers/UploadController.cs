@@ -577,12 +577,9 @@ namespace InsuranceBackend.WebApi.Controllers
                                                         if (!certificado.Contains("-") && lastCert == 1)
                                                             certificado = certificado + "-" + 1;
                                                         string factura = "", observacion = "", movto = "";
-                                                        if (reader.FieldCount > 70)
-                                                        {
-                                                            factura = reader.GetValue(70) != null ? reader.GetValue(70).ToString() : "";
-                                                            observacion = reader.GetValue(71) != null ? reader.GetValue(71).ToString() : "";
-                                                            movto = reader.GetValue(72) != null ? reader.GetValue(72).ToString() : "";
-                                                        }
+                                                        factura = reader.FieldCount > 70 ? reader.GetValue(70) != null ? reader.GetValue(70).ToString() : "" : "";
+                                                        observacion = reader.FieldCount > 71 ? reader.GetValue(71) != null ? reader.GetValue(71).ToString() : "" : "";
+                                                        movto = reader.FieldCount > 72 ? reader.GetValue(72) != null ? reader.GetValue(72).ToString() : "" : "";
                                                         PolicyList policyExist = null;
                                                         if (isIndividual)
                                                         {
@@ -1005,77 +1002,80 @@ namespace InsuranceBackend.WebApi.Controllers
                                                 if (row > 0)
                                                 {
                                                     cedula = reader.GetValue(0) != null ? reader.GetValue(0).ToString() : "";
-                                                    string tipoCliente = reader.GetValue(1) != null ? reader.GetValue(1).ToString() : "";
-                                                    if (tipoCliente == "2")
+                                                    if (String.IsNullOrEmpty(cedula))
                                                     {
-                                                        if (cedula.Length > 9)
-                                                            cedula = cedula.Substring(0, 9);
-                                                    }
-                                                    string tipoDoc = reader.GetValue(2) != null ? reader.GetValue(2).ToString() : "";
-                                                    string nombres = reader.GetValue(3) != null ? reader.GetValue(3).ToString() : "";
-                                                    string apellidos = reader.GetValue(4) != null ? reader.GetValue(4).ToString() : "";
-                                                    string email = reader.GetValue(5) != null ? reader.GetValue(5).ToString() : "";
-                                                    string telefono = reader.GetValue(6) != null ? reader.GetValue(6).ToString() : "";
-                                                    string celular = reader.GetValue(7) != null ? reader.GetValue(7).ToString() : "";
-                                                    string direc = reader.GetValue(8) != null ? reader.GetValue(8).ToString() : "";
-                                                    string fecNacimiento = reader.GetValue(9) != null ? reader.GetValue(9).ToString() : "";
-                                                    bool fecNac = DateTime.TryParse(fecNacimiento, out DateTime dFecNacimiento);
-                                                    string comercial = reader.GetValue(10) != null ? reader.GetValue(10).ToString() : "";
-                                                    Salesman salesman = salesmanList.Where(s => s.Short.Equals(comercial)).FirstOrDefault();
-                                                    if (salesman == null)
-                                                    {
-                                                        return BadRequest("No existe comercial " + comercial);
-                                                    }
-                                                    List<BusinessUnitDetailList> bud = _unitOfWork.BusinessUnitDetail.BusinessUnitDetailListsBySalesman(salesman.Id).ToList();
-                                                    // Validamos si el cliente existe
-                                                    Customer customer = _unitOfWork.Customer.CustomerByIdentificationNumber(cedula);
-                                                    // Si el cliente existe validamos si el comercial ya esta asignado sino lo esta se debe asignar
-                                                    if (customer != null)
-                                                    {
-                                                        List<CustomerBusinessUnitList> lstcbus = _unitOfWork.CustomerBusinessUnit.CustomerBusinessUnitListByCustomer(customer.Id).ToList();
-                                                        CustomerBusinessUnitList customerBusinessUnit = lstcbus.Where(c => c.IdSalesman == salesman.Id).FirstOrDefault();
-                                                        if (customerBusinessUnit == null) // Si no esta asignado el comercial se debe asignar
+                                                        string tipoCliente = reader.GetValue(1) != null ? reader.GetValue(1).ToString() : "";
+                                                        if (tipoCliente == "2")
                                                         {
+                                                            if (cedula.Length > 9)
+                                                                cedula = cedula.Substring(0, 9);
+                                                        }
+                                                        string tipoDoc = reader.GetValue(2) != null ? reader.GetValue(2).ToString() : "";
+                                                        string nombres = reader.GetValue(3) != null ? reader.GetValue(3).ToString() : "";
+                                                        string apellidos = reader.GetValue(4) != null ? reader.GetValue(4).ToString() : "";
+                                                        string email = reader.GetValue(5) != null ? reader.GetValue(5).ToString() : "";
+                                                        string telefono = reader.GetValue(6) != null ? reader.GetValue(6).ToString() : "";
+                                                        string celular = reader.GetValue(7) != null ? reader.GetValue(7).ToString() : "";
+                                                        string direc = reader.GetValue(8) != null ? reader.GetValue(8).ToString() : "";
+                                                        string fecNacimiento = reader.GetValue(9) != null ? reader.GetValue(9).ToString() : "";
+                                                        bool fecNac = DateTime.TryParse(fecNacimiento, out DateTime dFecNacimiento);
+                                                        string comercial = reader.GetValue(10) != null ? reader.GetValue(10).ToString() : "";
+                                                        Salesman salesman = salesmanList.Where(s => s.Short.Equals(comercial)).FirstOrDefault();
+                                                        if (salesman == null)
+                                                        {
+                                                            return BadRequest("No existe comercial " + comercial);
+                                                        }
+                                                        List<BusinessUnitDetailList> bud = _unitOfWork.BusinessUnitDetail.BusinessUnitDetailListsBySalesman(salesman.Id).ToList();
+                                                        // Validamos si el cliente existe
+                                                        Customer customer = _unitOfWork.Customer.CustomerByIdentificationNumber(cedula);
+                                                        // Si el cliente existe validamos si el comercial ya esta asignado sino lo esta se debe asignar
+                                                        if (customer != null)
+                                                        {
+                                                            List<CustomerBusinessUnitList> lstcbus = _unitOfWork.CustomerBusinessUnit.CustomerBusinessUnitListByCustomer(customer.Id).ToList();
+                                                            CustomerBusinessUnitList customerBusinessUnit = lstcbus.Where(c => c.IdSalesman == salesman.Id).FirstOrDefault();
+                                                            if (customerBusinessUnit == null) // Si no esta asignado el comercial se debe asignar
+                                                            {
+                                                                CustomerBusinessUnit customerBusinessUnitNew = new CustomerBusinessUnit
+                                                                {
+                                                                    IdBusinessUnitDetail = bud[0].Id,
+                                                                    IdCustomer = customer.Id,
+                                                                    State = "A",
+                                                                    Year = "2020"
+                                                                };
+                                                                _unitOfWork.CustomerBusinessUnit.Insert(customerBusinessUnitNew);
+                                                            }
+                                                        }
+                                                        else // Debemos crear el cliente
+                                                        {
+                                                            IdentificationType it = identificationTypes.Where(i => i.Alias.Equals(tipoDoc)).FirstOrDefault();
+                                                            customer = new Customer
+                                                            {
+                                                                Email = email,
+                                                                FirstName = nombres,
+                                                                IdCustomerType = int.Parse(tipoCliente),
+                                                                IdentificationNumber = cedula,
+                                                                IdIdentificationType = it.Id,
+                                                                IdSalesman = salesman.Id,
+                                                                LastName = apellidos,
+                                                                Leaflet = true,
+                                                                Movil = celular,
+                                                                Phone = telefono,
+                                                                ResidenceAddress = direc,
+                                                                ShowAll = false
+                                                            };
+                                                            if (fecNac)
+                                                                customer.BirthDate = dFecNacimiento;
+                                                            int idCustomer = _unitOfWork.Customer.Insert(customer);
+                                                            // Debemos agregar la linea de negocio
                                                             CustomerBusinessUnit customerBusinessUnitNew = new CustomerBusinessUnit
                                                             {
                                                                 IdBusinessUnitDetail = bud[0].Id,
-                                                                IdCustomer = customer.Id,
+                                                                IdCustomer = idCustomer,
                                                                 State = "A",
-                                                                Year = "2020"
+                                                                Year = DateTime.Now.Year.ToString()
                                                             };
                                                             _unitOfWork.CustomerBusinessUnit.Insert(customerBusinessUnitNew);
                                                         }
-                                                    }
-                                                    else // Debemos crear el cliente
-                                                    {
-                                                        IdentificationType it = identificationTypes.Where(i => i.Alias.Equals(tipoDoc)).FirstOrDefault();
-                                                        customer = new Customer
-                                                        {
-                                                            Email = email,
-                                                            FirstName = nombres,
-                                                            IdCustomerType = int.Parse(tipoCliente),
-                                                            IdentificationNumber = cedula,
-                                                            IdIdentificationType = it.Id,
-                                                            IdSalesman = salesman.Id,
-                                                            LastName = apellidos,
-                                                            Leaflet = true,
-                                                            Movil = celular,
-                                                            Phone = telefono,
-                                                            ResidenceAddress = direc,
-                                                            ShowAll = false
-                                                        };
-                                                        if (fecNac)
-                                                            customer.BirthDate = dFecNacimiento;
-                                                        int idCustomer = _unitOfWork.Customer.Insert(customer);
-                                                        // Debemos agregar la linea de negocio
-                                                        CustomerBusinessUnit customerBusinessUnitNew = new CustomerBusinessUnit
-                                                        {
-                                                            IdBusinessUnitDetail = bud[0].Id,
-                                                            IdCustomer = idCustomer,
-                                                            State = "A",
-                                                            Year = "2020"
-                                                        };
-                                                        _unitOfWork.CustomerBusinessUnit.Insert(customerBusinessUnitNew);
                                                     }
                                                 }
                                                 row += 1;
@@ -1084,7 +1084,7 @@ namespace InsuranceBackend.WebApi.Controllers
                                     } while (reader.NextResult());
                                 }
                             }
-                            transaction.Complete();
+                            //transaction.Complete();
                         }
                         else
                             return BadRequest();
@@ -1143,6 +1143,7 @@ namespace InsuranceBackend.WebApi.Controllers
                                     {
                                         StringBuilder description = new StringBuilder("RENOVACIÓN ");
                                         description.Append(dateRenewal.ToString("MMMM", CultureInfo.CreateSpecificCulture("es")).ToUpper());
+                                        description.Append(dateRenewal.ToString("YYYY", CultureInfo.CreateSpecificCulture("es")).ToUpper());
                                         description.Append(" " + user.FirstName + " " + user.LastName);
                                         renewal = new Renewal
                                         {

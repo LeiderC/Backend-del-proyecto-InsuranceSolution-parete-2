@@ -17,5 +17,6 @@ namespace InsuranceBackend.Models
         public string State { get; set; }
         public string Email { get; set; }
         public int? IdCustomer { get; set; }
+        public bool CDA { get; set; }
     }
 }
