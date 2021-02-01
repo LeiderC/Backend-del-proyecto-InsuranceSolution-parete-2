@@ -1002,7 +1002,7 @@ namespace InsuranceBackend.WebApi.Controllers
                                                 if (row > 0)
                                                 {
                                                     cedula = reader.GetValue(0) != null ? reader.GetValue(0).ToString() : "";
-                                                    if (String.IsNullOrEmpty(cedula))
+                                                    if (!String.IsNullOrEmpty(cedula))
                                                     {
                                                         string tipoCliente = reader.GetValue(1) != null ? reader.GetValue(1).ToString() : "";
                                                         if (tipoCliente == "2")
@@ -1084,7 +1084,7 @@ namespace InsuranceBackend.WebApi.Controllers
                                     } while (reader.NextResult());
                                 }
                             }
-                            //transaction.Complete();
+                            transaction.Complete();
                         }
                         else
                             return BadRequest();
@@ -1143,7 +1143,7 @@ namespace InsuranceBackend.WebApi.Controllers
                                     {
                                         StringBuilder description = new StringBuilder("RENOVACIÓN ");
                                         description.Append(dateRenewal.ToString("MMMM", CultureInfo.CreateSpecificCulture("es")).ToUpper());
-                                        description.Append(dateRenewal.ToString("YYYY", CultureInfo.CreateSpecificCulture("es")).ToUpper());
+                                        description.Append(" " + dateRenewal.ToString("yyyy", CultureInfo.CreateSpecificCulture("es")).ToUpper());
                                         description.Append(" " + user.FirstName + " " + user.LastName);
                                         renewal = new Renewal
                                         {
