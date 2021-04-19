@@ -25,7 +25,7 @@ namespace InsuranceBackend.WebApi.Controllers
         {
             try
             {
-                return Ok(_unitOfWork.ProductCompany.GetList());
+                return Ok( _unitOfWork.ProductCompany.GetList());
             }
             catch (Exception ex)
             {

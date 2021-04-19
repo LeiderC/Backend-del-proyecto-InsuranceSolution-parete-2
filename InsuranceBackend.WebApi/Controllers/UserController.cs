@@ -149,6 +149,7 @@ namespace InsuranceBackend.WebApi.Controllers
                     //Salt = help
                     user.Password = salt.Hash;
                     user.Help = salt.Salt;
+                    user.Roles = "user";
                     idUser = _unitOfWork.User.Insert(user);
                     //UserProfile
                     UserProfile userProfile = new UserProfile
@@ -183,6 +184,12 @@ namespace InsuranceBackend.WebApi.Controllers
                     //Salt = help
                     user.Password = salt.Hash;
                     user.Help = salt.Salt;
+                    //Debemos traer campos no visibles para que se conserven
+                    SystemUser _user = _unitOfWork.User.GetById(user.Id);
+                    user.IdSalesman = _user.IdSalesman;
+                    user.Authorizing = _user.Authorizing;
+                    user.CancelOrders = _user.CancelOrders;
+                    user.Roles = _user.Roles;
                     _unitOfWork.User.Update(user);
                     //UserProfile
                     UserProfile userProfile = _unitOfWork.UserProfile.UserProfileByUser(user.Id);

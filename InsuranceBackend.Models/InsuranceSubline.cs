@@ -16,5 +16,6 @@ namespace InsuranceBackend.Models
         public int? IdInsuranceLineGroup { get; set; }
         public bool ReqBeneficiary { get; set; }
         public bool Runt { get; set; }
+        public bool? AllowsDuplicate {get;set;}
     }
 }

@@ -1029,10 +1029,27 @@ namespace InsuranceBackend.WebApi.Controllers
                                                         // Validamos si el cliente existe
                                                         Customer customer = _unitOfWork.Customer.CustomerByIdentificationNumber(cedula);
                                                         // Si el cliente existe validamos si el comercial ya esta asignado sino lo esta se debe asignar
+                                                        string primerNombre = "", segundoNombre = "";
+                                                        string primerApellido = "", segundoApellido = "";
+                                                        string[] nombreArr = nombres.Split(' ');
+                                                        if(nombreArr.Length==2) {
+                                                            primerNombre = nombreArr[0];
+                                                            segundoNombre = nombreArr[1];
+                                                        } else {
+                                                            primerNombre = nombres;
+                                                        }
+                                                        string[] apellidoArr = apellidos.Split(' ');
+                                                        if(apellidoArr.Length==2) {
+                                                            primerApellido = apellidoArr[0];
+                                                            segundoApellido = apellidoArr[1];
+                                                        } else {
+                                                            primerApellido = apellidos;
+                                                        }
                                                         if (customer != null)
                                                         {
+                                                            int year = DateTime.Now.Year;
                                                             List<CustomerBusinessUnitList> lstcbus = _unitOfWork.CustomerBusinessUnit.CustomerBusinessUnitListByCustomer(customer.Id).ToList();
-                                                            CustomerBusinessUnitList customerBusinessUnit = lstcbus.Where(c => c.IdSalesman == salesman.Id).FirstOrDefault();
+                                                            CustomerBusinessUnitList customerBusinessUnit = lstcbus.Where(c => c.IdSalesman == salesman.Id && c.Year == year.ToString()).FirstOrDefault();
                                                             if (customerBusinessUnit == null) // Si no esta asignado el comercial se debe asignar
                                                             {
                                                                 CustomerBusinessUnit customerBusinessUnitNew = new CustomerBusinessUnit
@@ -1040,10 +1057,21 @@ namespace InsuranceBackend.WebApi.Controllers
                                                                     IdBusinessUnitDetail = bud[0].Id,
                                                                     IdCustomer = customer.Id,
                                                                     State = "A",
-                                                                    Year = "2020"
+                                                                    Year = year.ToString()
                                                                 };
                                                                 _unitOfWork.CustomerBusinessUnit.Insert(customerBusinessUnitNew);
                                                             }
+                                                            //Actualizamos los datos del cliente
+                                                            customer.Email = email;
+                                                            customer.FirstName = primerNombre;
+                                                            customer.MiddleName = segundoNombre;
+                                                            customer.IdSalesman = salesman.Id;
+                                                            customer.LastName = primerApellido;
+                                                            customer.MiddleLastName= segundoApellido;
+                                                            customer.Movil = celular;
+                                                            customer.Phone = telefono;
+                                                            customer.ResidenceAddress = direc;
+                                                            _unitOfWork.Customer.Update(customer);
                                                         }
                                                         else // Debemos crear el cliente
                                                         {
@@ -1051,12 +1079,14 @@ namespace InsuranceBackend.WebApi.Controllers
                                                             customer = new Customer
                                                             {
                                                                 Email = email,
-                                                                FirstName = nombres,
+                                                                FirstName = primerNombre,
+                                                                MiddleName = segundoNombre,
                                                                 IdCustomerType = int.Parse(tipoCliente),
                                                                 IdentificationNumber = cedula,
                                                                 IdIdentificationType = it.Id,
                                                                 IdSalesman = salesman.Id,
-                                                                LastName = apellidos,
+                                                                LastName = primerApellido,
+                                                                MiddleLastName= segundoApellido,
                                                                 Leaflet = true,
                                                                 Movil = celular,
                                                                 Phone = telefono,
@@ -1208,6 +1238,10 @@ namespace InsuranceBackend.WebApi.Controllers
                                                         {
                                                             cedula = cedula.Substring(0, 9);
                                                             customer = _unitOfWork.Customer.CustomerByIdentificationNumber(cedula);
+                                                        }
+                                                        if (customer == null)
+                                                        {
+                                                            return BadRequest("El prospecto/cliente con cédula :" + cedula + ", no existe en la base de datos");
                                                         }
                                                         Management management = new Management
                                                         {

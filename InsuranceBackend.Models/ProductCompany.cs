@@ -22,5 +22,6 @@ namespace InsuranceBackend.Models
         public int IdInsuranceSubline { get; set; }
         public bool Editable { get; set; }
         public bool InfoFees { get; set; }
+        public string State {get;set;}
     }
 }

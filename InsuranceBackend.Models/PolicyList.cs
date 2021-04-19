@@ -58,5 +58,6 @@ namespace InsuranceBackend.Models
         public DateTime? DateRegistred { get; set; }
         public string ObservationRegistred { get; set; }
         public string UserRegistred { get; set; }
+        public string OrderClosingUser { get; set; }
     }
 }

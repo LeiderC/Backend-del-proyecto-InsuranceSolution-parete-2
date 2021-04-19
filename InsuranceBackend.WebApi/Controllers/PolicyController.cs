@@ -588,11 +588,28 @@ namespace InsuranceBackend.WebApi.Controllers
                     {
                         if (policy.Policy.IdInsuranceLine != null && !policy.Policy.IsHeader)
                         {
-                            bool exist = _unitOfWork.Policy.PolicyDuplicate(0, policy.Policy.IdInsuranceLine.Value, policy.Policy.License, policy.Policy.IsOrder);
-                            if(exist)
+                            if (policy.Policy.IdInsuranceSubline != null)
                             {
-                                transaction.Dispose();
-                                return StatusCode(400, "No se puede asegurar la misma placa más de una vez");
+                                InsuranceSubline isl = _unitOfWork.InsuranceSubline.GetById(policy.Policy.IdInsuranceSubline.Value);
+                                bool allowsDuplicate = isl.AllowsDuplicate != null ? isl.AllowsDuplicate.Value : false;
+                                if (!allowsDuplicate)
+                                {
+                                    bool exist = _unitOfWork.Policy.PolicyDuplicate(0, policy.Policy.IdInsuranceLine.Value, policy.Policy.License, policy.Policy.IsOrder);
+                                    if (exist)
+                                    {
+                                        transaction.Dispose();
+                                        return StatusCode(400, "No se puede asegurar la misma placa más de una vez");
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                bool exist = _unitOfWork.Policy.PolicyDuplicate(0, policy.Policy.IdInsuranceLine.Value, policy.Policy.License, policy.Policy.IsOrder);
+                                if (exist)
+                                {
+                                    transaction.Dispose();
+                                    return StatusCode(400, "No se puede asegurar la misma placa más de una vez");
+                                }
                             }
                         }
                     }
@@ -603,6 +620,10 @@ namespace InsuranceBackend.WebApi.Controllers
                         policy.Policy.IdInsuranceSubline = null;
                         policy.Policy.Number = null;
                     }
+                    //DEbemos setear la hora actual para que no quede con una hora indebida
+                    DateTime currentDate = DateTime.Now;
+                    DateTime fecExpe = new DateTime(policy.Policy.ExpiditionDate.Year, policy.Policy.ExpiditionDate.Month, policy.Policy.ExpiditionDate.Day, currentDate.Hour, currentDate.Minute, currentDate.Second);
+                    policy.Policy.ExpiditionDate = fecExpe;
                     idPolicy = _unitOfWork.Policy.Insert(policy.Policy);
                     //Productos propios
                     if (policy.Policy.IdMovementType != "4" && policy.Policy.IdMovementType != "5")
@@ -823,6 +844,7 @@ namespace InsuranceBackend.WebApi.Controllers
                     _vehicle.Model = vehicle.Model;
                     _vehicle.PassengersNumber = vehicle.PassengersNumber;
                     _vehicle.Weight = vehicle.Weight;
+                    _vehicle.Engine = vehicle.Engine;
                     _unitOfWork.Vehicle.Update(_vehicle);
                 }
                 else
@@ -1670,11 +1692,28 @@ namespace InsuranceBackend.WebApi.Controllers
                     //Debemos bloquear si la placa ya existe en el mismo ramo
                     if (policy.Policy.IdInsuranceLine != null)
                     {
-                        bool exist = _unitOfWork.Policy.PolicyDuplicate(idPolicy, policy.Policy.IdInsuranceLine.Value, policy.Policy.License, policy.Policy.IsOrder);
-                        if (exist)
+                        if (policy.Policy.IdInsuranceSubline != null)
                         {
-                            transaction.Dispose();
-                            return StatusCode(400, "No se puede asegurar la misma placa más de una vez");
+                            InsuranceSubline isl = _unitOfWork.InsuranceSubline.GetById(policy.Policy.IdInsuranceSubline.Value);
+                            bool allowsDuplicate = isl.AllowsDuplicate != null ? isl.AllowsDuplicate.Value : false;
+                            if (!allowsDuplicate)
+                            {
+                                bool exist = _unitOfWork.Policy.PolicyDuplicate(idPolicy, policy.Policy.IdInsuranceLine.Value, policy.Policy.License, policy.Policy.IsOrder);
+                                if (exist)
+                                {
+                                    transaction.Dispose();
+                                    return StatusCode(400, "No se puede asegurar la misma placa más de una vez");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            bool exist = _unitOfWork.Policy.PolicyDuplicate(idPolicy, policy.Policy.IdInsuranceLine.Value, policy.Policy.License, policy.Policy.IsOrder);
+                            if (exist)
+                            {
+                                transaction.Dispose();
+                                return StatusCode(400, "No se puede asegurar la misma placa más de una vez");
+                            }
                         }
                     }
                     if (policy.Policy.IsAttached)
@@ -1687,6 +1726,10 @@ namespace InsuranceBackend.WebApi.Controllers
                             policy.Policy.Number = null;
                         }
                     }
+                    //Debemos dejar la hora como era la hora original
+                    DateTime fecExp = policy.Policy.ExpiditionDate;
+                    DateTime fecExpLocal = fecExp.ToLocalTime();
+                    policy.Policy.ExpiditionDate = fecExpLocal;
                     if (_unitOfWork.Policy.Update(policy.Policy))
                     {
                         //Productos propios

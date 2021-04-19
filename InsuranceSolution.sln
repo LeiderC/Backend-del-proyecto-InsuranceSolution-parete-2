@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InsuranceBackend.Repositori
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InsuranceBackend.UnitOfWork", "InsuranceBackend.UnitOfWork\InsuranceBackend.UnitOfWork.csproj", "{7596D71B-1726-4CBC-92C2-35ACAFEE84D0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InsuranceBackend.WebApi", "InsuranceBackend.WebApi\InsuranceBackend.WebApi.csproj", "{A17124E3-7E5E-4762-A20D-82CE4B18E206}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InsuranceBackend.WebApi", "InsuranceBackend.WebApi\InsuranceBackend.WebApi.csproj", "{A17124E3-7E5E-4762-A20D-82CE4B18E206}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
